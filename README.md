@@ -84,6 +84,17 @@ python tools/redblade.py verify
 
 Cette vérification est en lecture seule et contrôle la signature RGB, la version, les 109 LED et leurs positions uniques. Vérifier ensuite dans OpenRGB les couleurs rouge/vert/bleu, le pavé numérique, les touches ISO, puis le mode Direct avec Aurora, la saisie NKRO, la sortie de veille et le rebranchement USB.
 
+Après apparition du clavier dans OpenRGB, établir le mappage physique explicite dans Aurora :
+
+```powershell
+pwsh -File tools/configure-aurora-mapping.ps1        # vérifie les 109 indices réels
+pwsh -File tools/configure-aurora-mapping.ps1 -Apply # sauvegarde et écrit le mappage
+```
+
+Relancer ensuite Aurora. Le script utilise le fournisseur RGB.NET livré avec Aurora, donc le mappage ne dépend pas de la reconnaissance des noms de touches QMK dans OpenRGB. Le pavé numérique, les touches ISO et les quatre touches supplémentaires sont inclus.
+
+Si OpenRGB est installé comme service Windows, `configure-windows.ps1` réutilise ce service et sa configuration dans `service_config`. L'application de ces réglages demande alors une console élevée ; aucun deuxième serveur n'est ajouté.
+
 Les tests C compilent le véritable gestionnaire du firmware contre une petite simulation de QMK : passage des commandes VIA, découverte, limites des buffers, toutes les positions de LED, couleurs et modes. Le workflow GitHub les exécute avec AddressSanitizer et UndefinedBehaviorSanitizer. Il ne remplace pas un test sur clavier réel.
 
 ## Références

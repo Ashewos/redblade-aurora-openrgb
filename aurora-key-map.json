@@ -1,0 +1,547 @@
+[
+  {
+    "led_index": 0,
+    "aurora_key": "ESC",
+    "device_key": 1
+  },
+  {
+    "led_index": 1,
+    "aurora_key": "F1",
+    "device_key": 2
+  },
+  {
+    "led_index": 2,
+    "aurora_key": "F2",
+    "device_key": 3
+  },
+  {
+    "led_index": 3,
+    "aurora_key": "F3",
+    "device_key": 4
+  },
+  {
+    "led_index": 4,
+    "aurora_key": "F4",
+    "device_key": 5
+  },
+  {
+    "led_index": 5,
+    "aurora_key": "F5",
+    "device_key": 6
+  },
+  {
+    "led_index": 6,
+    "aurora_key": "F6",
+    "device_key": 7
+  },
+  {
+    "led_index": 7,
+    "aurora_key": "F7",
+    "device_key": 8
+  },
+  {
+    "led_index": 8,
+    "aurora_key": "F8",
+    "device_key": 9
+  },
+  {
+    "led_index": 9,
+    "aurora_key": "F9",
+    "device_key": 10
+  },
+  {
+    "led_index": 10,
+    "aurora_key": "F10",
+    "device_key": 11
+  },
+  {
+    "led_index": 11,
+    "aurora_key": "F11",
+    "device_key": 12
+  },
+  {
+    "led_index": 12,
+    "aurora_key": "F12",
+    "device_key": 13
+  },
+  {
+    "led_index": 13,
+    "aurora_key": "PRINT_SCREEN",
+    "device_key": 14
+  },
+  {
+    "led_index": 14,
+    "aurora_key": "SCROLL_LOCK",
+    "device_key": 15
+  },
+  {
+    "led_index": 15,
+    "aurora_key": "PAUSE_BREAK",
+    "device_key": 16
+  },
+  {
+    "led_index": 16,
+    "aurora_key": "CALC",
+    "device_key": 216
+  },
+  {
+    "led_index": 17,
+    "aurora_key": "VOLUME_MUTE",
+    "device_key": 139
+  },
+  {
+    "led_index": 18,
+    "aurora_key": "VOLUME_DOWN",
+    "device_key": 140
+  },
+  {
+    "led_index": 19,
+    "aurora_key": "VOLUME_UP",
+    "device_key": 141
+  },
+  {
+    "led_index": 20,
+    "aurora_key": "TILDE",
+    "device_key": 17
+  },
+  {
+    "led_index": 21,
+    "aurora_key": "ONE",
+    "device_key": 18
+  },
+  {
+    "led_index": 22,
+    "aurora_key": "TWO",
+    "device_key": 19
+  },
+  {
+    "led_index": 23,
+    "aurora_key": "THREE",
+    "device_key": 20
+  },
+  {
+    "led_index": 24,
+    "aurora_key": "FOUR",
+    "device_key": 21
+  },
+  {
+    "led_index": 25,
+    "aurora_key": "FIVE",
+    "device_key": 22
+  },
+  {
+    "led_index": 26,
+    "aurora_key": "SIX",
+    "device_key": 23
+  },
+  {
+    "led_index": 27,
+    "aurora_key": "SEVEN",
+    "device_key": 24
+  },
+  {
+    "led_index": 28,
+    "aurora_key": "EIGHT",
+    "device_key": 25
+  },
+  {
+    "led_index": 29,
+    "aurora_key": "NINE",
+    "device_key": 26
+  },
+  {
+    "led_index": 30,
+    "aurora_key": "ZERO",
+    "device_key": 27
+  },
+  {
+    "led_index": 31,
+    "aurora_key": "MINUS",
+    "device_key": 28
+  },
+  {
+    "led_index": 32,
+    "aurora_key": "EQUALS",
+    "device_key": 29
+  },
+  {
+    "led_index": 33,
+    "aurora_key": "BACKSPACE",
+    "device_key": 30
+  },
+  {
+    "led_index": 34,
+    "aurora_key": "INSERT",
+    "device_key": 31
+  },
+  {
+    "led_index": 35,
+    "aurora_key": "HOME",
+    "device_key": 32
+  },
+  {
+    "led_index": 36,
+    "aurora_key": "PAGE_UP",
+    "device_key": 33
+  },
+  {
+    "led_index": 37,
+    "aurora_key": "NUM_LOCK",
+    "device_key": 34
+  },
+  {
+    "led_index": 38,
+    "aurora_key": "NUM_SLASH",
+    "device_key": 35
+  },
+  {
+    "led_index": 39,
+    "aurora_key": "NUM_ASTERISK",
+    "device_key": 36
+  },
+  {
+    "led_index": 40,
+    "aurora_key": "NUM_MINUS",
+    "device_key": 37
+  },
+  {
+    "led_index": 41,
+    "aurora_key": "TAB",
+    "device_key": 38
+  },
+  {
+    "led_index": 42,
+    "aurora_key": "Q",
+    "device_key": 39
+  },
+  {
+    "led_index": 43,
+    "aurora_key": "W",
+    "device_key": 40
+  },
+  {
+    "led_index": 44,
+    "aurora_key": "E",
+    "device_key": 41
+  },
+  {
+    "led_index": 45,
+    "aurora_key": "R",
+    "device_key": 42
+  },
+  {
+    "led_index": 46,
+    "aurora_key": "T",
+    "device_key": 43
+  },
+  {
+    "led_index": 47,
+    "aurora_key": "Y",
+    "device_key": 44
+  },
+  {
+    "led_index": 48,
+    "aurora_key": "U",
+    "device_key": 45
+  },
+  {
+    "led_index": 49,
+    "aurora_key": "I",
+    "device_key": 46
+  },
+  {
+    "led_index": 50,
+    "aurora_key": "O",
+    "device_key": 47
+  },
+  {
+    "led_index": 51,
+    "aurora_key": "P",
+    "device_key": 48
+  },
+  {
+    "led_index": 52,
+    "aurora_key": "OPEN_BRACKET",
+    "device_key": 49
+  },
+  {
+    "led_index": 53,
+    "aurora_key": "CLOSE_BRACKET",
+    "device_key": 50
+  },
+  {
+    "led_index": 54,
+    "aurora_key": "DELETE",
+    "device_key": 52
+  },
+  {
+    "led_index": 55,
+    "aurora_key": "END",
+    "device_key": 53
+  },
+  {
+    "led_index": 56,
+    "aurora_key": "PAGE_DOWN",
+    "device_key": 54
+  },
+  {
+    "led_index": 57,
+    "aurora_key": "NUM_SEVEN",
+    "device_key": 55
+  },
+  {
+    "led_index": 58,
+    "aurora_key": "NUM_EIGHT",
+    "device_key": 56
+  },
+  {
+    "led_index": 59,
+    "aurora_key": "NUM_NINE",
+    "device_key": 57
+  },
+  {
+    "led_index": 60,
+    "aurora_key": "NUM_PLUS",
+    "device_key": 58
+  },
+  {
+    "led_index": 61,
+    "aurora_key": "CAPS_LOCK",
+    "device_key": 59
+  },
+  {
+    "led_index": 62,
+    "aurora_key": "A",
+    "device_key": 60
+  },
+  {
+    "led_index": 63,
+    "aurora_key": "S",
+    "device_key": 61
+  },
+  {
+    "led_index": 64,
+    "aurora_key": "D",
+    "device_key": 62
+  },
+  {
+    "led_index": 65,
+    "aurora_key": "F",
+    "device_key": 63
+  },
+  {
+    "led_index": 66,
+    "aurora_key": "G",
+    "device_key": 64
+  },
+  {
+    "led_index": 67,
+    "aurora_key": "H",
+    "device_key": 65
+  },
+  {
+    "led_index": 68,
+    "aurora_key": "J",
+    "device_key": 66
+  },
+  {
+    "led_index": 69,
+    "aurora_key": "K",
+    "device_key": 67
+  },
+  {
+    "led_index": 70,
+    "aurora_key": "L",
+    "device_key": 68
+  },
+  {
+    "led_index": 71,
+    "aurora_key": "SEMICOLON",
+    "device_key": 69
+  },
+  {
+    "led_index": 72,
+    "aurora_key": "APOSTROPHE",
+    "device_key": 70
+  },
+  {
+    "led_index": 73,
+    "aurora_key": "HASHTAG",
+    "device_key": 71
+  },
+  {
+    "led_index": 74,
+    "aurora_key": "ENTER",
+    "device_key": 72
+  },
+  {
+    "led_index": 75,
+    "aurora_key": "NUM_FOUR",
+    "device_key": 73
+  },
+  {
+    "led_index": 76,
+    "aurora_key": "NUM_FIVE",
+    "device_key": 74
+  },
+  {
+    "led_index": 77,
+    "aurora_key": "NUM_SIX",
+    "device_key": 75
+  },
+  {
+    "led_index": 78,
+    "aurora_key": "LEFT_SHIFT",
+    "device_key": 76
+  },
+  {
+    "led_index": 79,
+    "aurora_key": "BACKSLASH_UK",
+    "device_key": 77
+  },
+  {
+    "led_index": 80,
+    "aurora_key": "Z",
+    "device_key": 78
+  },
+  {
+    "led_index": 81,
+    "aurora_key": "X",
+    "device_key": 79
+  },
+  {
+    "led_index": 82,
+    "aurora_key": "C",
+    "device_key": 80
+  },
+  {
+    "led_index": 83,
+    "aurora_key": "V",
+    "device_key": 81
+  },
+  {
+    "led_index": 84,
+    "aurora_key": "B",
+    "device_key": 82
+  },
+  {
+    "led_index": 85,
+    "aurora_key": "N",
+    "device_key": 83
+  },
+  {
+    "led_index": 86,
+    "aurora_key": "M",
+    "device_key": 84
+  },
+  {
+    "led_index": 87,
+    "aurora_key": "COMMA",
+    "device_key": 85
+  },
+  {
+    "led_index": 88,
+    "aurora_key": "PERIOD",
+    "device_key": 86
+  },
+  {
+    "led_index": 89,
+    "aurora_key": "FORWARD_SLASH",
+    "device_key": 87
+  },
+  {
+    "led_index": 90,
+    "aurora_key": "RIGHT_SHIFT",
+    "device_key": 88
+  },
+  {
+    "led_index": 91,
+    "aurora_key": "ARROW_UP",
+    "device_key": 89
+  },
+  {
+    "led_index": 92,
+    "aurora_key": "NUM_ONE",
+    "device_key": 90
+  },
+  {
+    "led_index": 93,
+    "aurora_key": "NUM_TWO",
+    "device_key": 91
+  },
+  {
+    "led_index": 94,
+    "aurora_key": "NUM_THREE",
+    "device_key": 92
+  },
+  {
+    "led_index": 95,
+    "aurora_key": "NUM_ENTER",
+    "device_key": 93
+  },
+  {
+    "led_index": 96,
+    "aurora_key": "LEFT_CONTROL",
+    "device_key": 94
+  },
+  {
+    "led_index": 97,
+    "aurora_key": "LEFT_WINDOWS",
+    "device_key": 95
+  },
+  {
+    "led_index": 98,
+    "aurora_key": "LEFT_ALT",
+    "device_key": 96
+  },
+  {
+    "led_index": 99,
+    "aurora_key": "SPACE",
+    "device_key": 97
+  },
+  {
+    "led_index": 100,
+    "aurora_key": "RIGHT_ALT",
+    "device_key": 98
+  },
+  {
+    "led_index": 101,
+    "aurora_key": "RIGHT_WINDOWS",
+    "device_key": 99
+  },
+  {
+    "led_index": 102,
+    "aurora_key": "FN_Key",
+    "device_key": 107
+  },
+  {
+    "led_index": 103,
+    "aurora_key": "RIGHT_CONTROL",
+    "device_key": 101
+  },
+  {
+    "led_index": 104,
+    "aurora_key": "ARROW_LEFT",
+    "device_key": 102
+  },
+  {
+    "led_index": 105,
+    "aurora_key": "ARROW_DOWN",
+    "device_key": 103
+  },
+  {
+    "led_index": 106,
+    "aurora_key": "ARROW_RIGHT",
+    "device_key": 104
+  },
+  {
+    "led_index": 107,
+    "aurora_key": "NUM_ZERO",
+    "device_key": 105
+  },
+  {
+    "led_index": 108,
+    "aurora_key": "NUM_PERIOD",
+    "device_key": 106
+  }
+]
