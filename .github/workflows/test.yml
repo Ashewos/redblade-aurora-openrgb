@@ -14,5 +14,5 @@ jobs:
             tests/protocol_test.c firmware/aurora_via/redblade_rgb.c -o /tmp/protocol-test
           /tmp/protocol-test
       - name: Check Python utilities
-        run: python3 -m py_compile tools/redblade.py tools/prepare_firmware.py
+        run: python3 -m py_compile tools/*.py
 

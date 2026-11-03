@@ -40,6 +40,18 @@ if ($service -and (Test-Path -LiteralPath $openRgbUserFile)) {
 if ($service) { Stop-Service -Name OpenRGB }
 Get-Process -Name AuroraRgb,AuroraDeviceManager,OpenRGB -ErrorAction SilentlyContinue | Stop-Process
 
+# Some OpenRGB / RGB.NET combinations stream colors without selecting the
+# keyboard's Direct effect. Establish it explicitly while Raw HID is idle,
+# then persist this lighting setting once for the next hardware boot.
+$directConfigured=$false
+$directTool=Join-Path $PSScriptRoot 'set-direct-mode.py'
+if (Test-Path -LiteralPath $directTool) {
+    & python $directTool --save
+    $directResult=$LASTEXITCODE
+    if ($directResult -eq 0) { $directConfigured=$true }
+    elseif ($directResult -ne 2) { throw 'Could not establish Direct RGB mode; see the preserved configuration backup.' }
+}
+
 $rgb = Get-Content -Raw -LiteralPath $openRgbFile | ConvertFrom-Json -AsHashtable
 if (-not $rgb.Contains('QMKVialRGBDevices')) { $rgb['QMKVialRGBDevices'] = @{devices=@()} }
 $otherDevices = @($rgb['QMKVialRGBDevices']['devices'] | Where-Object {
@@ -99,4 +111,8 @@ for($attempt=0;$attempt -lt 60;$attempt++) {
 }
 if (-not $listening) { throw "Configuration saved and backed up at $backup; OpenRGB SDK did not start." }
 Start-Process -FilePath $auroraExe -ArgumentList '-silent' -WindowStyle Hidden
-Write-Output "Configured. Backup: $backup. OpenRGB SDK is listening on loopback. Keyboard RGB still requires the prepared firmware."
+if ($directConfigured) {
+    Write-Output "Configured. Backup: $backup. OpenRGB SDK is listening on loopback; keyboard Direct RGB is saved."
+} else {
+    Write-Output "Configured. Backup: $backup. OpenRGB SDK is listening on loopback. Keyboard RGB still requires the prepared firmware."
+}

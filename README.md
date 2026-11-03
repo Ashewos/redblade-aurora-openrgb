@@ -2,7 +2,7 @@
 
 Firmware SonixQMK pour le **Designed by GG Red Blade Full Size ISO**, avec pavé numérique, USB **320F:5136**, contrôleur **SN32F248B**, **109 LED**.
 
-**État : expérimental.** Le firmware est destiné à ce modèle précis. La compilation et les tests du protocole peuvent être vérifiés indépendamment ; le fonctionnement réel du clavier et la latence doivent être validés après flashage. Ce dépôt ne contient aucune sauvegarde personnelle.
+**État : expérimental, premier flash vérifié sur un Red Blade Full Size.** Le firmware est destiné à ce modèle précis. L’écriture et le checksum du flash, VIA 13, VialRGB 1 et les 109 LED ont été vérifiés sur le clavier ; la saisie a été confirmée par son utilisateur. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
 
 ```text
 Aurora (effets et jeux) → serveur SDK OpenRGB → VialRGB → Red Blade FS
@@ -74,6 +74,14 @@ pwsh -File tools/configure-windows.ps1 -Apply # applique puis relance les applic
 
 La liaison utilise **127.0.0.1:6742**. Dans Aurora, activer **OpenRGB (RGB.NET)**. Le clavier doit apparaître dans OpenRGB avec un mode **Direct** avant de valider les effets dans Aurora. Le script ne flashe rien et n'active pas le mode dangereux des périphériques sans mode direct.
 
+Après flashage, relancer `configure-windows.ps1 -Apply`. Il arrête temporairement les clients RGB, sélectionne explicitement **Direct** dans le clavier et enregistre ce réglage une fois, avant de relancer OpenRGB/Aurora. Cela corrige le cas où des couleurs sont envoyées par le SDK alors que le clavier reste sur son effet autonome (par exemple rouge uniforme). L’écriture de configuration ne se produit pas pendant le streaming RGB.
+
+Pour ne changer que ce réglage, avec OpenRGB, Aurora et VIA arrêtés :
+
+```powershell
+python tools/set-direct-mode.py --save
+```
+
 Fermer VIA pendant l'utilisation d'OpenRGB : les deux outils partagent la même interface Raw HID et peuvent recevoir la réponse destinée à l'autre.
 
 ## Vérification
@@ -83,6 +91,8 @@ python tools/redblade.py verify
 ```
 
 Cette vérification est en lecture seule et contrôle la signature RGB, la version, les 109 LED et leurs positions uniques. Vérifier ensuite dans OpenRGB les couleurs rouge/vert/bleu, le pavé numérique, les touches ISO, puis le mode Direct avec Aurora, la saisie NKRO, la sortie de veille et le rebranchement USB.
+
+Arrêter OpenRGB, Aurora et VIA avant les commandes Raw HID `redblade.py backup`, `redblade.py verify` ou `set-direct-mode.py`. Une interface partagée avec un client actif peut recevoir une réponse destinée à l'autre outil. Le script de mappage ci-dessous utilise le SDK OpenRGB et peut être exécuté lorsque son serveur est actif.
 
 Après apparition du clavier dans OpenRGB, établir le mappage physique explicite dans Aurora :
 

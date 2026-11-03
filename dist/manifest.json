@@ -1,5 +1,5 @@
 {
-  "status": "experimental-hardware-validation-pending",
+  "status": "experimental-hardware-smoke-tested",
   "board": "Designed by GG Redblade FS ISO",
   "usb_vid": "320f",
   "usb_pid": "5136",
@@ -17,5 +17,23 @@
   "rgb_minimum_frame_interval_ms": 33,
   "via_layers": 3,
   "protocol_host_tests": "passed",
-  "hardware_latency_measured": false
+  "hardware_latency_measured": false,
+  "release": "v0.1.0",
+  "hardware_validation": {
+    "date": "2026-11-04",
+    "flasher": "SonixFlasherC 3.1.0",
+    "bootloader": "0c45:7040 SN32F24xB, 64 KB",
+    "programming_verified": true,
+    "flash_checksum": "0x9ba6",
+    "via_protocol": 13,
+    "vialrgb_protocol": 1,
+    "led_count": 109,
+    "unique_led_positions_verified": true,
+    "typing_user_confirmed": true,
+    "openrgb_mode": "Direct",
+    "aurora_mapping_leds": 109,
+    "per_key_sdk_stream_observed": true,
+    "physical_rgb_user_confirmation": "pending",
+    "usb_power_cycle_tested": false
+  }
 }
