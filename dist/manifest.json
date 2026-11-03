@@ -33,7 +33,7 @@
     "openrgb_mode": "Direct",
     "aurora_mapping_leds": 109,
     "per_key_sdk_stream_observed": true,
-    "physical_rgb_user_confirmation": "pending",
+    "physical_rgb_user_confirmation": "confirmed",
     "usb_power_cycle_tested": false
   }
 }

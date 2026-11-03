@@ -2,7 +2,7 @@
 
 Firmware SonixQMK pour le **Designed by GG Red Blade Full Size ISO**, avec pavé numérique, USB **320F:5136**, contrôleur **SN32F248B**, **109 LED**.
 
-**État : expérimental, premier flash vérifié sur un Red Blade Full Size.** Le firmware est destiné à ce modèle précis. L’écriture et le checksum du flash, VIA 13, VialRGB 1 et les 109 LED ont été vérifiés sur le clavier ; la saisie a été confirmée par son utilisateur. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
+**État : expérimental, premier flash vérifié sur un Red Blade Full Size.** Le firmware est destiné à ce modèle précis. L’écriture et le checksum du flash, VIA 13, VialRGB 1 et les 109 LED ont été vérifiés sur le clavier ; la saisie et les couleurs d’Aurora ont été confirmées par son utilisateur. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
 
 ```text
 Aurora (effets et jeux) → serveur SDK OpenRGB → VialRGB → Red Blade FS
