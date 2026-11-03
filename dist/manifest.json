@@ -1,0 +1,21 @@
+{
+  "status": "experimental-hardware-validation-pending",
+  "board": "Designed by GG Redblade FS ISO",
+  "usb_vid": "320f",
+  "usb_pid": "5136",
+  "mcu": "SN32F248B",
+  "led_count": 109,
+  "qmk_commit": "62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60",
+  "toolchain": "arm-none-eabi-gcc 15.2.0 / qmk_toolchains a55a2b0",
+  "binary_bytes": 65536,
+  "sha256": "eab6258b008efac38761cf1b5b6f22dd314be6c226195f8b27b37c314e071359",
+  "ram_bytes_including_reserved_stacks": 7620,
+  "ram_remaining_bytes": 572,
+  "keyboard_usb_poll_interval_ms": 1,
+  "shared_timer_clock_hz": 720896,
+  "rgb_process_leds_per_task": 8,
+  "rgb_minimum_frame_interval_ms": 33,
+  "via_layers": 3,
+  "protocol_host_tests": "passed",
+  "hardware_latency_measured": false
+}

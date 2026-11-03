@@ -1,0 +1,10 @@
+.local/
+work/
+__pycache__/
+*.pyc
+*.exe
+*.dll
+*.log
+via-backup*
+*backup*.json
+

@@ -1,0 +1,18 @@
+name: Protocol checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  protocol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test the actual firmware handler with sanitizers
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined \
+            -I tests/stubs -I firmware/aurora_via \
+            tests/protocol_test.c firmware/aurora_via/redblade_rgb.c -o /tmp/protocol-test
+          /tmp/protocol-test
+      - name: Check Python utilities
+        run: python3 -m py_compile tools/redblade.py tools/prepare_firmware.py
+

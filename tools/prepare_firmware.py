@@ -1,0 +1,46 @@
+"""Install the keymap and one timer-decoupling patch into the pinned QMK tree."""
+import argparse
+import json
+from pathlib import Path
+import re
+import shutil
+import subprocess
+
+QMK_COMMIT = '62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60'
+BASE_TIMER = '(RGB_MATRIX_HUE_STEP * RGB_MATRIX_SAT_STEP * RGB_MATRIX_VAL_STEP * RGB_MATRIX_SPD_STEP * RGB_MATRIX_LED_PROCESS_LIMIT)'
+
+
+def prepare(qmk):
+    actual = subprocess.check_output(['git', '-C', str(qmk), 'rev-parse', 'HEAD'], text=True).strip()
+    if actual != QMK_COMMIT:
+        raise SystemExit(f'Expected pinned SonixQMK {QMK_COMMIT}, found {actual}')
+    root = Path(__file__).resolve().parents[1]
+    board = qmk / 'keyboards/designedbygg/redblade/rbfs'
+    definition = json.loads(re.sub(r',\s*([}\]])', r'\1', (board/'keyboard.json').read_text(encoding='utf-8')))
+    positions = [tuple(x['matrix']) for x in definition['rgb_matrix']['layout']]
+    assert len(positions) == len(set(positions)) == 109
+    original_map = (root/'firmware/aurora_via/led_positions.inc').read_text(encoding='utf-8')
+    assert re.findall(r'\{(\d+), (\d+)\}', original_map) == [tuple(map(str, p)) for p in positions]
+    target = board / 'keymaps/aurora_via'
+    target.mkdir(parents=True, exist_ok=True)
+    for source in (root/'firmware/aurora_via').iterdir():
+        if source.is_file():
+            shutil.copy2(source, target/source.name)
+    driver = qmk / 'drivers/led/sn32f2xx.c'
+    text = driver.read_text(encoding='utf-8')
+    patched_line = 'static const uint32_t freq = SN32F2XX_PWM_CLOCK_FREQUENCY;'
+    if patched_line not in text:
+        original = next((line for line in text.splitlines() if 'static const uint32_t freq ' in line and BASE_TIMER in line), None)
+        if original is None:
+            raise SystemExit('Unexpected Sonix driver; refusing an unverified patch')
+        replacement = ('#ifndef SN32F2XX_PWM_CLOCK_FREQUENCY\n'
+                       '#    define SN32F2XX_PWM_CLOCK_FREQUENCY ' + BASE_TIMER + '\n'
+                       '#endif\n' + patched_line)
+        driver.write_text(text.replace(original, replacement, 1), encoding='utf-8')
+    print('Pinned Red Blade FS keymap installed; original 720896 Hz scan/PWM clock preserved')
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('qmk', type=Path)
+    prepare(parser.parse_args().qmk.resolve())
