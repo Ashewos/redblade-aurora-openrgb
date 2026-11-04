@@ -14,9 +14,9 @@ Extract the release ZIP. It includes the tools and `dist/redblade-plus-benchmark
 pwsh -File tools/measure-performance.ps1
 ```
 
-This runs the actual protocol handler, controls and pinned QMK color conversion on the PC. It measures average host CPU cost for 109-LED frames, dimming, local white and wave handover, plus the ordinary key-processing hook with Game Mode off/on. QMK hardware and USB transport are mocked. Use it to compare code changes on the same machine/build, not to predict microcontroller timing.
+This runs the actual protocol handler, controls and pinned QMK color conversion on the PC (the custom renderer uses no second CIE curve). It measures average host CPU cost for 109-LED frames, dimming, local white and wave handover, plus the ordinary key-processing hook with Game Mode off/on. QMK hardware and USB transport are mocked. Use it to compare code changes on the same machine/build, not to predict microcontroller timing.
 
-The [reference report](performance-reference.json) is a real native run on the preparation PC. It contains no HID or physical key-latency result. CPU-clock measurements are averaged over many iterations and include the fixture/call overhead.
+The [reference report](performance-reference.json) is a real native run on the preparation PC. It contains no HID or physical key-latency result. A separate [read-only HID comparison](hid-reference.json) contains 2,000 reads each on installed 0.5.0 and 0.6.0, with RGB clients stopped and helpers off: medians 1.9966 / 1.9966 ms, p99 2.0222 / 2.0134 ms. These two sequential runs do not cover keyboard input, active RGB load or sustained Turbo. CPU-clock measurements are averaged over many iterations and include the fixture/call overhead.
 
 ### 2. Read-only USB request/reply timing
 
@@ -46,7 +46,7 @@ Neither test measures mechanical switch actuation, matrix/debounce latency, the 
 
 For a physical comparison, use a controlled actuator/electrical trigger and USB analyzer or a high-speed acquisition setup, with the original and custom firmware under equivalent RGB load. No such measurement has been performed for this release.
 
-The implementation bounds work: eight base LEDs per RGB task iteration, limited status overlays only when needed, at most nine incoming colors per packet, and at most one Turbo edge per housekeeping pass. Standard QMK report I/O still depends on USB scheduling. Turbo's 25/50/100 targets may run slower under load; missed pulses are not queued.
+The implementation bounds work: eight base LEDs per RGB task iteration, bounded status overlays, including the persistent Fn status, at most nine incoming colors per packet, and at most one Turbo edge per housekeeping pass. Standard QMK report I/O still depends on USB scheduling. Turbo's 5–100 presses/s targets may run slower under load; missed pulses are not queued.
 
 ## Build the native benchmark yourself
 

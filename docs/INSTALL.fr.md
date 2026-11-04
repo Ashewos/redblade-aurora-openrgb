@@ -5,7 +5,7 @@
 
 Firmware SonixQMK pour le **Designed by GG Red Blade Full Size ISO**, avec pavé numérique, USB **320F:5136**, contrôleur **SN32F248B**, **109 LED**.
 
-**État : expérimental.** La version 0.1.0 a été flashée et vérifiée sur un Red Blade Full Size : écriture et checksum, VIA 13, VialRGB 1, 109 LED, saisie et couleurs d’Aurora. La version 0.4.0 ajoute les commandes Fn, les fonctions de jeu et la sauvegarde des préférences lumineuses ; son niveau de validation figure dans `dist/manifest.json`. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
+**État : expérimental.** La version 0.1.0 a été flashée et vérifiée sur un Red Blade Full Size : écriture et checksum, VIA 13, VialRGB 1, 109 LED, saisie et couleurs d’Aurora. La version 0.6.0 ajoute les commandes Fn, les fonctions de jeu et la sauvegarde des préférences lumineuses ; son niveau de validation figure dans `dist/manifest.json`. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
 
 ```text
 Aurora (effets et jeux) → serveur SDK OpenRGB → VialRGB → Red Blade FS
@@ -13,12 +13,12 @@ Aurora (effets et jeux) → serveur SDK OpenRGB → VialRGB → Red Blade FS
 
 OpenRGB reste utilisable directement, ou avec d'autres logiciels compatibles avec son SDK. Les jeux utilisent les intégrations des logiciels hôtes ; ce firmware ne promet pas une compatibilité directe avec tous les jeux. VIA conserve le remappage des touches et les macros. L'extension implémente le sous-ensemble VialRGB nécessaire à OpenRGB, pas l'interface complète de configuration Vial.
 
-## Éclairage de secours et vague rouge — 0.4.0
+## Éclairage de secours et vague rouge — 0.6.0
 
 - **USB suspendu ou non configuré :** priorité à l’extinction, même si le port reste alimenté. Les changements d’état USB sont suivis explicitement en plus de `RGB_MATRIX_SLEEP`. Les anciennes couleurs sont effacées ; ni le secours blanc ni l’animation ne rallument le clavier dans cet état.
 - **Absence de données RGB en mode Direct :** passage en **blanc à 25 % maximum après 5 secondes**, au prochain rendu (intervalle minimal de 33 ms). Les lectures VIA, diagnostics et paquets invalides ne prolongent pas ce délai. Un nouveau paquet reprend la main ; les anciennes couleurs effacées ne sont pas rejouées.
 - **Calculatrice, Muet, Volume −, Volume + :** blanc discret si le flux leur attribue une valeur noire ou ne leur fournit pas de couleur. Une couleur non noire de l’hôte prend priorité. Les quatre LED correspondent aux indices physiques 16..19, vérifiés contre la carte épinglée. Ce choix remplace aussi un noir volontaire sur ces quatre touches ; le protocole ne permet pas de le distinguer d’une touche laissée noire par Aurora. La commande globale **Off** et la suspension USB restent prioritaires.
-- **Démarrage / reprise USB :** une vague courbe de **1,5 seconde**, dégradé rouge profond → rouge écarlate avec traînée douce, entrée progressive et fondu vers les dernières couleurs reçues pendant les 300 dernières millisecondes. Les paquets continuent d’être reçus pendant l’animation ; elle ne bloque pas la saisie. Un éclairage désactivé ou un effet autonome enregistré est respecté. Les notifications USB ordinaires (Num Lock, protocole HID…) ne relancent pas l’animation.
+- **Démarrage / reprise USB :** une vague courbe de **2 secondes**, dégradé rouge pur avec dégradé d’intensité avec traînée douce, entrée progressive et fondu vers les dernières couleurs reçues pendant les 300 dernières millisecondes. Les paquets continuent d’être reçus pendant l’animation ; elle ne bloque pas la saisie. Un éclairage désactivé ou un effet autonome enregistré est respecté. Les notifications USB ordinaires (Num Lock, protocole HID…) ne relancent pas l’animation.
 - **Effets autonomes :** le secours blanc et le traitement des quatre touches ne s’appliquent qu’au mode Direct. Les effets autonomes VIA restent utilisables et s’éteignent aussi à la suspension USB.
 
 Les durées et luminosités sont réglables dans `firmware/aurora_via/config.h` avant compilation : `REDBLADE_RGB_TIMEOUT_MS`, `REDBLADE_BOOT_ANIMATION_MS`, `REDBLADE_BOOT_BRIGHTNESS`, `REDBLADE_FALLBACK_BRIGHTNESS`, `REDBLADE_MEDIA_BRIGHTNESS`. Le contrôle du délai se fait une fois par image RGB et la vague utilise le même rendu par blocs de 8 LED, en arithmétique entière. Aucun temporisateur de balayage des touches n’est arrêté ; aucune attente bloquante ni allocation n’est ajoutée. Seul Fn + F9 enregistre explicitement les préférences RedBlade+ ; les commandes ordinaires et le flux RGB n’écrivent pas en EEPROM.
@@ -72,7 +72,7 @@ python tools/redblade.py backup --output C:\chemin-prive\via-backup.json
 La sauvegarde contient les couches et macros : **la garder privée**. Elle ne constitue pas un dump complet du firmware. Ne pas restaurer aveuglément des codes internes entre générations QMK différentes.
 
 1. Vérifier le modèle Full Size, pas le Red Blade 75.
-2. Sur RedBlade+ 0.4.0+, maintenir **Fn + Maj + Échap pendant 2 secondes**. Les anciennes versions peuvent utiliser Fn + Échap immédiatement.
+2. Sur RedBlade+ 0.6.0+, maintenir **Fn + Échap pendant 2 secondes**. Les anciennes versions peuvent utiliser Fn + Échap immédiatement.
 3. Avec [SonixFlasherC](https://github.com/SonixQMK/SonixFlasherC), vérifier l'identité du bootloader **0C45:7040 / SN32F24xB** avant toute écriture.
 4. Pour ce contrôleur, utiliser le binaire brut, à l'offset **0** ; ne pas utiliser un jumploader SN32F26x.
 
@@ -146,4 +146,10 @@ Le keymap est dérivé de celui de Dimitris Mantzouranis dans SonixQMK. Les sour
 
 ## Diagnostic RedBlade+
 
-`python tools/redblade.py status` affiche aussi le mode jeu, le profil, la luminosité, les options, la cible/cadence Turbo et le maintien pour avancer à partir de la 0.4.0. Commande en lecture seule ; détails dans [le guide des raccourcis](SHORTCUTS.md).
+`python tools/redblade.py status` affiche aussi le mode jeu, le profil, la luminosité, les options, la cible/cadence Turbo et le maintien pour avancer à partir de la 0.6.0. Commande en lecture seule ; détails dans [le guide des raccourcis](SHORTCUTS.md).
+
+## Compatibilité du mode Direct — 0.6.0
+
+En mode Direct, chaque pixel porte sa luminosité. Les champs HSV/vitesse globaux inutilisés, parfois à zéro dans OpenRGB, ne modifient plus la luminosité du moteur QMK. Le mode autonome continue à les utiliser. Le rendu personnalisé et les indicateurs utilisent la conversion QMK sans seconde courbe CIE : les couleurs faibles du PC et les voyants restent visibles. La vague rouge dure 2 secondes, avec une crête HSV 255 avant les limites de luminosité ; le secours multimédia reste à 64 en valeur linéaire.
+
+FE81, octet 19 : bit 0 = choix Turbo armé/en attente ; bit 1 = guide lumineux temporaire. Les octets 16/17 restent la touche HID et la cadence cible, désormais une touche standard prise en charge et 5–100/s. Ces lectures ne prolongent pas le délai RGB. [Guide français des raccourcis](SHORTCUTS.fr.md).

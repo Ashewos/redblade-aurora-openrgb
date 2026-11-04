@@ -14,7 +14,7 @@ def keymap_layers(root=ROOT):
 
 def check(root=ROOT):
     doc = json.loads((root/'fn-shortcuts.json').read_text(encoding='utf-8'))
-    assert doc['layer'] == 1 and doc['minimum_firmware'] == [0, 4, 0]
+    assert doc['layer'] == 1 and doc['minimum_firmware'] == [0, 6, 0]
     layers = keymap_layers(root)
     assert len(layers[0]) == len(layers[1]) == 109
     positions = [tuple(led['matrix']) for led in json.loads((root/'led-map.json').read_text(encoding='utf-8'))]
@@ -33,11 +33,20 @@ def check(root=ROOT):
         assert codes[binding['symbol']] == binding['code']
         actual[pos] = binding['symbol']
     assert expected == actual, 'Fn mapping differs from compiled keymap'
-    assert actual[(0,17)] == 'RB_GAME' and actual[(0,18)] == 'RB_PLAY'
+    assert actual[(0,17)] == 'RB_GUIDE' and actual[(0,18)] == 'RB_PLAY'
+    assert actual[(5,1)] == actual[(5,12)] == 'RB_GAME'
     assert actual[(0,19)] == 'RB_PREV' and actual[(0,20)] == 'RB_NEXT'
-    for name,position in [('W',(2,2)),('E',(2,3)),('R',(2,4)),('F',(3,4)),('SPACE',(5,6))]:
+    matrix_fixture=re.findall(r'\d+', (root/'tests/led_matrix.inc').read_text(encoding='utf-8'))
+    expected_matrix=[255]*126
+    for i,(row,col) in enumerate(positions): expected_matrix[row*21+col]=i
+    assert list(map(int,matrix_fixture))==expected_matrix, 'Test LED matrix differs from the board'
+    for name,position in [('W',(2,2)),('E',(2,3)),('R',(2,4)),('T',(2,5)),('F',(3,4)),('SPACE',(5,6)),('FN',(5,11)),('MINUS',(1,20)),('PLUS',(2,20))]:
         index=int(re.search(r'RB_LED_'+name+r'\s*=\s*(\d+)',header).group(1))
         assert positions[index] == position, 'Game-helper LED indices differ from the board'
+    semantic={'FN':'MO(1)','LGUI':'KC_LGUI','RGUI':'KC_RGUI','CAPS':'KC_CAPS','LSHIFT':'KC_LSFT','RSHIFT':'KC_RSFT','NUM':'KC_NUM','SCROLL':'KC_SCRL'}
+    for name,key in semantic.items():
+        index=int(re.search(r'RB_LED_'+name+r'\s*=\s*(\d+)',header).group(1))
+        assert layers[0][index]==key, f'{name} status is on the wrong physical key'
     return doc
 
 

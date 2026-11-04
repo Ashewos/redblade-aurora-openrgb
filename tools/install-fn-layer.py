@@ -59,15 +59,16 @@ def main():
     parser.add_argument('--hid-dll',type=Path,default=Path(r'C:\Program Files\OpenRGB\hidapi-hotplug.dll'))
     args=parser.parse_args()
     if args.apply and not args.backup: parser.error('--apply requires --backup with a private new filename')
-    bindings=check()['bindings']
+    mapping=check()
+    bindings=mapping['bindings']
     if not args.apply:
         print(f'Dry run: {len(bindings)} bindings on Fn layer 1; base keys/macros will be kept. Close RGB clients, then use --apply --backup <private-file>.')
         return 0
     kb=Keyboard(args.hid_dll)
     try:
         data=kb.request(0xFE,0x81)
-        if data[:3]!=bytes([0xFE,0x81,1]) or data[24:32]!=b'RDBLFS01' or tuple(data[3:6])<(0,4,0):
-            raise RuntimeError('Flash RedBlade+ 0.4.0 or newer before installing its Fn bindings')
+        if data[:3]!=bytes([0xFE,0x81,1]) or data[24:32]!=b'RDBLFS01' or tuple(data[3:6])<tuple(mapping['minimum_firmware']):
+            raise RuntimeError('Flash RedBlade+ 0.6.0 or newer before installing its Fn bindings')
         apply(kb,bindings,args.backup)
     finally: kb.close()
     return 0

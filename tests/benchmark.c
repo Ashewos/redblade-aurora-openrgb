@@ -30,7 +30,7 @@ static double frames(unsigned scenario) {
             for(unsigned i=first;i<first+8 && i<109;++i) {
                 hsv_t hsv=redblade_rgb_color(i),status;
                 if(indicators && redblade_controls_indicator(i,false,&status)) hsv=redblade_rgb_apply_brightness(status);
-                const rgb_t c=hsv_to_rgb(hsv);
+                const rgb_t c=redblade_rgb_convert(hsv);
                 checksum+=c.r+c.g+c.b;
             }
         }

@@ -1,10 +1,19 @@
 #include "qmk_fixture.h"
 #include <assert.h>
-led_config_t g_led_config = {.point = {
+led_config_t g_led_config = {.matrix_co = {
+#include "led_matrix.inc"
+}, .point = {
 #include "led_points.inc"
 }};
 uint8_t mode = RGB_MATRIX_CUSTOM_REDBLADE_DIRECT, speed, hue, saturation, value = 255, mods, weak_mods;
 bool enabled = true, key_down[256];
+uint16_t base_keymap[6][21];
+led_t host_locks;
+rgb_t rendered[109];
+led_t host_keyboard_led_state(void) { return host_locks; }
+void rgb_matrix_set_color(int i,uint8_t r,uint8_t g,uint8_t b) { assert(i>=0 && i<109); rendered[i]=(rgb_t){.r=r,.g=g,.b=b}; }
+bool is_key_pressed(uint8_t key) { return key_down[key]; }
+uint16_t dynamic_keymap_get_keycode(uint8_t layer, uint8_t row, uint8_t col) { (void)layer; assert(row<6 && col<21); return base_keymap[row][col]; }
 uint32_t now, eeprom_user = UINT32_MAX;
 unsigned responses, eeprom_writes, keyboard_reports, bootloader_calls, key_down_calls, key_up_calls;
 uint32_t timer_read32(void) { return now; }

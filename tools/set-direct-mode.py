@@ -35,6 +35,9 @@ def main():
         # VialRGB: Direct (1), speed 128, HSV 0/255/255. Pixel colors arrive
         # independently from OpenRGB; keep the global RGB engine enabled.
         send(kb, [0x07, 0x41, 1, 0, 128, 0, 255, 255])
+        # Direct ignores its unused global HSV fields in 0.5.0+. Use the
+        # standard VIA RGB Matrix brightness control for explicit recovery.
+        send(kb, [0x07, 0x03, 0x01, 255])
         current = kb.via(0x08, 0x41)
         if int.from_bytes(current[2:4], 'little') != 1:
             raise RuntimeError('Keyboard did not enter Direct RGB mode')

@@ -32,7 +32,7 @@ class ToolTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):device.via(8,0x40)
 
     def test_public_fn_map_matches_actual_firmware(self):
-        self.assertEqual(len(check()['bindings']),30)
+        self.assertEqual(len(check()['bindings']),33)
 
     def test_timing_statistics_and_units(self):
         result=benchmark.summarize([1,2,3,4,5])

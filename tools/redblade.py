@@ -149,8 +149,8 @@ def status(kb):
             master_brightness=controls[8], master_brightness_percent=round(controls[8]*100/255,1),
             startup_wave_enabled=bool(controls[9]&1), media_fallback_enabled=bool(controls[9]&2),
             idle_white_fallback=bool(controls[9]&4), bootloader_hold_ms=int.from_bytes(controls[10:12],'little'),
-            turbo_key={8:'E',9:'F',44:'Space'}.get(controls[16]),turbo_target_presses_per_second=controls[17],
-            forward_hold=bool(controls[18]))
+            turbo_key=None if not controls[16] else {8:'E',9:'F',44:'Space'}.get(controls[16],f'HID 0x{controls[16]:02X}'),turbo_target_presses_per_second=controls[17],
+            forward_hold=bool(controls[18]),turbo_selection_armed=bool(controls[19]&1),shortcut_guide_active=bool(controls[19]&2))
     print(json.dumps(result, indent=2))
     return 0
 

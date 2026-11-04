@@ -2,6 +2,41 @@
 
 All new release notes are written in English. Version 0.x is experimental; hardware validation is recorded separately from build and host-test results.
 
+## 0.6.0 — Dynamic fallback and a clearer Fn layer
+
+### Added
+- Fn + either Windows key toggles Game Mode; both Windows logos turn red. Shift + Fn + Windows explicitly unlocks.
+- Fn + Calculator now shows a temporary shortcut-lighting guide for 20 seconds. Press again, use Esc, or Shift + Fn + Calculator to close it. The normal Calculator key is retained.
+- Without RGB data for five seconds: green Caps Lock, white active numpad with green Num Lock, very dim inactive numpad, and amber Scroll Lock. Fresh host colors and explicit Off/local/native choices keep priority.
+- English/French visual shortcut maps and detailed guides covering Turbo selection, live cadence, Fn colors, dynamic lock states and recovery.
+
+### Changed
+- Restore the memorable Fn + Esc bootloader combination, with a two-second hold guard. A short press stops helpers/unlocks Windows; Fn + Shift + Esc remains accepted.
+- Fix the Fn status backlight: LED 102 is Fn, while LED 103 is Right Ctrl. Mapping checks now verify the base-layer meaning as well as coordinates.
+
+### Validation
+- Retain the visible pure-red full-brightness wave, generic Turbo and live 5–100/s cadence from the 0.5.0 on-device validation build. The user confirmed wave/media lighting, target choice, live changes and stop on that build; the Fn placement report prompted this correction.
+- Host rendering checks cover all 17 numpad keys, host takeover, lock-state colors, Windows LEDs and Fn/Right-Ctrl placement. Physical validation and USB timings are recorded in the manifest/audit, separately from physical key-input latency.
+
+## 0.5.0 — Local on-device validation build · visible lighting and configurable Turbo
+
+### Fixed
+- Ignore unused global HSV/speed fields in Direct-mode requests. OpenRGB can send zeros there; those zeros previously hid the wave and four media fallback lights while streamed pixels still worked.
+- Use linear QMK HSV conversion for host/custom/status colors instead of applying a second CIE dimming curve. Standalone QMK effects keep their usual conversion.
+- Make the red wave a visible two-second sweep with a brighter crest and a 400 ms host handover.
+- Capture releases for all Fn controls, including rate adjustment, when Fn is released before the key.
+
+### Added
+- Fn + T, then a basic keyboard key: repeat the chosen VIA base-layer assignment. Selection does not type, starts on release and expires after ten seconds. Esc and system/consumer/modifier/layer/macro actions remain outside the target set.
+- Fn + numpad −/+ adjusts the target by 5 presses/s, from 5 to 100, before or during repetition. Fn + R retains the 25/50/100 presets. Fractional milliseconds are distributed without divisions or catch-up bursts in the scheduler.
+- Fn RGB status: dim blue idle, cyan held, blinking amber selection, red Turbo, green forward hold, purple Game Mode. The repeated physical key is red; T and cadence controls are highlighted with Fn held.
+- French shortcut guide and checked 33-binding upgrade map. Existing E/F/Space presets, emergency stop, VIA base keys and macros are retained.
+- Actual custom-effect rendering regression tests, generic selection/release/timeout/ownership checks, intermediate-rate tests and read-only armed-selection diagnostics.
+
+### Validation
+- Full ARM build and native regression/tooling checks. Hardware validation scope is recorded in the manifest/audit; host timing is not physical key latency.
+- Version 0.4.0 was flashed with programming/checksum verified and Aurora connectivity confirmed; its wave/media visual failures motivated these fixes.
+
 ## 0.4.0 — 2026-11-04 — RedBlade+
 
 ### Added

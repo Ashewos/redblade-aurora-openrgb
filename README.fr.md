@@ -12,21 +12,24 @@
 
 Contrôle OpenRGB touche par touche, raccourcis Fn et fonctions de jeu pour le **Designed by GG Red Blade Full Size ISO**.
 
-[Télécharger](https://github.com/Gaerisson/redblade-aurora-openrgb/releases/latest) · [Raccourcis](docs/SHORTCUTS.md) · [Installation](docs/INSTALL.fr.md) · [Performances](docs/PERFORMANCE.md) · [Changelog](CHANGELOG.md)
+[Télécharger](https://github.com/Gaerisson/redblade-aurora-openrgb/releases/latest) · [Raccourcis](docs/SHORTCUTS.fr.md) · [Installation](docs/INSTALL.fr.md) · [Performances](docs/PERFORMANCE.md) · [Changelog](CHANGELOG.md)
 
 ## Les fonctions
 
 | Fonction | Utilisation |
 | --- | --- |
 | Intégration OpenRGB native | 109 LED indépendantes par VialRGB ; Aurora passe par le SDK OpenRGB |
-| Bloc Fn multimédia | Calculatrice → mode jeu, Muet → lecture/pause, Volume −/+ → piste précédente/suivante ; Maj ajoute d’autres commandes |
-| Verrouillage Windows | Fn + Calculatrice ou Fn + Windows ; Calculatrice devient rouge |
-| Turbo E, F ou Espace | Fn + la touche pour démarrer/arrêter ; LED rouge ; cadences cibles de 25/50/100 appuis/s |
+| Bloc Fn multimédia | Calculatrice → guide lumineux de 20 secondes, Muet → lecture/pause, Volume −/+ → piste précédente/suivante ; Maj ajoute d’autres commandes |
+| Verrouillage Windows | Fn + une touche Windows ; les deux logos Windows deviennent rouges |
+| Turbo au choix | Fn + T, puis une touche ; cadence réglable de 5 à 100/s avec Fn + −/+ du pavé ; préréglages E/F/Espace conservés |
+| Couleurs de Fn | Bleu au repos, cyan enfoncée, ambre au choix, rouge en Turbo, vert au maintien, violet en mode jeu |
 | Maintien pour avancer | Fn + Z en AZERTY / Fn + W en QWERTY ; LED verte |
 | Arrêt immédiat | Échap arrête les fonctions automatiques ; Fn + Échap déverrouille aussi Windows |
 | Profils lumineux locaux | Aurora/OpenRGB, blanc, rouge et éteint ; luminosité applicable aussi aux couleurs du PC |
+| Secours dynamique | Sans flux RGB : Verr. Maj/Num verts, défilement ambre, pavé blanc si actif / blanc très faible sinon |
+| Guide lumineux | Fn + Calculatrice éclaire les raccourcis 20 secondes ; deuxième appui pour fermer |
 | Éclairage de secours | Blanc optionnel après 5 secondes sans RGB, et secours pour les quatre touches multimédias |
-| Vague rouge de démarrage | Animation courbe de 1,5 seconde et fondu vers les couleurs du PC |
+| Vague rouge de démarrage | Animation courbe visible de 2 secondes et fondu vers les couleurs du PC |
 | Préférences au choix | Fn + F9 enregistre l’éclairage ; commandes ordinaires et flux RGB restent en RAM |
 | VIA | Remappage/macros et outil de mise à jour du calque Fn avec sauvegarde |
 
@@ -36,13 +39,17 @@ Les fonctions automatiques sont désactivées au départ et arrêtées à la sus
 
 | Raccourci | Action |
 | --- | --- |
-| **Fn + Calculatrice** | Activer/désactiver le mode jeu |
+| **Fn + Windows** | Activer/désactiver le mode jeu ; les deux logos deviennent rouges |
 | **Fn + E** | Démarrer/arrêter le Turbo E ; sa LED devient rouge |
 | **Échap** | Arrêter Turbo et maintien pour avancer |
 | **Fn + F1** | Rendre le contrôle lumineux à OpenRGB / Aurora |
 | **Fn + F8** | Rétablir les réglages par défaut, arrêter les fonctions automatiques et déverrouiller Windows |
 
-Le [guide complet des raccourcis](docs/SHORTCUTS.md) explique les quatre touches, les cadences, les voyants, la sauvegarde et la récupération. À partir de la version 0.4.0, **maintenir Fn + Maj + Échap pendant 2 secondes** ouvre le bootloader ; les anciennes versions peuvent encore utiliser Fn + Échap immédiatement.
+Le [guide complet des raccourcis](docs/SHORTCUTS.fr.md) explique les quatre touches, les cadences, les voyants, la sauvegarde et la récupération. À partir de la 0.6.0, **maintenir Fn + Échap pendant 2 secondes** ouvre le bootloader. Un appui court arrête les fonctions de jeu et déverrouille Windows. Les 0.4/0.5 utilisaient Fn + Maj + Échap.
+
+![Raccourcis et touches dynamiques](docs/assets/shortcuts.fr.png)
+
+[Schéma en grand](docs/assets/shortcuts.fr.svg) · [Version anglaise](docs/assets/shortcuts.png)
 
 ## Installation
 
@@ -71,17 +78,17 @@ OpenRGB fonctionne aussi sans Aurora. VIA et OpenRGB partagent l’interface Raw
 ## Performances et validation
 
 - Polling USB demandé : **1 ms** ; anti-rebond eager d’origine, NKRO et horloge Sonix partagée conservés.
-- Rendu par blocs de huit LED, intervalle minimal de 33 ms, voyants calculés seulement si utiles. Turbo produit au plus une transition par passage, sans rattrapage en rafale ni attente active.
+- Rendu par blocs de huit LED, intervalle minimal de 33 ms, indicateurs bornés et couleur Fn au repos/en activité. Turbo produit au plus une transition par passage, sans rattrapage en rafale ni attente active.
 - Benchmark Windows et mesure USB en lecture seule inclus. [À lancer ce soir](docs/PERFORMANCE.md) ; les mesures du PC ne sont pas une mesure de latence physique des touches.
 
-**La version 0.4.0 reste expérimentale, compilée et testée sur le PC.** Ses nouveaux raccourcis et fonctions de jeu n’ont pas encore été vérifiés sur le clavier cible. La validation matérielle précédente concernait la 0.1.0 : saisie, mappage et couleurs d’Aurora. Voir [l’audit](docs/AUDIT.md), le [manifeste](dist/manifest.json) et les [tests](.github/workflows/test.yml).
+**La version 0.6.0 reste expérimentale ; les validations sont distinguées des tests de compilation.** La 0.5.0 a été flashée : vague, touches multimédias, Turbo au choix, cadence en cours et arrêt confirmés par l’utilisateur. Sa couleur Fn éclairait Ctrl droit ; ce décalage est corrigé ici. Sur 0.6.0, les états Verr. Maj/Num, le placement Fn, les deux Windows rouges et le guide Calculatrice sont confirmés. Les essais prolongés, la latence physique et la veille/extinction restent à mesurer. Voir [l’audit](docs/AUDIT.md), le [manifeste](dist/manifest.json) et les [tests](.github/workflows/test.yml).
 
 Le RGB s’éteint lorsque l’USB est suspendu ou non configuré. Si le PC maintient réellement le bus USB actif après son arrêt, le firmware ne peut pas distinguer ce cas d’un logiciel RGB fermé ; cette limite est expliquée dans le [guide technique](docs/INSTALL.fr.md).
 
 ## Documentation
 
 - [Installation complète](docs/INSTALL.fr.md) · [Référence anglaise](docs/INSTALL.md)
-- [Tous les raccourcis](docs/SHORTCUTS.md) · [Mesures de performances](docs/PERFORMANCE.md) · [Audit](docs/AUDIT.md)
+- [Tous les raccourcis](docs/SHORTCUTS.fr.md) · [Mesures de performances](docs/PERFORMANCE.md) · [Audit](docs/AUDIT.md)
 - [Changelog en anglais](CHANGELOG.md) · [Contribuer](CONTRIBUTING.md) · [Logo et prompt](assets/LOGO.md)
 
 Basé sur [SonixQMK épinglé](https://github.com/SonixQMK/qmk_firmware/tree/62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60), avec [OpenRGB](https://github.com/CalcProgrammer1/OpenRGB) et [Aurora](https://github.com/Aurora-RGB/Aurora). Code ajouté sous GPL-2.0-or-later ; licences et sources amont conservées. [Licence](LICENSE).

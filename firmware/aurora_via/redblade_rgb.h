@@ -7,6 +7,7 @@ void redblade_rgb_suspend(void);
 void redblade_rgb_wake(void);
 void redblade_rgb_begin_frame(void);
 hsv_t redblade_rgb_color(uint8_t index);
+rgb_t redblade_rgb_convert(hsv_t color);
 
 enum redblade_profile { RB_PROFILE_HOST, RB_PROFILE_WHITE, RB_PROFILE_RED, RB_PROFILE_OFF };
 enum redblade_setting { RB_SETTING_ANIMATION = 1, RB_SETTING_MEDIA = 2, RB_SETTING_IDLE_WHITE = 4 };
@@ -22,5 +23,6 @@ uint8_t redblade_rgb_profile_get(void);
 uint8_t redblade_rgb_brightness_get(void);
 uint8_t redblade_rgb_settings_get(void);
 bool redblade_rgb_output_active(void);
+bool redblade_rgb_fallback_active(void);
 hsv_t redblade_rgb_apply_brightness(hsv_t color);
 

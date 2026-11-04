@@ -84,6 +84,17 @@ hsv_t redblade_rgb_apply_brightness(hsv_t color) {
     return color;
 }
 
+bool redblade_rgb_fallback_active(void) {
+    return local_profile == RB_PROFILE_HOST && rgb_matrix_get_mode() == RGB_MATRIX_CUSTOM_REDBLADE_DIRECT && idle_fallback && (settings & RB_SETTING_IDLE_WHITE) && !boot_active && redblade_rgb_output_active();
+}
+
+rgb_t redblade_rgb_convert(hsv_t color) {
+    // OpenRGB sends brightness in every pixel. Applying QMK's CIE curve
+    // again crushes dark host colors and the deliberately dim status LEDs.
+    // Native QMK effects retain their own standard conversion.
+    return hsv_to_rgb_nocie(color);
+}
+
 _Static_assert(REDBLADE_RGB_TIMEOUT_MS > 0, "A positive RGB watchdog timeout is required");
 _Static_assert(REDBLADE_BOOT_ANIMATION_MS > 0, "A positive boot animation duration is required");
 _Static_assert(REDBLADE_BOOT_BRIGHTNESS <= RGB_MATRIX_MAXIMUM_BRIGHTNESS, "Boot brightness exceeds board limit");
@@ -202,8 +213,7 @@ hsv_t redblade_rgb_color(uint8_t index) {
         color.v = boot_brightness / 12;
         if (behind >= -32 && behind < 112) {
             const uint8_t strength = behind < 0 ? (behind + 32) * 4 : (112 - behind) * 128 / 112;
-            color.h = strength * 7 / 128; // crimson -> scarlet crest
-            color.s = 255 - strength * 45 / 128;
+            color.h = 0; color.s = 255; // Pure red; gradient is intensity only.
             color.v = color.v + strength * (boot_brightness - color.v) / 128;
         }
         if (boot_blend) {
@@ -284,6 +294,7 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
         write16(data + 10, REDBLADE_BOOT_HOLD_MS);
         write32(data + 12, REDBLADE_RGB_TIMEOUT_MS);
         data[16] = redblade_turbo_key(); data[17] = redblade_turbo_rate(); data[18] = redblade_auto_w();
+        data[19] = (redblade_turbo_selecting() ? 1 : 0) | (redblade_guide_active() ? 2 : 0);
         write32(data + 20, REDBLADE_BOOT_ANIMATION_MS);
         memcpy(data + 24, "RDBLFS01", 8);
         raw_hid_send(data, length);
@@ -349,8 +360,13 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
                 rgb_matrix_enable_noeeprom();
                 rgb_matrix_mode_noeeprom(mode == 1 ? RGB_MATRIX_CUSTOM_REDBLADE_DIRECT : RGB_MATRIX_SOLID_COLOR);
             }
-            rgb_matrix_set_speed_noeeprom(args[2]);
-            rgb_matrix_sethsv_noeeprom(args[3], args[4], args[5]);
+            // Direct mode has per-pixel colors, no global HSV/brightness
+            // control. OpenRGB legitimately fills the unused fields with 0.
+            // Do not let those zeros black out local waves/media/status LEDs.
+            if (mode == 2) {
+                rgb_matrix_set_speed_noeeprom(args[2]);
+                rgb_matrix_sethsv_noeeprom(args[3], args[4], args[5]);
+            }
         }
     } else if (subcommand == 0x42) {
         const uint16_t first = read16(args);

@@ -1,7 +1,7 @@
 {
   "minimum_firmware": [
     0,
-    4,
+    6,
     0
   ],
   "layer": 1,
@@ -87,8 +87,8 @@
       "row": 0,
       "col": 17,
       "key": "CALC",
-      "symbol": "RB_GAME",
-      "code": 32320
+      "symbol": "RB_GUIDE",
+      "code": 32348
     },
     {
       "row": 0,
@@ -126,6 +126,13 @@
       "code": 32329
     },
     {
+      "row": 1,
+      "col": 20,
+      "key": "Numpad -",
+      "symbol": "RB_TURBO_SLOWER",
+      "code": 32346
+    },
+    {
       "row": 2,
       "col": 2,
       "key": "W",
@@ -148,10 +155,24 @@
     },
     {
       "row": 2,
+      "col": 5,
+      "key": "T",
+      "symbol": "RB_TURBO_SELECT",
+      "code": 32345
+    },
+    {
+      "row": 2,
       "col": 16,
       "key": "PGDN",
       "symbol": "RB_DIMMER",
       "code": 32330
+    },
+    {
+      "row": 2,
+      "col": 20,
+      "key": "Numpad +",
+      "symbol": "RB_TURBO_FASTER",
+      "code": 32347
     },
     {
       "row": 3,

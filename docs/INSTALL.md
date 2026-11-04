@@ -5,7 +5,7 @@
 
 SonixQMK firmware for the **Designed by GG Red Blade Full Size ISO** keyboard with numeric keypad, USB **320F:5136**, **SN32F248B** controller and **109 LEDs**.
 
-**Status: experimental.** Version 0.1.0 was flashed and checked on a Red Blade Full Size: programming and checksum verification, VIA 13, VialRGB 1, 109 LEDs, typing and Aurora colors. Version 0.4.0 adds Fn controls, game helpers and saved lighting preferences; its validation status is recorded in `dist/manifest.json`. Hardware latency and extended testing remain unmeasured. This repository contains no personal backups.
+**Status: experimental.** Version 0.1.0 was flashed and checked on a Red Blade Full Size: programming and checksum verification, VIA 13, VialRGB 1, 109 LEDs, typing and Aurora colors. Version 0.6.0 adds Fn controls, game helpers and saved lighting preferences; its validation status is recorded in `dist/manifest.json`. Hardware latency and extended testing remain unmeasured. This repository contains no personal backups.
 
 ```text
 Aurora (effects and game integrations) → OpenRGB SDK server → VialRGB → Red Blade FS
@@ -13,12 +13,12 @@ Aurora (effects and game integrations) → OpenRGB SDK server → VialRGB → Re
 
 OpenRGB can also be used directly or with other software that supports its SDK. Games use the host software's integrations; this firmware does not promise direct compatibility with every game. VIA retains key remapping and macros. The extension implements the VialRGB subset needed by OpenRGB, rather than the full Vial configuration interface.
 
-## Fallback lighting and red wave — 0.4.0
+## Fallback lighting and red wave — 0.6.0
 
 - **USB suspended or unconfigured:** lights off takes priority, even if the port still supplies power. USB state changes are tracked explicitly alongside QMK's `RGB_MATRIX_SLEEP`. Previous colors are cleared; neither fallback lighting nor the animation turns the keyboard back on in this state.
 - **No RGB data in Direct mode:** switch to **white at approximately 25% brightness after 5 seconds**, on the next render (33 ms minimum frame interval). VIA reads, diagnostics and invalid packets do not extend this timeout. A new color packet takes over; cleared colors are not replayed.
 - **Calculator, Mute, Volume −, Volume +:** dim white when the stream assigns black or provides no color for these keys. A non-black host color takes priority. These are physical LED indices 16..19, checked against the pinned board definition. This policy also replaces intentionally black colors on those four keys: the protocol cannot distinguish them from keys left black by Aurora. The global **Off** command and USB suspension remain authoritative.
-- **Startup / USB resume:** a curved **1.5-second** wave, fading from deep red to scarlet, with a soft trail, gradual entrance and a fade into the latest received colors during the final 300 milliseconds. Packets continue to be received during the animation; typing is not blocked. Disabled lighting and saved standalone effects are respected. Ordinary USB notifications (Num Lock, HID protocol changes, etc.) do not restart the animation.
+- **Startup / USB resume:** a curved **2-second** wave, fading from deep red to scarlet, with a soft trail, gradual entrance and a fade into the latest received colors during the final 400 milliseconds. Packets continue to be received during the animation; typing is not blocked. Disabled lighting and saved standalone effects are respected. Ordinary USB notifications (Num Lock, HID protocol changes, etc.) do not restart the animation.
 - **Standalone effects:** white fallback and the four-key policy apply only to Direct mode. VIA standalone effects remain available and also turn off during USB suspension.
 
 Durations and brightness can be changed in `firmware/aurora_via/config.h` before building: `REDBLADE_RGB_TIMEOUT_MS`, `REDBLADE_BOOT_ANIMATION_MS`, `REDBLADE_BOOT_BRIGHTNESS`, `REDBLADE_FALLBACK_BRIGHTNESS`, `REDBLADE_MEDIA_BRIGHTNESS`. The timeout is checked once per RGB frame, and the wave uses the same eight-LED rendering chunks with integer arithmetic. No key-scanning timer is stopped; no blocking delay or dynamic allocation is added. Only the explicit Fn + F9 save action writes RedBlade+ lighting preferences; normal controls and RGB streaming do not.
@@ -72,7 +72,7 @@ python tools/redblade.py backup --output C:\private-path\via-backup.json
 The backup contains layers and macros: **keep it private**. It is not a complete firmware dump. Do not blindly restore internal keycodes across different QMK generations.
 
 1. Confirm the Full Size model, not the Red Blade 75.
-2. On RedBlade+ 0.4.0+, hold **Fn + Shift + Esc for 2 seconds**. Earlier firmware may enter immediately with Fn + Esc.
+2. On RedBlade+ 0.6.0+, hold **Fn + Esc for 2 seconds**. Earlier firmware may enter immediately with Fn + Esc.
 3. With [SonixFlasherC](https://github.com/SonixQMK/SonixFlasherC), verify the bootloader identity **0C45:7040 / SN32F24xB** before writing anything.
 4. For this controller, use the raw binary at offset **0**; do not use an SN32F26x jumploader.
 
@@ -146,4 +146,10 @@ The keymap is derived from Dimitris Mantzouranis's SonixQMK keymap. Added source
 
 ## RedBlade+ controls diagnostics
 
-`python tools/redblade.py status` also reports Game Mode, local profile, master brightness, animation/fallback options, Turbo target/rate and forward hold on 0.4.0+. These are read-only diagnostics. Details and behavior are documented in [Shortcuts](SHORTCUTS.md).
+`python tools/redblade.py status` also reports Game Mode, local profile, master brightness, animation/fallback options, Turbo target/rate and forward hold on 0.6.0+. These are read-only diagnostics. Details and behavior are documented in [Shortcuts](SHORTCUTS.md).
+
+## Direct-mode compatibility fix — 0.6.0
+
+Direct mode carries brightness in each pixel. Its unused scalar HSV/speed fields may be zero in OpenRGB requests; these fields no longer overwrite QMK engine brightness in Direct mode. Standalone mode still uses them. The custom renderer and RGB status use QMK’s no-CIE conversion, avoiding a second dimming curve on host colors. The two-second red wave peaks at HSV value 255 before master/engine limits; media fallback remains linear value 64.
+
+FE81 byte 19 uses bit 0 for armed/pending Turbo selection and bit 1 for the temporary shortcut guide. Bytes 16/17 still carry the selected HID usage and target cadence, now any supported basic key and 5–100/s. Diagnostics never renew the RGB timeout. See [shortcuts](SHORTCUTS.md).

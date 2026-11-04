@@ -17,6 +17,10 @@
 #define KC_W 0x1A
 #define KC_SPC 0x2C
 #define KC_ESC 0x29
+#define MATRIX_ROWS 6
+#define MATRIX_COLS 21
+#define QK_MOMENTARY 0x5220
+#define QK_MOMENTARY_MAX 0x523F
 #define KC_RGUI 0xE7
 #define KC_MNXT 0xAB
 #define KC_MPRV 0xAC
@@ -27,8 +31,12 @@
 #include "../../firmware/aurora_via/config.h"
 #include "../upstream/color.h"
 typedef struct { uint8_t col, row; } keypos_t;
+typedef struct { bool num_lock, caps_lock, scroll_lock; } led_t;
+led_t host_keyboard_led_state(void);
+void rgb_matrix_set_color(int index, uint8_t r, uint8_t g, uint8_t b);
 typedef struct { struct { keypos_t key; bool pressed; } event; } keyrecord_t;
 typedef struct {
+    uint8_t matrix_co[6][21];
     struct { uint8_t x, y; } point[109];
     uint8_t flags[109];
 } led_config_t;
@@ -54,4 +62,6 @@ void send_keyboard_report(void);
 void register_code(uint8_t code);
 void unregister_code(uint8_t code);
 void reset_keyboard(void);
+bool is_key_pressed(uint8_t key);
+uint16_t dynamic_keymap_get_keycode(uint8_t layer, uint8_t row, uint8_t col);
 

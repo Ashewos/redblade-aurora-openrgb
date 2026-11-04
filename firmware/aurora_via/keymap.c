@@ -51,10 +51,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [1] = LAYOUT_fullsize_extended_iso(
-        RB_BOOT,          RB_HOST, RB_WHITE,RB_RED,  RB_DARK, RB_ANIMATION,RB_MEDIA_FALLBACK,RB_IDLE_FALLBACK,RB_DEFAULTS,RB_SAVE, _______, _______, _______,    _______, _______, KC_MSTP,    RB_GAME, RB_PLAY, RB_PREV, RB_NEXT,
+        RB_BOOT,          RB_HOST, RB_WHITE,RB_RED,  RB_DARK, RB_ANIMATION,RB_MEDIA_FALLBACK,RB_IDLE_FALLBACK,RB_DEFAULTS,RB_SAVE, _______, _______, _______,    _______, _______, KC_MSTP,    RB_GUIDE, RB_PLAY, RB_PREV, RB_NEXT,
 
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RB_LIGHT_TOGGLE, _______, _______, RB_BRIGHTER, _______, _______, _______, _______,
-        _______, _______, RB_AUTO_W,RB_TURBO_E,RB_TURBO_RATE,_______,_______,_______,_______,_______,_______,_______,_______,             _______, _______, RB_DIMMER,  _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RB_LIGHT_TOGGLE, _______, _______, RB_BRIGHTER, _______, _______, _______, RB_TURBO_SLOWER,
+        _______, _______, RB_AUTO_W,RB_TURBO_E,RB_TURBO_RATE,RB_TURBO_SELECT,_______,_______,_______,_______,_______,_______,_______,             _______, _______, RB_DIMMER,  _______, _______, _______, RB_TURBO_FASTER,
         _______, _______, _______, _______, RB_TURBO_F,_______,_______,_______,_______,_______,_______,_______,_______, RB_WAVE,                                       _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,             RB_PROFILE_NEXT,    _______, _______, _______, _______,
         _______, RB_GAME, _______,                            RB_TURBO_SPACE,                    _______, RB_GAME, _______, _______,    RB_DIMMER,RB_PROFILE_PREV,RB_BRIGHTER, _______, _______
@@ -97,16 +97,7 @@ void housekeeping_task_user(void) {
 }
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    if (!redblade_rgb_output_active()) return true;
-    const bool fn_active = layer_state_is(1);
-    if (!redblade_controls_indicators_needed(fn_active)) return true;
-    for (uint8_t i = led_min; i < led_max; ++i) {
-        hsv_t color;
-        if (!redblade_controls_indicator(i, fn_active, &color)) continue;
-        if (color.v > rgb_matrix_get_val()) color.v = rgb_matrix_get_val();
-        const rgb_t rgb = hsv_to_rgb(redblade_rgb_apply_brightness(color));
-        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
-    }
+    redblade_controls_render(led_min, led_max, layer_state_is(1));
     return true;
 }
 

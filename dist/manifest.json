@@ -1,5 +1,5 @@
 {
-  "status": "experimental-build-tested",
+  "status": "experimental-basic-hardware-verified",
   "board": "Designed by GG Redblade FS ISO",
   "usb_vid": "320f",
   "usb_pid": "5136",
@@ -8,9 +8,9 @@
   "qmk_commit": "62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60",
   "toolchain": "arm-none-eabi-gcc.exe (crosstool-NG 1.27.0.82_7f9d704 - qmk/qmk_toolchains @ a55a2b0) 15.2.0",
   "binary_bytes": 65536,
-  "sha256": "39e201593dd75abc5a56d440d4c7892892657589ac2cd74f4028dcfc42198119",
-  "ram_bytes_including_reserved_stacks": 7700,
-  "ram_remaining_bytes": 492,
+  "sha256": "4ca4ca8100a8b1c7804dfb78fa5dd73deebca4523a790a4e5e163d7dbe57dfce",
+  "ram_bytes_including_reserved_stacks": 7724,
+  "ram_remaining_bytes": 468,
   "keyboard_usb_poll_interval_ms": 1,
   "shared_timer_clock_hz": 720896,
   "rgb_process_leds_per_task": 8,
@@ -18,34 +18,55 @@
   "via_layers": 3,
   "protocol_host_tests": "passed",
   "hardware_latency_measured": false,
-  "release": "v0.4.0",
-  "hardware_validation": null,
+  "release": "v0.6.0",
+  "hardware_validation": {
+    "date": "2026-11-04",
+    "flasher": "SonixFlasherC 3.1.0",
+    "bootloader": "0c45:7040 SN32F24xB, 64 KB",
+    "programming_verified": true,
+    "flash_checksum": "0x819a",
+    "via_protocol": 13,
+    "vialrgb_protocol": 1,
+    "led_count": 109,
+    "unique_led_positions_verified": true,
+    "fn_bindings_verified": 33,
+    "base_layer_preserved": true,
+    "third_layer_preserved": true,
+    "macros_preserved": true,
+    "direct_mode_saved": true,
+    "caps_num_fallback_user_confirmed": true,
+    "fn_vs_right_ctrl_user_confirmed": true,
+    "both_windows_red_lock_user_confirmed": true,
+    "calculator_shortcut_guide_user_confirmed": true,
+    "openrgb_service_restored": true,
+    "aurora_restarted": true,
+    "bootloader_shortcut_host_tested": true,
+    "bootloader_shortcut_on_device_tested": false,
+    "usb_power_cycle_tested": false,
+    "sustained_turbo_rgb_load_tested": false,
+    "physical_key_latency_measured": false,
+    "hid_read_round_trip_report": "docs/hid-reference.json"
+  },
   "previous_version_hardware_validation": {
-    "validation": {
-      "date": "2026-11-04",
-      "flasher": "SonixFlasherC 3.1.0",
-      "bootloader": "0c45:7040 SN32F24xB, 64 KB",
-      "programming_verified": true,
-      "flash_checksum": "0x9ba6",
-      "via_protocol": 13,
-      "vialrgb_protocol": 1,
-      "led_count": 109,
-      "unique_led_positions_verified": true,
-      "typing_user_confirmed": true,
-      "openrgb_mode": "Direct",
-      "aurora_mapping_leds": 109,
-      "per_key_sdk_stream_observed": true,
-      "physical_rgb_user_confirmation": "confirmed",
-      "usb_power_cycle_tested": false
-    },
-    "release": "v0.1.0"
+    "release": "v0.5.0",
+    "date": "2026-11-04",
+    "programming_verified": true,
+    "flash_checksum": "0x0f91",
+    "via_protocol": 13,
+    "vialrgb_protocol": 1,
+    "unique_led_positions": 109,
+    "aurora_connectivity_verified": true,
+    "wave_and_media_user_confirmed": true,
+    "generic_turbo_live_cadence_stop_user_confirmed": true,
+    "fn_rgb_result": "User reported Right Ctrl changing color; corrected to actual Fn LED 102 in 0.6.0",
+    "physical_latency_measured": false
   },
   "rgb_data_timeout_ms": 5000,
-  "boot_animation_ms": 1500,
-  "boot_animation_max_brightness": 96,
+  "boot_animation_ms": 2000,
+  "boot_animation_max_brightness": 255,
   "usb_suspend_rgb_off": true,
   "lifecycle_host_tests": "passed",
-  "boot_animation": "curved_red_wave_with_hsv_handover",
+  "boot_animation": "pure_red_intensity_wave_with_hsv_handover",
   "rgb_timeout_fallback": "white",
   "rgb_fallback_max_brightness": 64,
   "media_fallback": {
@@ -60,7 +81,7 @@
   },
   "usb_state_policy": "off_unless_configured",
   "project": "RedBlade+",
-  "fn_bindings": 30,
+  "fn_bindings": 33,
   "controls_host_tests": "passed",
   "python_tool_tests": 6,
   "audit": "docs/AUDIT.md",
@@ -81,16 +102,17 @@
     "action": "Fn+F9"
   },
   "game_helpers": {
-    "target_rates": [
-      25,
-      50,
-      100
-    ],
-    "turbo_targets": [
-      "E",
-      "F",
-      "Space"
-    ],
+    "target_rates": {
+      "minimum": 5,
+      "maximum": 100,
+      "step": 5,
+      "presets": [
+        25,
+        50,
+        100
+      ]
+    },
+    "turbo_targets": "VIA base-layer basic keyboard usages 0x04..0xA4, excluding Esc and keyboard power; no modifiers/system/consumer/layer/macro actions",
     "catch_up_bursts": false,
     "default_target_presses_per_second": 50,
     "forward_usage": "KC_W (QWERTY W / AZERTY Z)",
@@ -100,12 +122,53 @@
       "Fn+Esc",
       "Fn+F8",
       "USB suspend/disconnect"
-    ]
+    ],
+    "selection": "Fn+T, then press/release the target; ten-second timeout",
+    "live_rate_adjustment": "Fn+numpad-minus/plus"
   },
-  "bootloader_shortcut": "Fn+Shift+Esc held for 2000 ms",
+  "bootloader_shortcut": "Fn+Esc held for 2000 ms; Shift optional; short press stops helpers/unlocks",
   "native_benchmark": {
     "physical_key_latency_measured": false,
-    "sha256": "dc00fe1c7617a63068d1448c5463d7169c45bc90a58adb002a42d9b3296e6817",
+    "sha256": "32f047bb1857fefd02eae1e48e4a635581f0316afb08115802d7e416337b749c",
     "file": "redblade-plus-benchmark-windows.exe"
+  },
+  "fn_rgb_status": {
+    "led_index": 102,
+    "idle": "dim blue",
+    "held": "cyan; also while temporary guide is active",
+    "selection": "blinking amber",
+    "turbo": "red",
+    "forward_hold": "green",
+    "game_mode": "purple",
+    "separate_fn_indicator": "single-color B12 GPIO"
+  },
+  "direct_scalar_fields": "ignored; per-pixel brightness and master setting apply",
+  "custom_color_conversion": "QMK hsv_to_rgb_nocie",
+  "shortcut_guide": {
+    "shortcut": "Fn+Calculator",
+    "duration_ms": 20000,
+    "saved": false,
+    "escape_closes": true
+  },
+  "game_mode": {
+    "shortcut": "Fn+either Windows key",
+    "indicators": [
+      97,
+      101
+    ],
+    "color": "red",
+    "shift_action": "unlock"
+  },
+  "dynamic_fallback": {
+    "requires": "Host profile, Direct mode, no RGB for five seconds, white idle fallback enabled",
+    "caps_lock_led": 61,
+    "caps_lock_active": "green",
+    "shift_keys_unchanged": true,
+    "num_lock_led": 37,
+    "num_lock_active": "green key, white 17-key numpad",
+    "num_lock_inactive_brightness": 8,
+    "scroll_lock_led": 14,
+    "scroll_lock_active": "amber",
+    "fresh_host_colors_take_priority": true
   }
 }

@@ -43,7 +43,7 @@ def hid_round_trips(kb, samples):
     identity=kb.request(0xFE,0)
     if identity[4:12]!=b'RDBLFS01' or identity[12]!=1: raise RuntimeError('Unexpected firmware signature')
     controls=kb.request(0xFE,0x81)
-    if controls[:3]==bytes([0xFE,0x81,1]) and controls[24:32]==b'RDBLFS01' and (controls[16] or controls[18]):
+    if controls[:3]==bytes([0xFE,0x81,1]) and controls[24:32]==b'RDBLFS01' and (controls[16] or controls[18] or (controls[19]&1)):
         raise RuntimeError('Press Esc to stop Turbo/forward hold before running the HID benchmark')
     firmware='.'.join(map(str,controls[3:6])) if controls[:3]==bytes([0xFE,0x81,1]) and controls[24:32]==b'RDBLFS01' else None
     if firmware is None:
