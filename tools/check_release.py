@@ -26,7 +26,7 @@ def validate(root=ROOT, elf=None, size_tool='arm-none-eabi-size', compiler='arm-
         sections={name:(int(size),int(address)) for name,size,address in re.findall(r'^(\.[\w.]+)\s+(\d+)\s+(\d+)',report,re.M)}
         remaining,address=sections['.heap']
         used=address-0x20000000
-        assert used+remaining==8192 and remaining>0
+        assert used+remaining==8192 and remaining>=64, 'Less than 64 bytes of unassigned SRAM; reserved stacks are counted separately'
         values.update(ram_bytes_including_reserved_stacks=used,ram_remaining_bytes=remaining)
     if update:
         manifest.update(values)
@@ -34,9 +34,12 @@ def validate(root=ROOT, elf=None, size_tool='arm-none-eabi-size', compiler='arm-
         if native.is_file(): manifest['native_benchmark']['sha256']=hashlib.sha256(native.read_bytes()).hexdigest()
         manifest['toolchain']=subprocess.check_output([str(compiler),'--version'],text=True).splitlines()[0]
         path.write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
-        (root/'dist/SHA256SUMS').write_text(values['sha256']+'  redblade-fs-aurora-via.bin\n',encoding='utf-8')
+        sums=root/'dist/SHA256SUMS'
+        lines=[line for line in sums.read_text(encoding='utf-8').splitlines() if not line.endswith('redblade-fs-aurora-via.bin')]
+        sums.write_text(values['sha256']+'  redblade-fs-aurora-via.bin\n'+''.join(line+'\n' for line in lines),encoding='utf-8')
     for name,value in values.items(): assert manifest[name]==value, f'Manifest mismatch: {name}'
     assert manifest['ram_bytes_including_reserved_stacks']+manifest['ram_remaining_bytes']==8192
+    assert manifest['ram_remaining_bytes']>=64
     assert manifest['led_count']==109 and manifest['qmk_commit']=='62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60'
     expected=(root/'dist/SHA256SUMS').read_text(encoding='utf-8').split()[0]
     assert expected==values['sha256']

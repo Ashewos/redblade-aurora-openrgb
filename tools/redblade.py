@@ -145,12 +145,22 @@ def status(kb):
         if controls[:3] != bytes([0xFE,0x81,1]) or controls[24:32] != b'RDBLFS01':
             raise RuntimeError('Unexpected RedBlade+ controls diagnostics')
         result.update(game_mode=bool(controls[6]),
+            edition='OpenRGB Core' if controls[19]&128 else 'RedBlade+ Full',
             lighting_profile={0:'OpenRGB',1:'White',2:'Red',3:'Off'}.get(controls[7],'Unknown'),
             master_brightness=controls[8], master_brightness_percent=round(controls[8]*100/255,1),
             startup_wave_enabled=bool(controls[9]&1), media_fallback_enabled=bool(controls[9]&2),
             idle_white_fallback=bool(controls[9]&4), bootloader_hold_ms=int.from_bytes(controls[10:12],'little'),
-            turbo_key=None if not controls[16] else {8:'E',9:'F',44:'Space'}.get(controls[16],f'HID 0x{controls[16]:02X}'),turbo_target_presses_per_second=controls[17],
-            forward_hold=bool(controls[18]),turbo_selection_armed=bool(controls[19]&1),shortcut_guide_active=bool(controls[19]&2))
+            turbo_key=None if not controls[16] else {8:'E',9:'F',44:'Space',0xD1:'Mouse left',0xD2:'Mouse right'}.get(controls[16],f'HID 0x{controls[16]:02X}'),turbo_target_presses_per_second=controls[17],
+            forward_hold=bool(controls[18]),turbo_selection_armed=bool(controls[19]&1),shortcut_guide_active=bool(controls[19]&2),recorder_active=bool(controls[19]&4),rate_control='Recorder' if controls[19]&8 else 'Turbo')
+    if tuple(data[3:6]) >= (0,7,0) and not (controls[19]&128):
+        recorder=kb.request(0xFE,0x82)
+        if recorder[:3]!=bytes([0xFE,0x82,1]) or recorder[24:32]!=b'RDBLFS01':
+            raise RuntimeError('Unexpected recorder diagnostics')
+        result['recorder']=dict(state={0:'Idle',1:'Choose slot',2:'Recording',3:'Playing',4:'Feedback',5:'Release loop shortcut'}.get(recorder[6],'Unknown'),
+            selected_slot=None if recorder[7]==255 else recorder[7]+1,speed_multiplier=recorder[8]/4 if recorder[8] else None,speed_mode='Hyper' if not recorder[8] else 'Timed',
+            error={0:None,1:'Empty slot',2:'Release held keys/modifiers',3:'Windows locked',4:'Memory full',5:'Time limit',6:'Invalid data'}.get(recorder[9],'Unknown'),
+            slot_bytes=[int.from_bytes(recorder[10+i*2:12+i*2],'little') for i in range(3)],
+            used_bytes=int.from_bytes(recorder[16:18],'little'),capacity_bytes=int.from_bytes(recorder[18:20],'little'),maximum_recording_ms=int.from_bytes(recorder[20:22],'little'),loop=bool(recorder[22]&1))
     print(json.dumps(result, indent=2))
     return 0
 

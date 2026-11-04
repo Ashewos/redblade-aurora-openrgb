@@ -3,6 +3,8 @@
 *.c text eol=lf
 *.h text eol=lf
 *.inc text eol=lf
+*.mk text eol=lf
+*.svg text eol=lf
 *.py text eol=lf
 *.ps1 text eol=lf
 *.sh text eol=lf

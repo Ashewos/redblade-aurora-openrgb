@@ -1,106 +1,122 @@
 # Raccourcis RedBlade+
 
-[English](SHORTCUTS.md) · [Projet](../README.fr.md) · [Installation](INSTALL.fr.md)
+[English](SHORTCUTS.md) · **Français** · [Projet](../README.fr.md) · [Installation](INSTALL.fr.md)
 
-Guide pour **RedBlade+ 0.6.0**. Fn se trouve entre Windows droite et Ctrl droit. Les touches normales, le pavé numérique et les quatre touches multimédias gardent leur rôle habituel sans Fn.
+Firmware **0.8.0**, Red Blade Full Size ISO. Fn est entre Windows droite et Ctrl droit. **1/2/3 désigne la rangée de chiffres au-dessus des lettres** ; **−/+ désigne le pavé numérique**.
 
-## Répéter une touche : exemple avec G
+![Raccourcis classés par fonction](assets/shortcuts.fr.png)
 
-1. Appuie sur **Fn + T**, puis relâche les deux touches. Fn clignote en **ambre** : tu as 10 secondes pour choisir.
-2. Appuie sur **G**, puis relâche G. Ce choix ne tape rien ; le Turbo démarre au relâchement. G et Fn deviennent **rouges**.
-3. Pendant le Turbo, **Fn + − du pavé numérique** ralentit de 5 appuis/s ; **Fn + + du pavé numérique** accélère de 5. La cible va de **5 à 100 appuis/s**, avec **50 par défaut**. Ces réglages fonctionnent aussi avant de démarrer.
-4. **Échap** arrête immédiatement. Tu peux aussi utiliser **Fn + Échap**, **Fn + T**, ou appuyer normalement sur la touche répétée. Fn + T pendant un Turbo l'arrête sans lancer un nouveau choix.
+## 1. Recorder — trois emplacements temporaires
 
-**Fn + R** parcourt les préréglages **25 → 50 → 100** ; **Fn + Maj + R** parcourt le sens inverse. Changer la cadence conserve la touche choisie et n'interrompt pas le Turbo. La cadence est une cible : le jeu et le bus USB peuvent traiter moins d'événements.
+Exemple : enregistrer une courte séquence dans le slot 1 puis la rejouer.
 
-Tu peux choisir une lettre, un chiffre, un signe, F1–F12, une flèche, une touche de navigation ou du pavé numérique. Le choix utilise le remappage **VIA de la couche de base**, même si Fn reste enfoncée : choisir F1 répète donc F1 au lieu de changer de profil lumineux. Fn, les modificateurs, Échap, les commandes système/alimentation, les touches multimédias et les macros ne sont pas des cibles. Les modificateurs restent utilisables et s'appliquent aux répétitions.
+1. Relâche les autres touches. Appuie sur **Fn + Calculatrice**, puis relâche : Calculatrice et Fn respirent en **ambre** pour demander un emplacement.
+2. Appuie sur **Fn + 1**, puis relâche. Calculatrice, Fn et 1 respirent en **rouge** : tape normalement ta séquence. La première touche sera rejouée immédiatement ; les délais entre les frappes suivantes sont conservés à la milliseconde.
+3. Appuie à nouveau sur **Fn + Calculatrice** pour terminer. Choisir un emplacement déjà rempli pour enregistrer remplace son contenu ; les deux autres restent conservés.
+4. **Fn + 1** rejoue une fois, avec une respiration **verte**. **Fn + Maj + 1** lance la boucle : relâche Fn et Maj pour démarrer ; la respiration devient **cyan**. Le même raccourci de boucle l’arrête.
+5. **Échap**, **Fn + Calculatrice**, un appui court **Fn + Échap**, ou une frappe normale arrête la lecture. Ta frappe normale est ensuite traitée normalement. Échap termine aussi un enregistrement ; il n’est pas ajouté à la séquence.
 
-Commence dans le Bloc-notes. Le clavier ne connaît pas l'application active : le Turbo continue si tu changes de fenêtre. Il s'arrête à la suspension/déconnexion USB et ne redémarre jamais seul.
+| Commande Recorder | Action |
+| --- | --- |
+| Fn + Calculatrice | Préparer le choix ; terminer l’enregistrement ; arrêter la lecture ; annuler le choix |
+| Fn + 1 / 2 / 3 pendant le choix | Enregistrer dans cet emplacement |
+| Fn + 1 / 2 / 3 sinon | Lire cet emplacement une fois |
+| Fn + Maj + 1 / 2 / 3 | Lire en boucle ; même raccourci pour arrêter |
+| Fn + − / + du pavé | Descendre / monter : **0,5×, 0,75×, 1×, 1,25×, 1,5×, 1,75×, 2×, 4×, 8×, Hyper** |
 
-## Raccourcis de jeu
+**Un appui change d’un cran ; un maintien enchaîne les crans** (400 ms au départ, puis 150 ms par cran). La valeur **reste sélectionnée au relâchement**. Un ou plusieurs − permettent de revenir aux vitesses classiques. Hyper vise **une transition enregistrée par milliseconde**, avec au moins 5 ms entre deux boucles ; il abandonne le rythme d’origine. Défaut : 1×. Pendant une lecture/Turbo actif, −/+ du pavé seuls règlent aussi la vitesse ; au repos ou en enregistrement, ils sont saisis normalement.
+
+−/+ agit sur la **dernière fonction choisie** : Recorder règle la vitesse de lecture ; Turbo règle les appuis/s. Calculatrice ou un slot sélectionne Recorder. Fn + R ou un raccourci Turbo sélectionne Turbo et arrête Recorder. Avec Fn maintenue, les indices −/+ violets signalent le contexte Recorder. Régler la vitesse ne modifie jamais les délais enregistrés.
+
+Les trois emplacements partagent **192 octets de RAM**, soit **environ 48 appuis simples au total**, moins avec les modificateurs ou les longues pauses. Un enregistrement dure au plus **30 secondes**. Si la mémoire est pleine ou la durée atteinte, la partie capturée est terminée proprement, conservée et signalée brièvement en ambre. Un slot vide ou des touches/modificateurs encore maintenus donnent aussi un signal ambre : relâche les touches puis réessaie. Le choix du slot expire après 10 secondes. Avec Fn maintenue, un slot rempli est vert ; un slot vide est très faible.
+
+Le Recorder conserve les appuis/relâchements du clavier standard et les touches physiques Ctrl/Alt/Maj/Windows, y compris les maintiens et chevauchements. Il ne capture pas la souris, les commandes multimédias, les commandes Fn ni les macros/actions QMK avancées. La disposition Windows, Verr. Maj/Num et l’application déterminent le résultat : ce sont des événements clavier, pas du texte mémorisé. Le firmware ne reconnaît pas la fenêtre active.
+
+La lecture ne possède que ses touches générées et les libère à l’arrêt. Une boucle conserve au moins 5 ms de relâchement entre deux passages, sans rattrapage en rafale. Le mode jeu refuse un enregistrement contenant Windows. Recorder et Turbo/maintien sont exclusifs : démarrer l’un arrête l’autre. Rien ne démarre automatiquement.
+
+**Temporaire = RAM uniquement** : aucune écriture EEPROM, aucun contenu exporté par le diagnostic, aucune sauvegarde avec F9. Reset/déconfiguration USB, débranchement ou coupure d’alimentation effacent les slots. Une simple veille USB alimentée arrête les fonctions et peut conserver les slots terminés ; un reset USB à la reprise les efface. Aucune lecture ne reprend seule. F8 arrête les fonctions et remet la vitesse à 1×, en conservant les slots RAM présents.
+
+## 2. Turbo et jeu
 
 | Raccourci | Action |
 | --- | --- |
-| Fn + E / F / Espace | Démarrer/arrêter le Turbo de cette touche ; LED rouge |
-| Fn + T, puis une touche | Choisir une cible ; Fn + T arrête un Turbo déjà actif |
-| Fn + − / + du pavé numérique | Cadence −5 / +5, de 5 à 100 appuis/s |
-| Fn + R / Fn + Maj + R | Préréglage suivant / précédent : 25, 50, 100 |
-| Fn + Z en AZERTY / Fn + W en QWERTY | Maintenir la touche pour avancer ; LED verte |
-| Fn + une touche Windows | Verrouiller/déverrouiller Windows ; les deux logos deviennent rouges |
+| Fn + T, puis appuyer/relâcher une touche | Choisir la cible ; choix ambre, puis Fn/cible rouges |
+| Fn + T, puis Volume − / + | Turbo clic gauche / droit au relâchement ; touche volume et Fn ambre / violet |
+| Fn + E / F / Espace | Démarrer/arrêter un Turbo direct |
+| Fn + R / Fn + Maj + R | Préréglage suivant / précédent : **25, 50, 100 appuis/s** ; sélectionner Turbo |
+| Fn + − / + du pavé, contexte Turbo | **5–100/s par pas de 5, puis 125/150/175/200/225/250/s** ; maintien pour enchaîner, valeur conservée au relâchement |
+| Fn + Z en AZERTY / Fn + W en QWERTY | Maintenir pour avancer ; cible verte |
+| Fn + une touche Windows | Verrouiller/déverrouiller Windows ; **les deux logos deviennent rouges** |
 | Fn + Maj + une touche Windows | Déverrouiller Windows |
-| Fn + Calculatrice | Guide lumineux 20 secondes ; deuxième appui pour fermer |
-| Échap | Arrêter Turbo et maintien ; Échap est envoyé à l'application |
-| Fn + Échap | Arrêter les fonctions de jeu et déverrouiller Windows ; aucun Échap envoyé |
+| Échap | Arrêter les fonctions ; Échap est aussi envoyé à l’application |
+| Fn + Échap, appui court | Arrêter et déverrouiller Windows ; aucun Échap envoyé |
 
-Un seul Turbo peut fonctionner, avec le maintien pour avancer en parallèle. S'ils ciblent la même touche d'avancée, la nouvelle fonction remplace l'ancienne. Un appui normal sur une cible rend la main à ton doigt. Le mode jeu bloque les touches Windows et les raccourcis QMK simples utilisant Windows ; il ne filtre pas toutes les macros VIA ou actions avancées.
+Le Turbo souris partage la cadence et remplace le Turbo clavier. Il envoie uniquement des boutons HID, sans bouger le pointeur. **Échap**, Fn + T, Calculatrice/un slot, F8, suspension USB ou un appui sur la touche volume cible arrête et libère le clic. Les volumes et commandes médias restent normaux hors sélection/Turbo clic actif. Le Recorder n’enregistre pas la souris.
 
-## Couleur de Fn
+Turbo démarre à 50/s. Un Turbo peut fonctionner avec le maintien pour avancer. Un appui normal sur une cible rend la main à ton doigt. La cadence est une cible, dépendante de l’USB et de l’application ; une seule transition est produite par passage, sans attente active ni rafale de rattrapage.
 
-| Couleur | Signification |
+Le choix Turbo utilise la touche standard de la couche de base VIA, même si Fn reste maintenue. Fn, modificateurs, Échap, alimentation/système, médias et macros ne sont pas des cibles. Le choix expire après 10 secondes ; Fn + T pendant un Turbo l’arrête. Le mode jeu filtre Windows et les raccourcis QMK simples utilisant Windows, pas toutes les macros ou actions avancées.
+
+## 3. Éclairage — F1 à F4
+
+| Raccourci | Action |
 | --- | --- |
-| Bleu discret | Au repos |
-| Cyan | Fn enfoncée ou guide visible, sans fonction prioritaire |
-| Ambre clignotant | Choix d'une touche Turbo ou attente de son relâchement |
-| Rouge | Turbo actif ; la cible est rouge aussi |
-| Vert | Maintien pour avancer, sans Turbo |
-| Violet | Mode jeu actif, sans fonction automatique et Fn relâchée |
+| Fn + F1 | Rendre les couleurs à Aurora / OpenRGB |
+| Fn + F2 | Blanc réactif local avec traînées rouges |
+| Fn + F3 | Profil rouge local |
+| Fn + F4 | Éteindre |
+| Fn + Retour arrière | Éteindre / rétablir le profil précédent |
+| Fn + Gauche / Droite | Luminosité − / + |
+| Fn + Page bas / Page haut | Luminosité − / + |
 
-L'ordre de priorité est choix → Turbo → maintien → Fn enfoncée/guide → mode jeu → repos. Avec Fn enfoncée, T est ambre ; R et −/+ du pavé montrent la plage de cadence : vert à 5–25, ambre à 30–50, rouge à 55–100. Ces couleurs sont celles du **rétroéclairage RGB de la touche Fn**. Le voyant Fn séparé de la carte est monochrome et garde son fonctionnement allumé/éteint.
+Les profils locaux gardent leurs couleurs pendant la réception du flux. F1 reprend des couleurs fraîches. La vague rouge est automatique si activée. Fn + Entrée et Fn + Haut/Bas sont désormais transmis comme les touches normales.
 
-Tous les indicateurs RGB respectent l'extinction, la luminosité zéro et la suspension USB. Les commandes d'arrêt fonctionnent même sans lumière.
+## 4. Réglages — F5 à F9
 
-## Les quatre touches en haut à droite
+| Raccourci | Rôle | Défaut / sauvegarde |
+| --- | --- | --- |
+| **Fn + F5** | Vague rouge automatique au démarrage/reprise | Activée ; F9 enregistre ce choix |
+| **Fn + F6** | Blanc des quatre touches multimédias si le PC les laisse noires | Activé ; F9 enregistre ce choix |
+| **Fn + F7** | Sans RGB depuis 5 secondes : blanc de secours / sombre | Blanc ; F9 enregistre ce choix |
+| **Fn + F8** | Éclairage par défaut, arrêt, Windows déverrouillé, Turbo 50/s et Recorder 1× | RAM ; conserve VIA et les slots enregistrés |
+| **Fn + F9** | Enregistrer profil, luminosité et options F5/F6/F7 | Écriture explicite ; ne sauvegarde pas les slots Recorder ni les fonctions de jeu |
+
+Avec Fn maintenue, F5/F6/F7 sont verts quand activés. F8 restaure aussi la luminosité QMK pour récupérer un réglage externe à zéro. F9 donne un bref vert sur Calculatrice si aucun indicateur Recorder prioritaire n’est actif. Les commandes ordinaires et le flux RGB n’écrivent pas en EEPROM. Éteint/luminosité zéro masque aussi les voyants, mais Échap reste utilisable.
+
+## 5. Les quatre touches multimédias
 
 | Touche | Seule | Avec Fn | Avec Fn + Maj |
 | --- | --- | --- | --- |
-| Calculatrice | Calculatrice | Guide lumineux 20 secondes | Fermer le guide |
+| Calculatrice | Calculatrice | Commande Recorder | Même commande Recorder |
 | Muet | Couper/remettre le son | Lecture/pause | Arrêter la lecture |
 | Volume − | Baisser le volume | Piste précédente | Baisser la luminosité |
 | Volume + | Monter le volume | Piste suivante | Monter la luminosité |
 
-Si Aurora les laisse noires, un blanc discret les éclaire. Fn + F6 active/désactive ce secours. Une couleur non noire du PC garde la priorité, sauf un indicateur temporaire du firmware. L'extinction globale et la suspension USB restent prioritaires.
+Fn + Pause arrête aussi la lecture multimédia. Relâcher Fn/Maj avant la touche ne laisse pas de touche générée maintenue.
 
-## Éclairage et sauvegarde
+## Touches dynamiques et couleurs
 
-| Raccourci | Action |
+Le **profil hôte par défaut donne priorité à Aurora/OpenRGB**. Après **5 secondes sans RGB**, il passe au **blanc avec traînées rouges** : chaque frappe physique, Turbo ou lettre rejouée s’allume, puis revient au blanc en environ une demi-seconde (15 images, durée dépendante de la charge). Fn + F2 choisit ce blanc réactif explicitement. Les indicateurs de verrouillage restent prioritaires.
+
+Une frappe physique éclaire sa position réelle. Le rejeu utilise les positions des touches d’origine : après remappage VIA, la lumière suit la touche d’origine correspondant au code rejoué. Le texte dépend toujours de la disposition du PC. Aucun effet de frappe ne recouvre un flux RGB actif dans le profil hôte.
+
+Le blanc de secours et le profil blanc local reflètent aussi les états :
+
+| État | Éclairage |
 | --- | --- |
-| Fn + F1 / F2 / F3 / F4 | Aurora/OpenRGB / blanc / rouge / éteint |
-| Fn + Retour arrière | Éteindre/rétablir le profil précédent |
-| Fn + Page haut ou flèche droite | Augmenter la luminosité |
-| Fn + Page bas ou flèche gauche | Diminuer la luminosité |
-| Fn + flèche haut / bas | Profil suivant / précédent |
-| Fn + Entrée | Rejouer la vague rouge de 2 secondes, puis revenir au profil |
-| Fn + F5 | Vague automatique au démarrage/reprise : oui/non |
-| Fn + F6 | Secours blanc des quatre touches multimédias : oui/non |
-| Fn + F7 | Sans données RGB pendant 5 secondes : blanc/éteint |
-| Fn + F8 | Réglages par défaut, arrêt des fonctions de jeu, Windows déverrouillé, cadence 50/s |
-| Fn + F9 | Enregistrer les préférences lumineuses ; Calculatrice verte brièvement |
-| Fn + Pause | Arrêter la lecture multimédia |
+| Verr. Maj actif / inactif | Verr. Maj verte / blanche ; les touches Maj restent inchangées |
+| Verr. Num actif | Les 17 touches du pavé blanches ; Num verte |
+| Verr. Num inactif | Tout le pavé blanc très faible, valeur linéaire 8/255 |
+| Verr. défilement actif | Défilement ambre |
 
-Fn + F9 enregistre seulement le profil, la luminosité et les options lumineuses. Le Turbo, son choix/cadence, le maintien et le mode jeu restent temporaires. Les commandes ordinaires et le flux RGB n'écrivent pas en EEPROM. Fn + F8 ne supprime pas les touches/macros VIA.
+Un nouveau flux reprend la priorité sur ces états. Rouge/effets autonomes, secours sombre, éteint, luminosité zéro et suspension USB restent prioritaires. Le secours des quatre médias est séparé : couleur non noire du PC prioritaire, F6 active/désactive le blanc s’ils sont noirs. Le protocole ne distingue pas un noir volontaire d’une affectation absente.
 
-## Éclairage dynamique sans logiciel RGB
+Calculatrice/Fn/slot actif respirent en rouge pendant l’enregistrement, vert pour une lecture, cyan en boucle, ambre pendant choix/attente/limite. Sinon Fn est bleue discrète au repos, cyan enfoncée, rouge pendant Turbo clavier, ambre pour clic gauche, violette pour clic droit, verte pendant maintien, violette en mode jeu. Les fonctions actives sont prioritaires. Le voyant Fn séparé reste monochrome, allumé/éteint.
 
-![Carte des raccourcis](assets/shortcuts.fr.png)
+## Bootloader
 
-Dans le profil Aurora/OpenRGB, après **5 secondes sans données RGB**, le blanc de secours indique aussi l’état des verrouillages :
+**Maintenir Fn + Échap 2 secondes**. Relâcher l’une des touches annule ; un appui court arrête et déverrouille. Maj reste facultative. Les versions 0.4/0.5 utilisaient Fn + Maj + Échap ; la 0.1 pouvait basculer immédiatement.
 
-| État | Rétroéclairage |
-| --- | --- |
-| Verr. Maj actif | La touche Verr. Maj devient verte ; les deux Maj restent inchangées |
-| Verr. Maj inactif | Verr. Maj reste blanche |
-| Verr. Num actif | Les 17 touches du pavé sont blanches, avec Verr. Num en vert |
-| Verr. Num inactif | Tout le pavé devient blanc très faible, valeur linéaire 8/255 |
-| Verr. défilement actif | La touche défilement devient ambre |
+## Mise à jour du calque VIA
 
-Un nouveau flux RGB reprend immédiatement la priorité sur ces états : ils ne recolorent pas les effets d’Aurora. Les profils locaux blanc/rouge et les effets autonomes sont conservés. Éteint, luminosité zéro, secours sombre et suspension USB restent prioritaires. Verr. Num inactif ne désactive pas physiquement les touches : le firmware en indique simplement l’état.
-
-**Fn + Calculatrice** est le guide lumineux : les autres touches s’atténuent et les commandes Fn s’éclairent selon leur rôle. Fn devient cyan. Un deuxième appui, Échap ou l’expiration des **20 secondes** ferme le guide. **Fn + Maj + Calculatrice** le ferme aussi. Cela ne verrouille pas Windows, ne démarre pas le Turbo et ne sauvegarde rien. Calculatrice seule garde son rôle normal.
-
-## Mise à jour et bootloader
-
-Sur RedBlade+ 0.6.0 et versions suivantes, maintiens **Fn + Échap pendant 2 secondes**. Relâcher Fn ou Échap annule. **Fn + Échap seul reste la commande d'arrêt.**
-
-Si un ancien calque Fn est conservé après le flash, ferme OpenRGB, Aurora et VIA puis lance l'[installateur avec sauvegarde](SHORTCUTS.md#upgrading-an-existing-via-layer). La version 0.6.0 installe 33 raccourcis sur la couche Fn et conserve les touches de base et les macros.
-
-Les versions 0.4/0.5 utilisaient Fn + Maj + Échap pendant 2 secondes. Sur 0.6.0, Maj reste acceptée mais n’est plus nécessaire. Un appui court Fn + Échap arrête les fonctions de jeu et déverrouille Windows ; il faut maintenir les deux touches pour flasher.
+Fermer OpenRGB, Aurora et VIA puis utiliser l’[installateur avec sauvegarde privée](SHORTCUTS.md#upgrading-an-existing-via-layer). Il demande la 0.7.0, installe **33 commandes**, efface explicitement les **3 anciens raccourcis** Haut/Bas/Entrée et vérifie les écritures avec tentative de retour arrière en cas d’erreur. Les touches de base, les macros VIA et les autres affectations Fn sont conservées. Les slots Recorder sont distincts des macros VIA et ne figurent pas dans la sauvegarde.

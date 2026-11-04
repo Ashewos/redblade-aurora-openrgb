@@ -14,20 +14,33 @@ Per-key OpenRGB lighting, useful Fn shortcuts and game helpers for the **Designe
 
 [Download](https://github.com/Gaerisson/redblade-aurora-openrgb/releases/latest) · [Shortcuts](docs/SHORTCUTS.md) · [Install](docs/INSTALL.md) · [Performance](docs/PERFORMANCE.md) · [Changelog](CHANGELOG.md)
 
+![Firmware features](docs/assets/features.png)
+
+## Choose your edition
+
+| Edition | Included | Firmware |
+| --- | --- | --- |
+| **OpenRGB Core** | Per-key OpenRGB/Aurora + VIA; no game helpers, Recorder, local effects or added status overlays | `redblade-fs-openrgb-core.bin` |
+| **RedBlade+ Full** | Every feature shown below | `redblade-fs-aurora-via.bin` |
+
+Each edition has its own manifest and separate complete-source package. Core turns lights off after 5 s without RGB and retains the guarded Fn + Esc bootloader shortcut. [Choose/switch editions](docs/EDITIONS.md).
+
 ## What you get
 
 | Feature | How it works |
 | --- | --- |
 | Native OpenRGB integration | 109 independently controlled LEDs through VialRGB; Aurora connects through the OpenRGB SDK |
-| A useful Fn media deck | Calculator → 20-second shortcut guide, Mute → play/pause, Volume −/+ → previous/next; Shift adds more controls |
+| A useful Fn media deck | Calculator → timed Recorder control, Mute → play/pause, Volume −/+ → previous/next; Shift adds more controls |
 | Windows-key lock | Fn + either Windows key; both Windows logos turn red while locked |
-| Choose a Turbo key | Fn + T, then a basic key; live 5–100/s adjustment with Fn + numpad −/+; E/F/Space presets retained |
-| Fn RGB status | Dim blue idle, cyan Fn held, amber selection, red Turbo, green hold, purple Game Mode |
+| Choose a Turbo key | Fn + T, then a basic key; live 5–250/s adjustment with Fn + numpad −/+; E/F/Space presets retained |
+| Mouse Turbo | Fn + T, then Volume −/+: left/right click, amber/purple indicators, shared cadence |
+| Reactive white | Without host RGB, physical typing and replayed letters leave red trails on white |
+| Fn RGB status | Breathing Recorder colors; blue idle, cyan Fn held, red Turbo, green hold, purple Game Mode |
 | Forward hold | Fn + W on QWERTY / Fn + Z on AZERTY; green active LED |
 | Immediate stop | Esc stops game helpers; Fn + Esc also unlocks Windows |
 | Local lighting profiles | Host, white, red and Off; brightness works with host colors too |
 | Dynamic fallback | Without live RGB: green Caps/Num Lock, amber Scroll Lock, white active numpad / very dim inactive numpad |
-| Shortcut guide | Fn + Calculator highlights commands for 20 seconds; press again to close |
+| Three temporary recordings | Fn + Calculator, then Fn + 1/2/3 records; Fn + a slot plays once; Shift loops it; live speed 0.5×–8× + Hyper |
 | White fallback | Optional white after 5 seconds without RGB, plus fallback for all four media keys |
 | Red startup wave | Visible curved 2-second wave and smooth handover to the latest host colors |
 | Preferences you control | Fn + F9 saves lighting settings; regular controls and RGB streaming stay RAM-only |
@@ -35,12 +48,15 @@ Per-key OpenRGB lighting, useful Fn shortcuts and game helpers for the **Designe
 
 Game helpers start disabled, stop on USB suspension/disconnection and never resume automatically. They act on the active application; the firmware cannot detect game focus. One Turbo target can run alongside forward hold. Normal presses of a helper's target key give control back to your finger.
 
-## Five shortcuts to learn first
+## Start with these shortcuts
 
 | Shortcut | Action |
 | --- | --- |
 | **Fn + Windows** | Toggle Game Mode; both Windows keys turn red |
-| **Fn + E** | Start/stop Turbo E; E turns red |
+| **Fn + Calculator → Fn + 1** | Record slot 1; Calculator again finishes |
+| **Fn + 1 / Shift + Fn + 1** | Play slot 1 once / loop it |
+| **Fn + numpad −/+** | Adjust; hold to step repeatedly; release keeps the value |
+| **Fn + E** | Start/stop Turbo E |
 | **Esc** | Stop Turbo and forward hold |
 | **Fn + F1** | Give lighting control back to OpenRGB / Aurora |
 | **Fn + F8** | Restore defaults, stop helpers and unlock Windows |
@@ -81,9 +97,9 @@ OpenRGB also works without Aurora. VIA and OpenRGB share Raw HID; close VIA duri
 - RGB work is split into eight-LED chunks with a 33 ms minimum frame interval. Status overlays are bounded; Fn has a persistent idle/active color. Turbo schedules at most one edge per housekeeping pass; no catch-up queue or busy wait.
 - A Windows native benchmark and read-only USB timing tool are included. [Run them tonight](docs/PERFORMANCE.md); host timings are not physical key-latency measurements.
 
-**0.6.0 is experimental; validation is recorded separately from build results.** Version 0.5.0 was flashed and its wave/media lighting, generic Turbo, live rate adjustment and stop were user-confirmed; its Fn color was on Right Ctrl and is corrected here. On 0.6.0 the user confirmed Caps/Num fallback, corrected Fn placement, both Windows lock LEDs and the Calculator guide. Extended load, physical key latency and sleep/shutdown checks remain unmeasured. See the [audit](docs/AUDIT.md), [manifest](dist/manifest.json) and [test workflow](.github/workflows/test.yml) for the exact scope.
+**0.8.0 is experimental.** Full was flashed with programming/checksum verified. Its owner confirmed reactive white, replayed-letter lighting, latched Hyper speed, both click targets/colors/stops and Aurora priority. Core is build/host-tested, with no hardware validation claimed. See the [audit](docs/AUDIT.md), [manifest](dist/manifest.json) and [test workflow](.github/workflows/test.yml) for the exact scope.
 
-The keyboard turns its RGB off when USB is suspended or unconfigured. A host that keeps the USB bus genuinely active after shutdown cannot be distinguished from an application that stopped sending colors; see the [USB power limitations](docs/INSTALL.md#fallback-lighting-and-red-wave--060).
+The keyboard turns its RGB off when USB is suspended or unconfigured. A host that keeps the USB bus genuinely active after shutdown cannot be distinguished from an application that stopped sending colors; see the [USB power limitations](docs/INSTALL.md#fallback-lighting-and-red-wave--070).
 
 ## Project files
 

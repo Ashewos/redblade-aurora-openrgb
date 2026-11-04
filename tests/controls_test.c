@@ -42,8 +42,8 @@ int main(void) {
     redblade_controls_suspend(); assert(!key_down[KC_MNXT]);
 
     redblade_rgb_defaults(); now=3000; frame(0,200); assert(color(0).v==200);
-    press(RB_WHITE); assert(color(0).s==0 && color(0).v==255);
-    frame(0,150); assert(color(0).s==0 && color(0).v==255); // Host cannot override local profile.
+    press(RB_WHITE); assert(color(0).s==0 && color(0).v==64);
+    frame(0,150); assert(color(0).s==0 && color(0).v==64); // Host cannot override local profile.
     press(RB_RED); assert(color(0).h==0 && color(0).s==255);
     press(RB_LIGHT_TOGGLE); assert(color(16).v==0 && !redblade_rgb_output_active());
     press(RB_LIGHT_TOGGLE); assert(redblade_rgb_profile_get()==RB_PROFILE_RED);
@@ -152,7 +152,7 @@ int main(void) {
     for(unsigned i=0;i<50;++i) press(RB_TURBO_SLOWER);
     assert(redblade_turbo_rate()==5);
     for(unsigned i=0;i<50;++i) press(RB_TURBO_FASTER);
-    assert(redblade_turbo_rate()==100);
+    assert(redblade_turbo_rate()==250);
     assert(event(0x0A,true,3,5) && !redblade_turbo_key()); // Any target yields to a real press.
     assert(event(0x0A,false,3,5));
     assert(!event(RB_TURBO_SELECT,true,2,5)); assert(!event(0x17,false,2,5));
@@ -187,11 +187,5 @@ int main(void) {
     assert(!event(RB_TURBO_SLOWER,true,1,20));
     assert(!event(0x56,false,1,20) && key_down[0x56]); // Fn released first: do not steal the generated report.
     assert(event(KC_ESC,true,0,0) && !key_down[0x56]);
-    press(RB_GUIDE); assert(redblade_guide_active());
-    now+=REDBLADE_GUIDE_TIMEOUT_MS-1; redblade_controls_task(false); assert(redblade_guide_active());
-    ++now; redblade_controls_task(false); assert(!redblade_guide_active());
-    press(RB_GUIDE); assert(redblade_guide_active());
-    press(RB_GUIDE); assert(!redblade_guide_active());
-    press(RB_GUIDE); assert(event(KC_ESC,true,0,0) && !redblade_guide_active());
     puts("PASS: Windows lock, media release safety, profiles, persistence, Turbo ownership/rates/stop, forward hold, guarded boot, indicators");
 }

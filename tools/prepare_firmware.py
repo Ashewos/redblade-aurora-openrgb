@@ -11,7 +11,7 @@ QMK_COMMIT = '62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60'
 BASE_TIMER = '(RGB_MATRIX_HUE_STEP * RGB_MATRIX_SAT_STEP * RGB_MATRIX_VAL_STEP * RGB_MATRIX_SPD_STEP * RGB_MATRIX_LED_PROCESS_LIMIT)'
 
 
-def prepare(qmk):
+def prepare(qmk, edition='full'):
     actual = subprocess.check_output(['git', '-C', str(qmk), 'rev-parse', 'HEAD'], text=True).strip()
     if actual != QMK_COMMIT:
         raise SystemExit(f'Expected pinned SonixQMK {QMK_COMMIT}, found {actual}')
@@ -24,9 +24,10 @@ def prepare(qmk):
     assert positions[16:20] == [(0, 17), (0, 18), (0, 19), (0, 20)], 'Media-key fallback indices differ from the pinned board'
     original_map = (root/'firmware/aurora_via/led_positions.inc').read_text(encoding='utf-8')
     assert re.findall(r'\{(\d+), (\d+)\}', original_map) == [tuple(map(str, p)) for p in positions]
-    target = board / 'keymaps/aurora_via'
+    keymap = 'openrgb_core' if edition == 'core' else 'aurora_via'
+    target = board / 'keymaps' / keymap
     target.mkdir(parents=True, exist_ok=True)
-    for source in (root/'firmware/aurora_via').iterdir():
+    for source in (root/'firmware'/keymap).iterdir():
         if source.is_file():
             shutil.copy2(source, target/source.name)
     driver = qmk / 'drivers/led/sn32f2xx.c'
@@ -46,4 +47,6 @@ def prepare(qmk):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('qmk', type=Path)
-    prepare(parser.parse_args().qmk.resolve())
+    parser.add_argument('--edition', choices=['full','core'], default='full')
+    args=parser.parse_args()
+    prepare(args.qmk.resolve(),args.edition)

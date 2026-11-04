@@ -7,4 +7,6 @@ extern led_t host_locks;
 extern rgb_t rendered[109];
 extern uint32_t now, eeprom_user;
 extern unsigned responses, eeprom_writes, keyboard_reports, bootloader_calls, key_down_calls, key_up_calls;
+extern uint8_t mouse_buttons;
+extern unsigned mouse_downs,mouse_reports;
 bool via_command_kb(uint8_t *data, uint8_t length);

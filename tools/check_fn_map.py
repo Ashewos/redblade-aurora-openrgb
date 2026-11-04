@@ -14,7 +14,7 @@ def keymap_layers(root=ROOT):
 
 def check(root=ROOT):
     doc = json.loads((root/'fn-shortcuts.json').read_text(encoding='utf-8'))
-    assert doc['layer'] == 1 and doc['minimum_firmware'] == [0, 6, 0]
+    assert doc['layer'] == 1 and doc['minimum_firmware'] == [0, 7, 0]
     layers = keymap_layers(root)
     assert len(layers[0]) == len(layers[1]) == 109
     positions = [tuple(led['matrix']) for led in json.loads((root/'led-map.json').read_text(encoding='utf-8'))]
@@ -22,7 +22,7 @@ def check(root=ROOT):
     fixture=re.findall(r'\{(\d+), (\d+)\}',(root/'tests/led_points.inc').read_text(encoding='utf-8'))
     assert [(int(x),int(y)) for x,y in fixture]==[(p['x'],p['y']) for p in points], 'Benchmark LED geometry differs from the board'
     header = (root/'firmware/aurora_via/redblade_controls.h').read_text(encoding='utf-8')
-    symbols = re.findall(r'\bRB_[A-Z_]+\b', re.search(r'enum redblade_keycodes\s*\{(.*?)\}', header, re.S).group(1))
+    symbols = re.findall(r'\bRB_[A-Z0-9_]+\b', re.search(r'enum redblade_keycodes\s*\{(.*?)\}', header, re.S).group(1))
     codes = {name:0x7E40+i for i,name in enumerate(symbols)}
     codes['KC_MSTP'] = 0xAD
     expected = {pos:code for pos,code in zip(positions,layers[1]) if code != '_______'}
@@ -33,7 +33,13 @@ def check(root=ROOT):
         assert codes[binding['symbol']] == binding['code']
         actual[pos] = binding['symbol']
     assert expected == actual, 'Fn mapping differs from compiled keymap'
-    assert actual[(0,17)] == 'RB_GUIDE' and actual[(0,18)] == 'RB_PLAY'
+    assert actual[(0,17)] == 'RB_REC_ARM' and actual[(0,18)] == 'RB_PLAY'
+    assert [actual[(1,col)] for col in (1,2,3)] == ['RB_REC_1','RB_REC_2','RB_REC_3']
+    removed={(3,13),(4,15),(5,15)}
+    assert {(e['row'],e['col']) for e in doc['clear_bindings']} == removed
+    for e in doc['clear_bindings']:
+        assert e['code']==1 and layers[1][positions.index((e['row'],e['col']))]=='_______'
+    assert [layers[0][i] for i in (21,22,23)] == ['KC_1','KC_2','KC_3']
     assert actual[(5,1)] == actual[(5,12)] == 'RB_GAME'
     assert actual[(0,19)] == 'RB_PREV' and actual[(0,20)] == 'RB_NEXT'
     matrix_fixture=re.findall(r'\d+', (root/'tests/led_matrix.inc').read_text(encoding='utf-8'))

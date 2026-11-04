@@ -16,11 +16,11 @@ pwsh -File tools/measure-performance.ps1
 
 This runs the actual protocol handler, controls and pinned QMK color conversion on the PC (the custom renderer uses no second CIE curve). It measures average host CPU cost for 109-LED frames, dimming, local white and wave handover, plus the ordinary key-processing hook with Game Mode off/on. QMK hardware and USB transport are mocked. Use it to compare code changes on the same machine/build, not to predict microcontroller timing.
 
-The [reference report](performance-reference.json) is a real native run on the preparation PC. It contains no HID or physical key-latency result. A separate [read-only HID comparison](hid-reference.json) contains 2,000 reads each on installed 0.5.0 and 0.6.0, with RGB clients stopped and helpers off: medians 1.9966 / 1.9966 ms, p99 2.0222 / 2.0134 ms. These two sequential runs do not cover keyboard input, active RGB load or sustained Turbo. CPU-clock measurements are averaged over many iterations and include the fixture/call overhead.
+The [reference report](performance-reference.json) is a real native run on the preparation PC. It contains no HID or physical key-latency result. A separate [read-only HID comparison](hid-reference.json) contains 2,000 reads each on installed 0.7.0 and 0.8.0, with RGB clients stopped and helpers off: medians 1.9960 / 1.9957 ms, p99 2.0290 / 2.0272 ms. These two sequential runs do not cover keyboard input, active RGB load or sustained Turbo. CPU-clock measurements are averaged over many iterations and include the fixture/call overhead.
 
 ### 2. Read-only USB request/reply timing
 
-Press **Esc** to stop game helpers and close VIA, including browser tabs using it. Then:
+Press **Esc** to stop game helpers and Recorder and close VIA, including browser tabs using it. Then:
 
 ```powershell
 pwsh -File tools/measure-performance.ps1 -Hid -Samples 2000
@@ -28,7 +28,7 @@ pwsh -File tools/measure-performance.ps1 -Hid -Samples 2000
 
 Windows may request administrator permission to stop the existing OpenRGB service. The script records startup commands in memory, temporarily stops the service and current-session RGB clients, measures HID timing, and restores the applications in `finally`. Let the window finish. Reports are saved under `%LOCALAPPDATA%\RedBladePlus\Measurements`; the console prints the exact filename.
 
-The HID test only sends RGB information **read** requests. It does not flash, change lighting, remap keys or start a game helper. It reports median, p95, p99 and maximum Windows → HIDAPI → firmware → Windows round-trip time, plus host-process CPU time. Competing RGB clients or active Turbo/forward hold cause an abort rather than silently contaminating the result.
+The HID test only sends RGB information **read** requests. It does not flash, change lighting, remap keys or start a game helper. It reports median, p95, p99 and maximum Windows → HIDAPI → firmware → Windows round-trip time, plus host-process CPU time. Competing RGB clients or active Turbo/forward hold/Recorder cause an abort rather than silently contaminating the result.
 
 For manual control of applications and output:
 
@@ -46,7 +46,7 @@ Neither test measures mechanical switch actuation, matrix/debounce latency, the 
 
 For a physical comparison, use a controlled actuator/electrical trigger and USB analyzer or a high-speed acquisition setup, with the original and custom firmware under equivalent RGB load. No such measurement has been performed for this release.
 
-The implementation bounds work: eight base LEDs per RGB task iteration, bounded status overlays, including the persistent Fn status, at most nine incoming colors per packet, and at most one Turbo edge per housekeeping pass. Standard QMK report I/O still depends on USB scheduling. Turbo's 5–100 presses/s targets may run slower under load; missed pulses are not queued.
+The implementation bounds work: eight base LEDs per RGB task iteration, bounded status overlays, including the persistent Fn status, at most nine incoming colors per packet, and at most one Turbo edge per housekeeping pass. Standard QMK report I/O still depends on USB scheduling. Turbo's 5–250 presses/clicks per second targets may run slower under load; missed pulses are not queued.
 
 ## Build the native benchmark yourself
 
@@ -55,8 +55,14 @@ With GCC/Clang and the repository root as working directory:
 ```sh
 cc -std=c11 -O2 -DUSE_CIE1931_CURVE -I tests/stubs -I tests -I firmware/aurora_via \
   tests/benchmark.c tests/qmk_fixture.c tests/upstream/color.c tests/upstream/led_tables.c \
-  firmware/aurora_via/redblade_rgb.c firmware/aurora_via/redblade_controls.c -o native-benchmark
+  firmware/aurora_via/redblade_rgb.c firmware/aurora_via/redblade_controls.c firmware/aurora_via/redblade_recorder.c -o native-benchmark
 ./native-benchmark
 ```
 
 The Windows release executable uses MinGW GCC with static runtime linkage. The sources, QMK color implementation and retained upstream licenses are included.
+
+## Recorder cost and timing
+
+The native report includes a reactive-white frame with five refreshed keys. Minimal shared mouse HID button reports reuse the Turbo scheduler; no cursor engine is enabled. Selected rates are latched until changed/reset, not a release-to-restore boost. These rates are targets, not physical latency promises.
+
+The native report also benchmarks the idle Recorder task and a synthetic loop with a 20 ms hold and 5 ms iteration gap. It uses fixture reports, not real keyboard output. The fixed 192-byte arena is shared by three slots; capture stores 1 ms key-edge delays, and playback performs at most one edge per housekeeping pass. A cached Q8 delay multiplier implements the target 0.5×–8× speeds; Hyper instead requests one edge per millisecond; 1×, 0.5× and 2× are exact before USB scheduling, intermediate multipliers are rounded. Capacity and timeout completion reserve space for balanced releases. There are no EEPROM writes, heap allocations, busy waits or catch-up bursts in capture/playback. Standard QMK report I/O and USB scheduling still apply; no physical latency measurement is implied.

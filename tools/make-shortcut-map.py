@@ -18,17 +18,17 @@ def generate(qmk):
     dest=ROOT/'docs/assets';dest.mkdir(parents=True,exist_ok=True)
     for lang in ('en','fr'):
         fr=lang=='fr'
-        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100">',
-               '<rect width="1600" height="1100" fill="#0c1019"/>',
-               '<style>text{font-family:Arial,DejaVu Sans,sans-serif;fill:#e9eef7}.title{font-size:40px;font-weight:700}.sub{font-size:20px;fill:#a5b4c9}.key{font-size:15px;font-weight:700;text-anchor:middle}.card{font-size:23px;font-weight:700}.body{font-size:19px}</style>']
+        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1540" viewBox="0 0 1600 1540">',
+               '<rect width="1600" height="1540" fill="#0c1019"/>',
+               '<style>text{font-family:Arial,DejaVu Sans,sans-serif;fill:#e9eef7}.title{font-size:40px;font-weight:700}.sub{font-size:19px;fill:#a5b4c9}.key{font-size:15px;font-weight:700;text-anchor:middle}.tiny{font-size:10px;font-weight:700;text-anchor:middle;fill:#a5b4c9}.card{font-size:23px;font-weight:700}.body{font-size:19px}</style>']
         def text(x,y,value,style='body',fill=None):
             parts.append(f'<text x="{x}" y="{y}" class="{style}"'+(f' style="fill:{fill}"' if fill else '')+'>'+escape(value)+'</text>')
         def rect(x,y,w,h,color='#1c2637',stroke='#3b4b63',radius=8):
             parts.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{radius}" fill="{color}" stroke="{stroke}" stroke-width="2"/>')
-        text(48,62,'RedBlade+ 0.6  /  OpenRGB Firmware','title')
+        text(48,62,'RedBlade+ 0.8 FULL  /  OpenRGB Firmware','title')
         text(48,98,'Raccourcis + touches dynamiques · positions AZERTY' if fr else 'Shortcuts + dynamic key lighting · AZERTY positions','sub')
         text(48,128,'Carte des fonctions : ces couleurs ne sont pas toutes actives simultanément.' if fr else 'Function map: these colors are not all active at the same time.','sub')
-        special={0:('ESC','#e13743'),16:('CAL','#4fcde8'),17:('MUTE','#a593ed'),18:('VOL−','#a593ed'),19:('VOL+','#a593ed'),37:('NUM','#49d68b'),61:('CAPS','#49d68b'),97:('WIN','#e13743'),101:('WIN','#e13743'),102:('FN','#4fcde8'),43:('Z','#49d68b'),44:('E','#e13743'),45:('R','#f3bf57'),46:('T','#f3bf57'),65:('F','#e13743'),99:('SPACE','#e13743'),74:('ENTER','#e13743'),40:('−','#f3bf57'),60:('+','#f3bf57'),14:('SCROLL','#f3bf57')}
+        special={0:('ESC','#e13743'),16:('CAL','#e13743'),17:('MUTE','#a593ed'),18:('VOL−','#a593ed'),19:('VOL+','#a593ed'),21:('1','#e13743'),22:('2','#e13743'),23:('3','#e13743'),37:('NUM','#49d68b'),61:('CAPS','#49d68b'),97:('WIN','#e13743'),101:('WIN','#e13743'),102:('FN','#4fcde8'),43:('Z','#49d68b'),44:('E','#f3bf57'),45:('R','#f3bf57'),46:('T','#f3bf57'),65:('F','#f3bf57'),99:('SPACE','#f3bf57'),40:('−','#a593ed'),60:('+','#a593ed'),14:('SCROLL','#f3bf57'),104:('←','#e9eef7'),106:('→','#e9eef7')}
         aliases={'KC_ESC':'ESC','KC_LCTL':'CTRL','KC_RCTL':'CTRL','KC_LSFT':'SHIFT','KC_RSFT':'SHIFT','KC_LALT':'ALT','KC_RALT':'ALT GR','KC_BSPC':'BACK','KC_TAB':'TAB','KC_PSCR':'PRINT','KC_SCRL':'SCROLL','KC_PAUS':'PAUSE','KC_CAPS':'CAPS','KC_INS':'INS','KC_HOME':'HOME','KC_PGUP':'PGUP','KC_DEL':'DEL','KC_END':'END','KC_PGDN':'PGDN','KC_UP':'↑','KC_LEFT':'←','KC_DOWN':'↓','KC_RGHT':'→','KC_NUM':'NUM','KC_PSLS':'/','KC_PAST':'*','KC_PMNS':'−','KC_PPLS':'+','KC_PENT':'ENTER','KC_PDOT':'.'}
         pad={'KC_NUM','KC_PSLS','KC_PAST','KC_PMNS','KC_PPLS','KC_PENT','KC_PDOT',*(f'KC_P{i}' for i in range(10))}
         for i,(cell,key) in enumerate(zip(layout,keys)):
@@ -39,26 +39,62 @@ def generate(qmk):
             if len(label)>8:label=''
             stroke='#a4b2c8' if key in pad else '#344157'
             if i in special:label,stroke=special[i]
+            if i in (33,36,56):stroke='#e9eef7'
+            if i==15:stroke='#a593ed'
             if i==14:label='SCRL'
             if 1<=i<=9:stroke={1:'#4fcde8',2:'#e9eef7',3:'#e13743',4:'#546074'}.get(i,'#49d68b')
             rect(round(x,2),round(y,2),round(w,2),round(h,2),'#141e2c',stroke)
-            text(round(x+w/2,2),round(y+h/2+5,2),label,'key')
-        cards=[('Fn + T','Choisir une touche Turbo' if fr else 'Choose a Turbo key','Puis appuyer/relâcher la touche' if fr else 'Then press and release the target','#f3bf57'),
-               ('Fn + num − / +','Cadence −5 / +5 · 5–100/s' if fr else 'Rate −5 / +5 · 5–100/s','Réglable pendant le Turbo' if fr else 'Adjust while Turbo is running','#f3bf57'),
-               ('Fn + R','25 → 50 → 100 appuis/s' if fr else '25 → 50 → 100 presses/s','Maj : préréglage précédent' if fr else 'Shift: previous preset','#f3bf57'),
-               ('Fn + WIN','Verrouiller Windows' if fr else 'Lock Windows keys','Les deux logos deviennent rouges' if fr else 'Both Windows logos turn red','#e13743'),
-               ('Fn + CAL','Guide lumineux · 20 secondes' if fr else 'Lighting guide · 20 seconds','Deuxième appui : fermer' if fr else 'Press again to close','#4fcde8'),
-               ('Fn + ESC · 2 s','Mode flash' if fr else 'Bootloader / flash mode','Appui court : arrêt + déverrouillage' if fr else 'Short press: stop + unlock','#e13743')]
-        for n,(title,line,detail,color) in enumerate(cards):
-            x=48+(n%3)*508;y=602+(n//3)*125
-            rect(x,y,488,108,'#141e2c',color)
-            text(x+18,y+30,title,'card',color);text(x+18,y+59,line);text(x+18,y+87,detail,'sub')
-        text(48,880,'FN : bleu repos · cyan enfoncée/guide · ambre choix · rouge Turbo · vert maintien · violet jeu' if fr else 'FN: blue idle · cyan held/guide · amber selecting · red Turbo · green hold · purple Game Mode','body')
-        text(48,923,'Sans flux RGB depuis 5 s : CAPS vert si actif · SCROLL ambre si actif' if fr else 'After 5 s without RGB: CAPS green when active · SCROLL amber when active','body')
-        text(48,958,'NUM actif : pavé blanc + NUM vert · NUM inactif : pavé blanc très faible' if fr else 'NUM on: white numpad + green NUM · NUM off: very dim white numpad','body')
-        text(48,1003,'ÉCHAP arrête le Turbo · Fn + Entrée rejoue la vague rouge · Fn + F1 rend la main à Aurora' if fr else 'ESC stops Turbo · Fn + Enter replays the red wave · Fn + F1 returns control to Aurora','body')
-        text(48,1048,'Les états CAPS/NUM/SCROLL respectent le flux RGB, le profil éteint et la suspension USB.' if fr else 'CAPS/NUM/SCROLL fallback respects live RGB, lighting Off and USB suspension.','sub')
-        text(48,1081,'Red Blade Full Size ISO · 4 touches multimédias · Les touches normales gardent leur fonction' if fr else 'Red Blade Full Size ISO · 4 media keys · Normal typing and media functions are preserved','sub')
+            text(round(x+w/2,2),round(y+h/2+(-5 if 1<=i<=9 else 5),2),label,'key')
+            if 1<=i<=9:
+                labels=['AURORA','BLANC' if fr else 'WHITE','ROUGE' if fr else 'RED','OFF','VAGUE' if fr else 'WAVE','MEDIA','SECOURS' if fr else 'IDLE','RESET','SAUVER' if fr else 'SAVE']
+                text(round(x+w/2,2),round(y+h/2+15,2),labels[i-1],'tiny')
+        def panel(x,y,w,h,title,lines,color):
+            rect(x,y,w,h,'#141e2c',color);text(x+18,y+32,title,'card',color)
+            for n,line in enumerate(lines):text(x+18,y+65+n*29,line)
+        panel(48,606,744,270,'1 · RECORDER',[
+            'Fn + CAL → Fn + 1 / 2 / 3 : enregistrer' if fr else 'Fn + CAL → Fn + 1 / 2 / 3: record into a slot',
+            'Fn + CAL : terminer et garder la séquence' if fr else 'Fn + CAL: finish and keep the sequence',
+            'Fn + 1 / 2 / 3 : lire une fois' if fr else 'Fn + 1 / 2 / 3: play once',
+            'Fn + Maj + 1 / 2 / 3 : boucle ; même raccourci = arrêt' if fr else 'Fn + Shift + 1 / 2 / 3: loop; same shortcut = stop',
+            'Fn + num − / + : 0,5× → 2× → 4× → 8× → HYPER' if fr else 'Fn + num − / +: 0.5× → 2× → 4× → 8× → HYPER',
+            'Maintenir : enchaîner ; relâcher : valeur conservée' if fr else 'Hold: step repeatedly; release: keep selected speed',
+            '1/2/3 = chiffres du haut · Échap : arrêter' if fr else '1/2/3 = top number row · Esc: stop'], '#e13743')
+        panel(816,606,736,270,'2 · TURBO CLAVIER / SOURIS' if fr else '2 · KEYBOARD / MOUSE TURBO',[
+            'Fn + T, puis une touche : choisir la cible' if fr else 'Fn + T, then a key: choose the repeat target',
+            'Fn + T → VOL− / VOL+ : clic gauche / droit' if fr else 'Fn + T → VOL− / VOL+: left / right click',
+            'Clic : ambre / violet · E / F / Espace : Turbo direct' if fr else 'Click: amber / purple · E / F / Space: quick Turbo',
+            'Fn + R : 25 → 50 → 100 appuis/s (Maj : inverse)' if fr else 'Fn + R: 25 → 50 → 100 presses/s (Shift: reverse)',
+            'Fn + num − / + : 5 → 250/s ; maintien pour régler' if fr else 'Fn + num − / +: 5 → 250/s; hold to step',
+            'Fn + Z (AZERTY) : maintien pour avancer' if fr else 'Fn + Z (AZERTY): forward hold',
+            'Échap ou appui normal sur la cible : arrêter' if fr else 'Esc or a normal target press: stop'], '#f3bf57')
+        panel(48,900,488,238,'3 · ÉCLAIRAGE' if fr else '3 · LIGHTING',[
+            'Fn + F1 : Aurora / OpenRGB',
+            'Fn + F2 / F3 / F4 : blanc / rouge / éteint' if fr else 'Fn + F2 / F3 / F4: white / red / Off',
+            'Fn + Retour arrière : éteindre / rétablir' if fr else 'Fn + Backspace: Off / restore',
+            'Fn + ← / → : luminosité − / +' if fr else 'Fn + ← / →: brightness − / +',
+            'Fn + Page bas / haut : luminosité − / +' if fr else 'Fn + Page Down / Up: brightness − / +'], '#4fcde8')
+        panel(556,900,488,238,'4 · OPTIONS F5–F9',[
+            'Fn + F5 : vague automatique oui / non' if fr else 'Fn + F5: automatic startup wave on / off',
+            'Fn + F6 : blanc sur les 4 médias oui / non' if fr else 'Fn + F6: four media-key white fallback',
+            'Fn + F7 : secours blanc / sombre' if fr else 'Fn + F7: white / dark idle fallback',
+            'Fn + F8 : réglages par défaut + arrêt' if fr else 'Fn + F8: defaults + stop helpers',
+            'Fn + F9 : enregistrer l’éclairage' if fr else 'Fn + F9: save lighting preferences'], '#a593ed')
+        panel(1064,900,488,238,'5 · CONTRÔLES' if fr else '5 · CONTROLS',[
+            'Fn + WIN : verrouillage (2 logos rouges)' if fr else 'Fn + WIN: lock (both Windows keys red)',
+            'Fn + MUTE : lecture / pause (Maj : stop)' if fr else 'Fn + MUTE: play / pause (Shift: stop)',
+            'Fn + VOL −/+ : piste précédente / suivante' if fr else 'Fn + VOL −/+: previous / next track',
+            'Maj + Fn + VOL : luminosité − / +' if fr else 'Shift + Fn + VOL: brightness − / +',
+            'Fn + PAUSE : arrêter la lecture média' if fr else 'Fn + PAUSE: stop media playback',
+            'Fn + ESC : arrêt ; maintien 2 s : flash' if fr else 'Fn + ESC: stop; hold 2 s: bootloader'], '#49d68b')
+        text(48,1185,'−/+ agit sur la dernière fonction choisie : Recorder = vitesse ; Turbo = cadence. Fn + R sélectionne Turbo.' if fr else '−/+ adjusts the last selected function: Recorder = speed; Turbo = rate. Fn + R selects Turbo.','body')
+        text(48,1226,'CAL + FN respirent : rouge = enregistrement · vert = lecture simple · cyan = boucle · ambre = choix / limite' if fr else 'CAL + FN breathe: red = recording · green = one-shot · cyan = loop · amber = selection / limit','body')
+        text(48,1267,'3 slots RAM partagés · environ 48 appuis simples au total · 30 s maximum · effacés au reset/débranchement USB' if fr else '3 shared RAM slots · about 48 simple presses total · 30 s maximum · cleared at USB reset/disconnect','sub')
+        text(48,1308,'F8 conserve les enregistrements ; F9 sauvegarde seulement l’éclairage, pas les macros temporaires.' if fr else 'F8 keeps recordings; F9 saves lighting only, not the temporary recordings.','sub')
+        text(48,1352,'Sans flux RGB depuis 5 s : CAPS vert si actif · SCROLL ambre si actif' if fr else 'After 5 s without RGB: CAPS green when active · SCROLL amber when active','body')
+        text(48,1390,'NUM actif : pavé blanc + NUM vert · NUM inactif : pavé blanc très faible' if fr else 'NUM on: white numpad + green NUM · NUM off: very dim white numpad','body')
+        text(48,1431,'Le flux RGB reprend la priorité sur CAPS/NUM/SCROLL. Éteint et suspension USB restent prioritaires.' if fr else 'Live RGB takes priority over CAPS/NUM/SCROLL. Lighting Off and USB suspension stay authoritative.','sub')
+        text(48,1470,'Red Blade Full Size ISO · 4 touches multimédias · Les touches normales gardent leur fonction' if fr else 'Red Blade Full Size ISO · 4 media keys · Normal typing and media functions are preserved','sub')
+        text(48,1510,'Blanc + frappe/rejeu : traînées rouges. Flux Aurora prioritaire. Maintien −/+ : crans ; valeur conservée.' if fr else 'White fallback + typing/replay: red trails. Aurora live RGB keeps priority. Hold −/+ steps; release keeps speed.','sub')
         parts.append('</svg>')
         (dest/('shortcuts.fr.svg' if fr else 'shortcuts.svg')).write_text('\n'.join(parts)+'\n',encoding='utf-8')
 

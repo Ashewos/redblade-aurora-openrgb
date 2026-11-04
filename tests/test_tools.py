@@ -1,4 +1,7 @@
 import importlib.util
+import json
+import shutil
+import tempfile
 from pathlib import Path
 import sys
 import unittest
@@ -9,6 +12,8 @@ sys.path.insert(0,str(ROOT/'tools'))
 import benchmark
 import ctypes
 import redblade
+import check_release
+import check_core_release
 from unittest.mock import MagicMock
 from check_fn_map import check
 spec=importlib.util.spec_from_file_location('fn_installer',ROOT/'tools/install-fn-layer.py')
@@ -16,6 +21,45 @@ installer=importlib.util.module_from_spec(spec);spec.loader.exec_module(installe
 
 
 class ToolTests(unittest.TestCase):
+    def test_either_manifest_update_order_preserves_both_binary_checksums(self):
+        with tempfile.TemporaryDirectory(dir=ROOT) as d:
+            root=Path(d)
+            root.resolve().relative_to(ROOT.resolve()) # Cleanup stays inside this checkout.
+            shutil.copytree(ROOT/'firmware',root/'firmware')
+            (root/'dist').mkdir();(root/'tests').mkdir()
+            for name in ['led_points.inc','led_matrix.inc']:shutil.copy2(ROOT/'tests'/name,root/'tests'/name)
+            for name in ['fn-shortcuts.json','led-map.json']:shutil.copy2(ROOT/name,root/name)
+            for name in ['manifest.json','manifest-core.json','redblade-fs-aurora-via.bin','redblade-fs-openrgb-core.bin','SHA256SUMS']:shutil.copy2(ROOT/'dist'/name,root/'dist'/name)
+            def output(args,**kw):
+                return '.heap 72 536879032\n' if '-A' in args else 'test compiler\n'
+            with patch.object(check_release.subprocess,'check_output',side_effect=output),patch.object(check_core_release,'ROOT',root):
+                check_core_release.validate('dummy.elf',update=True)
+                check_release.validate(root,elf='dummy.elf',update=True)
+                check_core_release.validate()
+                check_release.validate(root,elf='dummy.elf',update=True)
+                check_core_release.validate('dummy.elf',update=True)
+                check_release.validate(root)
+
+    def test_core_map_removes_known_helpers_without_changing_unrelated_cells(self):
+        core=json.loads((ROOT/'fn-shortcuts-core.json').read_text(encoding='utf-8'))
+        entries=core['bindings']+core['clear_bindings']
+        keys={(e['row'],e['col']):0x7E40 for e in entries};keys[(2,12)]=0x1234
+        with patch.object(installer,'backup'), \
+             patch.object(installer,'read_key',side_effect=lambda kb,r,c:keys[(r,c)]), \
+             patch.object(installer,'write_key',side_effect=lambda kb,r,c,v:keys.__setitem__((r,c),v)):
+            installer.apply(object(),entries,Path('mocked-private-backup.json'))
+        self.assertEqual(keys[(0,0)],0x7E53)
+        self.assertEqual(keys[(0,17)],1)
+        self.assertEqual(keys[(2,3)],1)
+        self.assertEqual(keys[(2,12)],0x1234)
+        for e in core['clear_bindings']:self.assertEqual(keys[(e['row'],e['col'])],1)
+
+    def test_installer_refuses_full_map_on_core_firmware(self):
+        info=bytearray(32);info[:6]=bytes([0xFE,0x81,1,0,8,0]);info[19]=128;info[24:]=b'RDBLFS01'
+        kb=MagicMock();kb.request.return_value=bytes(info)
+        with patch.object(sys,'argv',['install-fn-layer.py','--apply','--backup','unused-private.json']),patch.object(installer,'Keyboard',return_value=kb):
+            with self.assertRaisesRegex(RuntimeError,'edition'):installer.main()
+
     def test_hid_enumeration_is_freed_on_wrong_identity(self):
         device=redblade.Device()
         device.usage_page=0xFF60;device.usage=0x61
@@ -75,6 +119,26 @@ class ToolTests(unittest.TestCase):
              patch.object(installer,'write_key',side_effect=write):
             with self.assertRaises(RuntimeError): installer.apply(object(),bindings,path)
         self.assertEqual(keys,{(0,2):100,(0,3):101})
+
+    def test_removed_fn_bindings_are_explicitly_cleared(self):
+        removed=check()['clear_bindings']
+        keys={(e['row'],e['col']):0x7E4B for e in removed}
+        keys[(2,12)]=0x1234
+        with patch.object(installer,'backup'), \
+             patch.object(installer,'read_key',side_effect=lambda kb,r,c:keys[(r,c)]), \
+             patch.object(installer,'write_key',side_effect=lambda kb,r,c,value:keys.__setitem__((r,c),value)):
+            installer.apply(object(),removed,Path('mocked-private-backup.json'))
+        for entry in removed:self.assertEqual(keys[(entry['row'],entry['col'])],1)
+        self.assertEqual(keys[(2,12)],0x1234)
+
+    def test_hid_benchmark_refuses_an_active_recorder(self):
+        class Device:
+            def request(self,*payload):
+                if payload==(0xFE,0): return bytes([4,0,0,0])+b'RDBLFS01'+bytes([1])+bytes(19)
+                self_payload=bytearray(32);self_payload[:6]=bytes([0xFE,0x81,1,0,7,0]);self_payload[19]=4;self_payload[24:]=b'RDBLFS01'
+                return bytes(self_payload)
+            def via(self,*payload):raise AssertionError('No timing requests while a recorder is active')
+        with self.assertRaises(RuntimeError):benchmark.hid_round_trips(Device(),10)
 
 
 if __name__=='__main__': unittest.main()

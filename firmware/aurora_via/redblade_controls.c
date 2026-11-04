@@ -1,20 +1,26 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "redblade_controls.h"
 #include "redblade_rgb.h"
+#include "redblade_recorder.h"
 #include "dynamic_keymap.h"
 #include "report.h"
+#include "host.h"
 
 _Static_assert(RB_GAME == 0x7E40 && RB_BOOT == 0x7E53, "VIA custom keycode ABI changed");
 _Static_assert(RB_TURBO_RATE == 0x7E58 && RB_TURBO_FASTER == 0x7E5B, "Game helper keycode ABI changed");
 static bool game_mode, boot_armed, feedback_active;
-static bool guide_active;
-static uint32_t guide_started_at;
+static bool recorder_rate_context;
 static uint32_t boot_started_at, feedback_started_at;
 static keypos_t boot_key;
 static uint8_t media_held;
 static struct { uint8_t code, row, col; } media[3];
 static uint8_t turbo_key, turbo_led = 255, turbo_rate = 50, turbo_interval = 10;
-static uint8_t turbo_base_ms = 10, turbo_remainder, turbo_fraction, trigger_held;
+static uint8_t turbo_base_ms = 10, turbo_remainder, trigger_held;
+static uint16_t turbo_fraction;
+static int8_t rate_direction;
+static bool rate_repeating;
+static keypos_t rate_key;
+static uint32_t rate_at;
 static bool turbo_down, auto_w, selecting;
 static uint8_t pending_key, consumed_releases[(MATRIX_ROWS * MATRIX_COLS + 7) / 8];
 static uint32_t turbo_edge_at, selection_started_at;
@@ -25,14 +31,23 @@ uint8_t redblade_turbo_rate(void) { return turbo_rate; }
 uint8_t redblade_turbo_led(void) { return turbo_led; }
 bool redblade_turbo_selecting(void) { return selecting || pending_key; }
 bool redblade_auto_w(void) { return auto_w; }
-bool redblade_guide_active(void) { return guide_active; }
+bool redblade_guide_active(void) { return false; } // Retired, keep diagnostic ABI.
+bool redblade_recorder_rate_context(void) { return recorder_rate_context; }
+static bool mouse_target(void) { return turbo_key == 0xD1 || turbo_key == 0xD2; }
+static void turbo_output(bool down) {
+    if (mouse_target()) {
+        report_mouse_t report = {0};
+        report.buttons = down ? (turbo_key == 0xD1 ? 1 : 2) : 0;
+        host_mouse_send(&report);
+    } else if (down) register_code(turbo_key); else unregister_code(turbo_key);
+}
 
 static void stop_turbo(void) {
-    if (turbo_down) unregister_code(turbo_key);
+    if (turbo_down) turbo_output(false);
     turbo_key = 0; turbo_led = 255; turbo_down = false;
 }
 static void stop_w(void) { if (auto_w) unregister_code(KC_W); auto_w = false; }
-static void stop_automation(void) { stop_turbo(); stop_w(); selecting = false; pending_key = 0; guide_active = false; }
+static void stop_automation(void) { stop_turbo(); stop_w(); selecting = false; pending_key = 0; rate_direction = 0; redblade_recorder_stop(true); }
 
 static void set_rate(uint8_t rate) {
     turbo_rate = rate;
@@ -40,6 +55,15 @@ static void set_rate(uint8_t rate) {
     // later edges so a requested 60/s does not become 62.5/s.
     turbo_base_ms = 500 / rate; turbo_remainder = 500 % rate;
     turbo_interval = turbo_base_ms; turbo_fraction = 0; turbo_edge_at = timer_read32();
+}
+static void rate_step(int8_t direction) {
+    if (recorder_rate_context) redblade_recorder_speed_step(direction);
+    else if (direction > 0) set_rate(turbo_rate < 100 ? turbo_rate + 5 : turbo_rate < 250 ? turbo_rate + 25 : 250);
+    else set_rate(turbo_rate > 100 ? turbo_rate - 25 : turbo_rate > 5 ? turbo_rate - 5 : 5);
+}
+static void rate_begin(int8_t direction, keypos_t pos) {
+    rate_key = pos; rate_direction = direction; rate_repeating = false;
+    rate_at = timer_read32(); rate_step(direction);
 }
 static uint8_t led_at(keypos_t pos) {
     return pos.row < MATRIX_ROWS && pos.col < MATRIX_COLS ? g_led_config.matrix_co[pos.row][pos.col] : 255;
@@ -50,9 +74,12 @@ static void start_turbo(uint8_t key, uint8_t led) {
     stop_turbo();
     turbo_key = key; turbo_led = led; turbo_down = true;
     turbo_fraction = 0; turbo_interval = turbo_base_ms; turbo_edge_at = timer_read32();
-    register_code(key);
+    turbo_output(true);
+    redblade_rgb_key_flash(led);
 }
 static void toggle_turbo(uint8_t key, keypos_t pos) {
+    rate_direction = 0;
+    redblade_recorder_stop(true); recorder_rate_context = false;
     trigger[0] = pos; trigger_held |= 1; selecting = false; pending_key = 0;
     if (turbo_key == key) { stop_turbo(); return; }
     start_turbo(key, led_at(pos));
@@ -60,16 +87,18 @@ static void toggle_turbo(uint8_t key, keypos_t pos) {
 bool redblade_game_mode(void) { return game_mode; }
 static void game_set(bool enabled) {
     game_mode = enabled;
-    if (enabled) { del_mods(MOD_MASK_GUI); del_weak_mods(MOD_MASK_GUI); send_keyboard_report(); }
+    if (enabled) { redblade_recorder_stop(true); del_mods(MOD_MASK_GUI); del_weak_mods(MOD_MASK_GUI); send_keyboard_report(); }
 }
 void redblade_controls_init(void) {
     stop_automation(); game_mode = boot_armed = feedback_active = false;
+    redblade_recorder_init(); recorder_rate_context = false;
     media_held = trigger_held = 0;
     for (uint8_t i = 0; i < sizeof(consumed_releases); ++i) consumed_releases[i] = 0;
     set_rate(50);
 }
 void redblade_controls_suspend(void) {
     boot_armed = feedback_active = game_mode = false; stop_automation(); trigger_held = 0;
+    redblade_recorder_suspend(); recorder_rate_context = false;
     for (uint8_t i = 0; i < sizeof(consumed_releases); ++i) consumed_releases[i] = 0;
     for (uint8_t i = 0; media_held && i < 3; ++i) {
         if ((media_held & (1 << i)) && media[i].code) unregister_code(media[i].code);
@@ -77,12 +106,15 @@ void redblade_controls_suspend(void) {
     media_held = 0;
 }
 void redblade_controls_task(bool fn_active) {
-    if (!boot_armed && !turbo_key && !selecting && !pending_key && !guide_active) return;
+    if (rate_direction && timer_read32() - rate_at >= (rate_repeating ? 150UL : 400UL)) {
+        rate_step(rate_direction); rate_at = timer_read32(); rate_repeating = true;
+    }
+    redblade_recorder_task(fn_active);
+    if (!boot_armed && !turbo_key && !selecting && !pending_key) return;
     const uint32_t now = timer_read32();
     if ((selecting || pending_key) && now - selection_started_at >= REDBLADE_TURBO_SELECT_TIMEOUT_MS) {
         selecting = false; pending_key = 0;
     }
-    if (guide_active && now - guide_started_at >= REDBLADE_GUIDE_TIMEOUT_MS) guide_active = false;
     if (boot_armed && !fn_active) boot_armed = false;
     if (boot_armed && now - boot_started_at >= REDBLADE_BOOT_HOLD_MS) {
         boot_armed = false; reset_keyboard(); return;
@@ -90,7 +122,8 @@ void redblade_controls_task(bool fn_active) {
     if (turbo_key && now - turbo_edge_at >= turbo_interval) {
         // At most one edge per pass. Drop missed deadlines, never catch up.
         turbo_edge_at = now;
-        if (turbo_down) unregister_code(turbo_key); else register_code(turbo_key);
+        turbo_output(!turbo_down);
+        if (!turbo_down) redblade_rgb_key_flash(turbo_led);
         turbo_down = !turbo_down; turbo_interval = turbo_base_ms;
         turbo_fraction += turbo_remainder;
         if (turbo_fraction >= turbo_rate) { ++turbo_interval; turbo_fraction -= turbo_rate; }
@@ -101,6 +134,7 @@ bool redblade_controls_process(uint16_t keycode, keyrecord_t *record) {
     const bool valid_pos = pos.row < MATRIX_ROWS && pos.col < MATRIX_COLS;
     const uint8_t position = valid_pos ? pos.row * MATRIX_COLS + pos.col : 0;
     if (!record->event.pressed) {
+        if (rate_direction && pos.row == rate_key.row && pos.col == rate_key.col) rate_direction = 0;
         if (boot_armed && pos.row == boot_key.row && pos.col == boot_key.col) boot_armed = false;
         if (valid_pos && (consumed_releases[position / 8] & (1 << (position % 8)))) {
             consumed_releases[position / 8] &= ~(1 << (position % 8));
@@ -122,12 +156,23 @@ bool redblade_controls_process(uint16_t keycode, keyrecord_t *record) {
             }
         }
     }
+    if (record->event.pressed && valid_pos && (keycode == 0x57 || keycode == 0x56) &&
+        (turbo_key || redblade_recorder_state() == RB_REC_PLAYING)) {
+        consumed_releases[position / 8] |= 1 << (position % 8);
+        rate_begin(keycode == 0x57 ? 1 : -1, pos); return false;
+    }
     if (keycode == KC_ESC && record->event.pressed) stop_automation();
-    if (selecting && record->event.pressed && keycode != RB_BOOT && keycode != RB_TURBO_SELECT && keycode != KC_ESC) {
+    if (selecting && record->event.pressed && keycode != RB_BOOT && keycode != RB_TURBO_SELECT && keycode != RB_REC_ARM && keycode != KC_ESC) {
         if (!valid_pos) return false;
         // Only resolve VIA's base layer while choosing; with Fn still held,
         // F1 selects F1 rather than changing the lighting profile.
         const uint16_t base = dynamic_keymap_get_keycode(0, pos.row, pos.col);
+        if ((base == 0xAA || base == 0xA9) && pos.row == 0 && (pos.col == 19 || pos.col == 20)) {
+            selecting = false; pending_key = base == 0xAA ? 0xD1 : 0xD2;
+            selection_started_at = timer_read32(); trigger[0] = pos;
+            consumed_releases[position / 8] |= 1 << (position % 8);
+            return false; // Volume-key selection never changes audio or track.
+        }
         if (base >= 4 && base <= 0xA4 && base != KC_ESC && base != 0x66 && !is_key_pressed(base)) {
             selecting = false; pending_key = base; selection_started_at = timer_read32(); trigger[0] = pos;
             consumed_releases[position / 8] |= 1 << (position % 8);
@@ -138,13 +183,24 @@ bool redblade_controls_process(uint16_t keycode, keyrecord_t *record) {
             return false; // Unsupported system/consumer/macro actions do not execute.
         }
     }
+    if (record->event.pressed && mouse_target() && led_at(pos) == turbo_led) {
+        stop_turbo(); rate_direction = 0;
+        if (valid_pos) consumed_releases[position / 8] |= 1 << (position % 8);
+        return false; // The active volume target doubles as a local stop.
+    }
     if (record->event.pressed && keycode == turbo_key) stop_turbo();
     if (record->event.pressed && keycode == KC_W) stop_w();
     if (game_mode && (keycode == KC_LGUI || keycode == KC_RGUI ||
         (keycode >= QK_MODS && keycode <= QK_MODS_MAX && ((QK_MODS_GET_MODS(keycode) & 8) ||
         QK_MODS_GET_BASIC_KEYCODE(keycode) == KC_LGUI || QK_MODS_GET_BASIC_KEYCODE(keycode) == KC_RGUI)))) return false;
-    if (keycode < RB_GAME || keycode > RB_GUIDE) return true;
+    if (keycode < RB_GAME || keycode > RB_REC_3) {
+        if (record->event.pressed && keycode >= 4 && keycode <= 255) rate_direction = 0;
+        redblade_recorder_key(keycode, record->event.pressed);
+        if (record->event.pressed && keycode >= 4 && keycode < 0xA5) redblade_rgb_key_flash(led_at(pos));
+        return true;
+    }
     if (!record->event.pressed) return false;
+    if (keycode != RB_TURBO_SLOWER && keycode != RB_TURBO_FASTER) rate_direction = 0;
     const bool shift = (get_mods() & MOD_MASK_SHIFT) != 0;
     if (keycode >= RB_PLAY && keycode <= RB_NEXT) {
         const uint8_t i = keycode - RB_PLAY;
@@ -175,7 +231,7 @@ bool redblade_controls_process(uint16_t keycode, keyrecord_t *record) {
         case RB_ANIMATION: redblade_rgb_toggle_setting(RB_SETTING_ANIMATION); break;
         case RB_MEDIA_FALLBACK: redblade_rgb_toggle_setting(RB_SETTING_MEDIA); break;
         case RB_IDLE_FALLBACK: redblade_rgb_toggle_setting(RB_SETTING_IDLE_WHITE); break;
-        case RB_DEFAULTS: redblade_rgb_defaults(); game_set(false); stop_automation(); set_rate(50); break;
+        case RB_DEFAULTS: redblade_rgb_defaults(); game_set(false); stop_automation(); set_rate(50); redblade_recorder_speed_reset(); recorder_rate_context = false; break;
         case RB_PROFILE_NEXT: redblade_rgb_cycle(1); break;
         case RB_PROFILE_PREV: redblade_rgb_cycle(-1); break;
         case RB_SAVE:
@@ -185,74 +241,95 @@ bool redblade_controls_process(uint16_t keycode, keyrecord_t *record) {
             stop_automation(); game_set(false);
             if (!boot_armed) { boot_key = pos; boot_started_at = timer_read32(); boot_armed = true; }
             break;
-        case RB_GUIDE:
-            guide_active = shift ? false : !guide_active;
-            guide_started_at = timer_read32();
-            break;
+        case RB_GUIDE: break; // Retired, unmapped keycode remains reserved.
         case RB_TURBO_E: toggle_turbo(KC_E,pos); break;
         case RB_TURBO_F: toggle_turbo(KC_F,pos); break;
         case RB_TURBO_SPACE: toggle_turbo(KC_SPC,pos); break;
         case RB_TURBO_SELECT:
+            redblade_recorder_stop(true); recorder_rate_context = false;
             trigger[2] = pos; trigger_held |= 4;
             if (turbo_key || selecting || pending_key) { stop_turbo(); selecting = false; pending_key = 0; }
             else { selecting = true; selection_started_at = timer_read32(); }
             break;
         case RB_AUTO_W:
+            redblade_recorder_stop(true); recorder_rate_context = false;
             trigger[1] = pos; trigger_held |= 2;
             if (auto_w) stop_w();
             else { if (turbo_key == KC_W) stop_turbo(); if (!is_key_pressed(KC_W)) { auto_w = true; register_code(KC_W); } }
             break;
         case RB_TURBO_RATE:
+            redblade_recorder_stop(true); recorder_rate_context = false;
             set_rate(shift ? (turbo_rate > 50 ? 50 : turbo_rate > 25 ? 25 : 100) : (turbo_rate < 25 ? 25 : turbo_rate < 50 ? 50 : turbo_rate < 100 ? 100 : 25));
             break;
-        case RB_TURBO_SLOWER: set_rate(turbo_rate > 5 ? turbo_rate - 5 : 5); break;
-        case RB_TURBO_FASTER: set_rate(turbo_rate < 100 ? turbo_rate + 5 : 100); break;
+        case RB_TURBO_SLOWER:
+            rate_begin(-1,pos);
+            break;
+        case RB_TURBO_FASTER:
+            rate_begin(1,pos);
+            break;
+        case RB_REC_ARM:
+            stop_turbo(); stop_w(); selecting = false; pending_key = 0;
+            recorder_rate_context = true; redblade_recorder_arm();
+            break;
+        case RB_REC_1: case RB_REC_2: case RB_REC_3:
+            stop_turbo(); stop_w(); selecting = false; pending_key = 0;
+            recorder_rate_context = true; redblade_recorder_slot(keycode - RB_REC_1, game_mode, shift);
+            break;
     }
     return false;
 }
 bool redblade_controls_indicators_needed(bool fn_active) { (void)fn_active; return true; }
 bool redblade_controls_indicator(uint8_t index, bool fn_active, hsv_t *color) {
     if (!redblade_rgb_output_active()) return false;
+    if (redblade_recorder_indicator(index, fn_active, color)) return true;
     if (index == RB_LED_FN) {
         if (selecting || pending_key) *color = (hsv_t){32,255,(timer_read32() / 250) & 1 ? 128 : 40};
-        else if (turbo_key) *color = (hsv_t){0,255,128};
+        else if (turbo_key) *color = (hsv_t){mouse_target() ? (turbo_key == 0xD1 ? 32 : 200) : 0,255,128};
         else if (auto_w) *color = (hsv_t){85,255,96};
-        else if (fn_active || guide_active) *color = (hsv_t){128,255,96};
+        else if (fn_active) *color = (hsv_t){128,255,96};
         else if (game_mode) *color = (hsv_t){200,255,80};
         else *color = (hsv_t){170,255,24};
         return true;
     }
     if (game_mode && (index == RB_LED_LGUI || index == RB_LED_RGUI)) { *color = (hsv_t){0,255,128}; return true; }
-    if (index == turbo_led && turbo_key) { *color = (hsv_t){0,255,128}; return true; }
+    if (index == turbo_led && turbo_key) {
+        *color = (hsv_t){mouse_target() ? (turbo_key == 0xD1 ? 32 : 200) : 0,255,
+            mouse_target() || turbo_rate > 100 ? ((timer_read32() / 60) & 1 ? 255 : 40) : 128}; return true;
+    }
     if (auto_w && index == RB_LED_W) { *color = (hsv_t){85,255,96}; return true; }
-    const bool hints = fn_active || guide_active;
+    const bool hints = fn_active;
+    if (selecting && (index == 18 || index == 19)) { *color = (hsv_t){index == 18 ? 32 : 200,255,96}; return true; }
     if (hints && index == RB_LED_T) { *color = (hsv_t){32,255,96}; return true; }
     if (hints && (index == RB_LED_R || index == RB_LED_MINUS || index == RB_LED_PLUS)) {
-        *color = (hsv_t){turbo_rate <= 25 ? 85 : turbo_rate <= 50 ? 43 : 0,255,80}; return true;
+        *color = (hsv_t){recorder_rate_context && index != RB_LED_R ? 200 : turbo_rate <= 25 ? 85 : turbo_rate <= 50 ? 43 : 0,255,80}; return true;
     }
     if (redblade_rgb_fallback_active()) {
         const led_t locks = host_keyboard_led_state();
         if (index == RB_LED_CAPS || (REDBLADE_CAPS_SHOW_SHIFT && (index == RB_LED_LSHIFT || index == RB_LED_RSHIFT))) {
+            if (!locks.caps_lock && redblade_rgb_key_lit(index)) return false;
             *color = (hsv_t){85,locks.caps_lock ? 255 : 0,locks.caps_lock ? 128 : REDBLADE_FALLBACK_BRIGHTNESS}; return true;
         }
-        if (index == RB_LED_SCROLL) { *color = (hsv_t){32,locks.scroll_lock ? 255 : 0,locks.scroll_lock ? 128 : REDBLADE_FALLBACK_BRIGHTNESS}; return true; }
+        if (index == RB_LED_SCROLL) {
+            if (!locks.scroll_lock && redblade_rgb_key_lit(index)) return false;
+            *color = (hsv_t){32,locks.scroll_lock ? 255 : 0,locks.scroll_lock ? 128 : REDBLADE_FALLBACK_BRIGHTNESS}; return true;
+        }
         if ((index >= 37 && index <= 40) || (index >= 57 && index <= 60) || (index >= 75 && index <= 77) || (index >= 92 && index <= 95) || index >= 107) {
+            if (!(index == RB_LED_NUM && locks.num_lock) && redblade_rgb_key_lit(index)) return false;
             *color = (hsv_t){85,index == RB_LED_NUM && locks.num_lock ? 255 : 0,locks.num_lock ? (index == RB_LED_NUM ? 128 : REDBLADE_FALLBACK_BRIGHTNESS) : REDBLADE_NUMPAD_DIM_BRIGHTNESS}; return true;
         }
     }
     if (hints) {
         if (index == RB_LED_LGUI || index == RB_LED_RGUI) { *color = (hsv_t){85,255,80}; return true; }
-        if (index == RB_LED_E || index == RB_LED_F || index == RB_LED_SPACE || index == 0 || index == 74) { *color = (hsv_t){0,255,96}; return true; }
+        if (index == RB_LED_E || index == RB_LED_F || index == RB_LED_SPACE || index == 0) { *color = (hsv_t){0,255,96}; return true; }
         if (index == RB_LED_W) { *color = (hsv_t){85,255,80}; return true; }
         if (index == 1) { *color = (hsv_t){170,255,80}; return true; }
-        if (index == 2 || index == 33 || index == 36 || index == 56) { *color = (hsv_t){0,0,80}; return true; }
+        if (index == 2 || index == 33 || index == 36 || index == 56 || index == 104 || index == 106) { *color = (hsv_t){0,0,80}; return true; }
         if (index == 3) { *color = (hsv_t){0,255,80}; return true; }
         if (index == 4) { *color = (hsv_t){0,0,8}; return true; }
         if (index >= 5 && index <= 7) { *color = (hsv_t){85,(redblade_rgb_settings_get() & (1 << (index-5))) ? 255 : 0,64}; return true; }
-        if (index == 8 || index == 9 || (index >= 104 && index <= 106) || index == 91) { *color = (hsv_t){index == 9 ? 85 : 200,255,80}; return true; }
+        if (index == 8 || index == 9) { *color = (hsv_t){index == 9 ? 85 : 200,255,80}; return true; }
     }
     if (index < 16 || index > 19) {
-        if (guide_active) { *color = (hsv_t){0,0,8}; return true; }
         return false;
     }
     if (index == 16 && feedback_active) {

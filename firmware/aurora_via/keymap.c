@@ -17,6 +17,7 @@
 #include QMK_KEYBOARD_H
 #include "redblade_rgb.h"
 #include "redblade_controls.h"
+#include "redblade_recorder.h"
 #include "usb_device_state.h"
 #include "color.h"
 
@@ -51,13 +52,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [1] = LAYOUT_fullsize_extended_iso(
-        RB_BOOT,          RB_HOST, RB_WHITE,RB_RED,  RB_DARK, RB_ANIMATION,RB_MEDIA_FALLBACK,RB_IDLE_FALLBACK,RB_DEFAULTS,RB_SAVE, _______, _______, _______,    _______, _______, KC_MSTP,    RB_GUIDE, RB_PLAY, RB_PREV, RB_NEXT,
+    RB_BOOT,          RB_HOST, RB_WHITE,RB_RED,  RB_DARK, RB_ANIMATION,RB_MEDIA_FALLBACK,RB_IDLE_FALLBACK,RB_DEFAULTS,RB_SAVE, _______, _______, _______,    _______, _______, KC_MSTP,    RB_REC_ARM, RB_PLAY, RB_PREV, RB_NEXT,
 
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RB_LIGHT_TOGGLE, _______, _______, RB_BRIGHTER, _______, _______, _______, RB_TURBO_SLOWER,
+        _______, RB_REC_1,RB_REC_2,RB_REC_3,_______, _______, _______, _______, _______, _______, _______, _______, _______, RB_LIGHT_TOGGLE, _______, _______, RB_BRIGHTER, _______, _______, _______, RB_TURBO_SLOWER,
         _______, _______, RB_AUTO_W,RB_TURBO_E,RB_TURBO_RATE,RB_TURBO_SELECT,_______,_______,_______,_______,_______,_______,_______,             _______, _______, RB_DIMMER,  _______, _______, _______, RB_TURBO_FASTER,
-        _______, _______, _______, _______, RB_TURBO_F,_______,_______,_______,_______,_______,_______,_______,_______, RB_WAVE,                                       _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,             RB_PROFILE_NEXT,    _______, _______, _______, _______,
-        _______, RB_GAME, _______,                            RB_TURBO_SPACE,                    _______, RB_GAME, _______, _______,    RB_DIMMER,RB_PROFILE_PREV,RB_BRIGHTER, _______, _______
+        _______, _______, _______, _______, RB_TURBO_F,_______,_______,_______,_______,_______,_______,_______,_______, _______,                                       _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,             _______,             _______, _______, _______, _______,
+        _______, RB_GAME, _______,                            RB_TURBO_SPACE,                    _______, RB_GAME, _______, _______,    RB_DIMMER,_______,RB_BRIGHTER, _______, _______
     ),
 };
 
@@ -78,7 +79,11 @@ void notify_usb_device_state_change_user(struct usb_device_state state) {
     if (!rgb_ready) return;
     const bool active = state.configure_state == USB_DEVICE_STATE_CONFIGURED;
     if (active) redblade_rgb_wake();
-    else { redblade_controls_suspend(); redblade_rgb_suspend(); }
+    else {
+        redblade_controls_suspend();
+        if (state.configure_state != USB_DEVICE_STATE_SUSPEND) redblade_recorder_init();
+        redblade_rgb_suspend();
+    }
     rgb_matrix_set_suspend_state(!active);
 }
 

@@ -5,6 +5,7 @@ private backup path; a complete VIA backup is created before the first write.
 """
 import argparse
 import ctypes as C
+import json
 from pathlib import Path
 
 from check_fn_map import check
@@ -55,12 +56,14 @@ def apply(kb, bindings, destination):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--apply',action='store_true')
+    parser.add_argument('--edition',choices=['full','core'],default='full')
     parser.add_argument('--backup',type=Path)
     parser.add_argument('--hid-dll',type=Path,default=Path(r'C:\Program Files\OpenRGB\hidapi-hotplug.dll'))
     args=parser.parse_args()
     if args.apply and not args.backup: parser.error('--apply requires --backup with a private new filename')
     mapping=check()
-    bindings=mapping['bindings']
+    if args.edition=='core': mapping=json.loads((Path(__file__).resolve().parents[1]/'fn-shortcuts-core.json').read_text(encoding='utf-8'))
+    bindings=mapping['bindings']+mapping['clear_bindings']
     if not args.apply:
         print(f'Dry run: {len(bindings)} bindings on Fn layer 1; base keys/macros will be kept. Close RGB clients, then use --apply --backup <private-file>.')
         return 0
@@ -68,7 +71,8 @@ def main():
     try:
         data=kb.request(0xFE,0x81)
         if data[:3]!=bytes([0xFE,0x81,1]) or data[24:32]!=b'RDBLFS01' or tuple(data[3:6])<tuple(mapping['minimum_firmware']):
-            raise RuntimeError('Flash RedBlade+ 0.6.0 or newer before installing its Fn bindings')
+            raise RuntimeError('Flash RedBlade+ 0.7.0 or newer before installing its Fn bindings')
+        if bool(data[19]&128)!=(args.edition=='core'): raise RuntimeError('The selected Fn map does not match the installed firmware edition')
         apply(kb,bindings,args.backup)
     finally: kb.close()
     return 0

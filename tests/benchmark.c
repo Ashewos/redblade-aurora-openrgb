@@ -3,6 +3,7 @@
 // This does not measure MCU execution, USB scheduling or key-input latency.
 #include "redblade_rgb.h"
 #include "redblade_controls.h"
+#include "redblade_recorder.h"
 #include "qmk_fixture.h"
 #include <stdio.h>
 #include <time.h>
@@ -13,7 +14,7 @@ static double frames(unsigned scenario) {
     const unsigned iterations=50000;
     redblade_rgb_init(true); redblade_controls_init(); now=2000;
     if (scenario==1) for(unsigned i=0;i<8;++i) redblade_rgb_brightness_step(-1);
-    if (scenario==2) redblade_rgb_profile(RB_PROFILE_WHITE);
+    if (scenario==2 || scenario==4) redblade_rgb_profile(RB_PROFILE_WHITE);
     clock_t start=clock();
     for(unsigned frame=0;frame<iterations;++frame) {
         now+=34;
@@ -25,6 +26,7 @@ static double frames(unsigned scenario) {
         }
         if(scenario==3) { redblade_rgb_replay(); now+=1300; }
         redblade_rgb_begin_frame();
+        if(scenario==4) for(unsigned led=42;led<=46;++led) redblade_rgb_key_flash(led);
         for(unsigned first=0;first<109;first+=8) {
             const bool indicators=redblade_controls_indicators_needed(false);
             for(unsigned i=first;i<first+8 && i<109;++i) {
@@ -51,14 +53,30 @@ static double key_events(bool game) {
     return ((double)(clock()-start)/CLOCKS_PER_SEC)*1e9/iterations;
 }
 
+static double recorder_task_cost(bool loop) {
+    const unsigned iterations=2000000;
+    redblade_controls_init();
+    if(loop) {
+        redblade_recorder_arm();redblade_recorder_slot(0,false,false);
+        redblade_recorder_key(4,true);now+=20;redblade_recorder_key(4,false);redblade_recorder_arm();
+        redblade_recorder_slot(0,false,true);
+    }
+    clock_t start=clock();
+    for(unsigned i=0;i<iterations;++i) { ++now;redblade_recorder_task(false);checksum+=redblade_recorder_state(); }
+    const double result=((double)(clock()-start)/CLOCKS_PER_SEC)*1e9/iterations;
+    redblade_controls_suspend();return result;
+}
+
 int main(void) {
-    const double host=frames(0),dim=frames(1),white=frames(2),wave=frames(3);
+    const double host=frames(0),dim=frames(1),white=frames(2),wave=frames(3),reactive=frames(4);
     const double normal=key_events(false),game=key_events(true);
+    const double rec_idle=recorder_task_cost(false),rec_loop=recorder_task_cost(true);
     printf("{\"kind\":\"host_native_regression\",\"firmware\":\"%u.%u.%u\",\"frame_iterations_per_scenario\":50000,"
-           "\"host_cpu_ns_per_109_led_frame\":{\"direct\":%.3f,\"dimmed\":%.3f,\"local_white\":%.3f,\"wave_handover\":%.3f},"
+           "\"host_cpu_ns_per_109_led_frame\":{\"direct\":%.3f,\"dimmed\":%.3f,\"local_white\":%.3f,\"wave_handover\":%.3f,\"reactive_white_five_keys\":%.3f},"
            "\"host_cpu_ns_per_key_hook\":{\"game_off\":%.3f,\"game_on\":%.3f},\"checksum\":%u,"
+           "\"host_cpu_ns_per_recorder_task\":{\"idle\":%.3f,\"loop_20ms_hold_5ms_gap\":%.3f},"
            "\"cpu_clock_ticks_per_second\":%lu,\"key_hook_iterations\":2000000,"
            "\"physical_key_latency_measured\":false,\"mcu_execution_time_measured\":false}\n",
-           REDBLADE_VERSION_MAJOR,REDBLADE_VERSION_MINOR,REDBLADE_VERSION_PATCH,host,dim,white,wave,normal,game,(unsigned)checksum,(unsigned long)CLOCKS_PER_SEC);
+           REDBLADE_VERSION_MAJOR,REDBLADE_VERSION_MINOR,REDBLADE_VERSION_PATCH,host,dim,white,wave,reactive,normal,game,(unsigned)checksum,rec_idle,rec_loop,(unsigned long)CLOCKS_PER_SEC);
     return 0;
 }

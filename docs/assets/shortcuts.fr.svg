@@ -1,29 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100">
-<rect width="1600" height="1100" fill="#0c1019"/>
-<style>text{font-family:Arial,DejaVu Sans,sans-serif;fill:#e9eef7}.title{font-size:40px;font-weight:700}.sub{font-size:20px;fill:#a5b4c9}.key{font-size:15px;font-weight:700;text-anchor:middle}.card{font-size:23px;font-weight:700}.body{font-size:19px}</style>
-<text x="48" y="62" class="title">RedBlade+ 0.6  /  OpenRGB Firmware</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1540" viewBox="0 0 1600 1540">
+<rect width="1600" height="1540" fill="#0c1019"/>
+<style>text{font-family:Arial,DejaVu Sans,sans-serif;fill:#e9eef7}.title{font-size:40px;font-weight:700}.sub{font-size:19px;fill:#a5b4c9}.key{font-size:15px;font-weight:700;text-anchor:middle}.tiny{font-size:10px;font-weight:700;text-anchor:middle;fill:#a5b4c9}.card{font-size:23px;font-weight:700}.body{font-size:19px}</style>
+<text x="48" y="62" class="title">RedBlade+ 0.8 FULL  /  OpenRGB Firmware</text>
 <text x="48" y="98" class="sub">Raccourcis + touches dynamiques · positions AZERTY</text>
 <text x="48" y="128" class="sub">Carte des fonctions : ces couleurs ne sont pas toutes actives simultanément.</text>
 <rect x="48" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
 <text x="78.0" y="199.0" class="key">ESC</text>
 <rect x="180" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#4fcde8" stroke-width="2"/>
-<text x="210.0" y="199.0" class="key">F1</text>
+<text x="210.0" y="189.0" class="key">F1</text>
+<text x="210.0" y="209.0" class="tiny">AURORA</text>
 <rect x="246" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#e9eef7" stroke-width="2"/>
-<text x="276.0" y="199.0" class="key">F2</text>
+<text x="276.0" y="189.0" class="key">F2</text>
+<text x="276.0" y="209.0" class="tiny">BLANC</text>
 <rect x="312" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
-<text x="342.0" y="199.0" class="key">F3</text>
+<text x="342.0" y="189.0" class="key">F3</text>
+<text x="342.0" y="209.0" class="tiny">ROUGE</text>
 <rect x="378" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#546074" stroke-width="2"/>
-<text x="408.0" y="199.0" class="key">F4</text>
+<text x="408.0" y="189.0" class="key">F4</text>
+<text x="408.0" y="209.0" class="tiny">OFF</text>
 <rect x="477.0" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#49d68b" stroke-width="2"/>
-<text x="507.0" y="199.0" class="key">F5</text>
+<text x="507.0" y="189.0" class="key">F5</text>
+<text x="507.0" y="209.0" class="tiny">VAGUE</text>
 <rect x="543.0" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#49d68b" stroke-width="2"/>
-<text x="573.0" y="199.0" class="key">F6</text>
+<text x="573.0" y="189.0" class="key">F6</text>
+<text x="573.0" y="209.0" class="tiny">MEDIA</text>
 <rect x="609.0" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#49d68b" stroke-width="2"/>
-<text x="639.0" y="199.0" class="key">F7</text>
+<text x="639.0" y="189.0" class="key">F7</text>
+<text x="639.0" y="209.0" class="tiny">SECOURS</text>
 <rect x="675.0" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#49d68b" stroke-width="2"/>
-<text x="705.0" y="199.0" class="key">F8</text>
+<text x="705.0" y="189.0" class="key">F8</text>
+<text x="705.0" y="209.0" class="tiny">RESET</text>
 <rect x="774" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#49d68b" stroke-width="2"/>
-<text x="804.0" y="199.0" class="key">F9</text>
+<text x="804.0" y="189.0" class="key">F9</text>
+<text x="804.0" y="209.0" class="tiny">SAUVER</text>
 <rect x="840" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="870.0" y="199.0" class="key">F10</text>
 <rect x="906" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
@@ -34,9 +43,9 @@
 <text x="1084.5" y="199.0" class="key">PRINT</text>
 <rect x="1120.5" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
 <text x="1150.5" y="199.0" class="key">SCRL</text>
-<rect x="1186.5" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
+<rect x="1186.5" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#a593ed" stroke-width="2"/>
 <text x="1216.5" y="199.0" class="key">PAUSE</text>
-<rect x="1269.0" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#4fcde8" stroke-width="2"/>
+<rect x="1269.0" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
 <text x="1299.0" y="199.0" class="key">CAL</text>
 <rect x="1335.0" y="164" width="60" height="60" rx="8" fill="#141e2c" stroke="#a593ed" stroke-width="2"/>
 <text x="1365.0" y="199.0" class="key">MUTE</text>
@@ -46,11 +55,11 @@
 <text x="1497.0" y="199.0" class="key">VOL+</text>
 <rect x="48" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="78.0" y="281.5" class="key">²</text>
-<rect x="114" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
+<rect x="114" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
 <text x="144.0" y="281.5" class="key">1</text>
-<rect x="180" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
+<rect x="180" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
 <text x="210.0" y="281.5" class="key">2</text>
-<rect x="246" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
+<rect x="246" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
 <text x="276.0" y="281.5" class="key">3</text>
 <rect x="312" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="342.0" y="281.5" class="key">4</text>
@@ -70,13 +79,13 @@
 <text x="804.0" y="281.5" class="key">)</text>
 <rect x="840" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="870.0" y="281.5" class="key">=</text>
-<rect x="906" y="246.5" width="126" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
+<rect x="906" y="246.5" width="126" height="60" rx="8" fill="#141e2c" stroke="#e9eef7" stroke-width="2"/>
 <text x="969.0" y="281.5" class="key">BACK</text>
 <rect x="1054.5" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="1084.5" y="281.5" class="key">INS</text>
 <rect x="1120.5" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="1150.5" y="281.5" class="key">HOME</text>
-<rect x="1186.5" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
+<rect x="1186.5" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#e9eef7" stroke-width="2"/>
 <text x="1216.5" y="281.5" class="key">PGUP</text>
 <rect x="1269.0" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#49d68b" stroke-width="2"/>
 <text x="1299.0" y="281.5" class="key">NUM</text>
@@ -84,7 +93,7 @@
 <text x="1365.0" y="281.5" class="key">/</text>
 <rect x="1401.0" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#a4b2c8" stroke-width="2"/>
 <text x="1431.0" y="281.5" class="key">*</text>
-<rect x="1467.0" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
+<rect x="1467.0" y="246.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#a593ed" stroke-width="2"/>
 <text x="1497.0" y="281.5" class="key">−</text>
 <rect x="48" y="312.5" width="93.0" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="94.5" y="347.5" class="key">TAB</text>
@@ -92,7 +101,7 @@
 <text x="177.0" y="347.5" class="key">A</text>
 <rect x="213.0" y="312.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#49d68b" stroke-width="2"/>
 <text x="243.0" y="347.5" class="key">Z</text>
-<rect x="279.0" y="312.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
+<rect x="279.0" y="312.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
 <text x="309.0" y="347.5" class="key">E</text>
 <rect x="345.0" y="312.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
 <text x="375.0" y="347.5" class="key">R</text>
@@ -116,7 +125,7 @@
 <text x="1084.5" y="347.5" class="key">DEL</text>
 <rect x="1120.5" y="312.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="1150.5" y="347.5" class="key">END</text>
-<rect x="1186.5" y="312.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
+<rect x="1186.5" y="312.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#e9eef7" stroke-width="2"/>
 <text x="1216.5" y="347.5" class="key">PGDN</text>
 <rect x="1269.0" y="312.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#a4b2c8" stroke-width="2"/>
 <text x="1299.0" y="347.5" class="key">7</text>
@@ -124,7 +133,7 @@
 <text x="1365.0" y="347.5" class="key">8</text>
 <rect x="1401.0" y="312.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#a4b2c8" stroke-width="2"/>
 <text x="1431.0" y="347.5" class="key">9</text>
-<rect x="1467.0" y="312.5" width="60" height="126" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
+<rect x="1467.0" y="312.5" width="60" height="126" rx="8" fill="#141e2c" stroke="#a593ed" stroke-width="2"/>
 <text x="1497.0" y="380.5" class="key">+</text>
 <rect x="48" y="378.5" width="109.5" height="60" rx="8" fill="#141e2c" stroke="#49d68b" stroke-width="2"/>
 <text x="102.75" y="413.5" class="key">CAPS</text>
@@ -134,7 +143,7 @@
 <text x="259.5" y="413.5" class="key">S</text>
 <rect x="295.5" y="378.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="325.5" y="413.5" class="key">D</text>
-<rect x="361.5" y="378.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
+<rect x="361.5" y="378.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
 <text x="391.5" y="413.5" class="key">F</text>
 <rect x="427.5" y="378.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="457.5" y="413.5" class="key">G</text>
@@ -152,8 +161,8 @@
 <text x="853.5" y="413.5" class="key">ù</text>
 <rect x="889.5" y="378.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="919.5" y="413.5" class="key">*</text>
-<rect x="955.5" y="312.5" width="76.5" height="126" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
-<text x="993.75" y="380.5" class="key">ENTER</text>
+<rect x="955.5" y="312.5" width="76.5" height="126" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
+<text x="993.75" y="380.5" class="key">ENT</text>
 <rect x="1269.0" y="378.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#a4b2c8" stroke-width="2"/>
 <text x="1299.0" y="413.5" class="key">4</text>
 <rect x="1335.0" y="378.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#a4b2c8" stroke-width="2"/>
@@ -202,7 +211,7 @@
 <text x="168.75" y="545.5" class="key">WIN</text>
 <rect x="213.0" y="510.5" width="76.5" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="251.25" y="545.5" class="key">ALT</text>
-<rect x="295.5" y="510.5" width="406.5" height="60" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
+<rect x="295.5" y="510.5" width="406.5" height="60" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
 <text x="498.75" y="545.5" class="key">SPACE</text>
 <rect x="708" y="510.5" width="76.5" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="746.25" y="545.5" class="key">ALT GR</text>
@@ -212,44 +221,63 @@
 <text x="911.25" y="545.5" class="key">FN</text>
 <rect x="955.5" y="510.5" width="76.5" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="993.75" y="545.5" class="key">CTRL</text>
-<rect x="1054.5" y="510.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
+<rect x="1054.5" y="510.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#e9eef7" stroke-width="2"/>
 <text x="1084.5" y="545.5" class="key">←</text>
 <rect x="1120.5" y="510.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
 <text x="1150.5" y="545.5" class="key">↓</text>
-<rect x="1186.5" y="510.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#344157" stroke-width="2"/>
+<rect x="1186.5" y="510.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#e9eef7" stroke-width="2"/>
 <text x="1216.5" y="545.5" class="key">→</text>
 <rect x="1269.0" y="510.5" width="126" height="60" rx="8" fill="#141e2c" stroke="#a4b2c8" stroke-width="2"/>
 <text x="1332.0" y="545.5" class="key">0</text>
 <rect x="1401.0" y="510.5" width="60" height="60" rx="8" fill="#141e2c" stroke="#a4b2c8" stroke-width="2"/>
 <text x="1431.0" y="545.5" class="key">.</text>
-<rect x="48" y="602" width="488" height="108" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
-<text x="66" y="632" class="card" style="fill:#f3bf57">Fn + T</text>
-<text x="66" y="661" class="body">Choisir une touche Turbo</text>
-<text x="66" y="689" class="sub">Puis appuyer/relâcher la touche</text>
-<rect x="556" y="602" width="488" height="108" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
-<text x="574" y="632" class="card" style="fill:#f3bf57">Fn + num − / +</text>
-<text x="574" y="661" class="body">Cadence −5 / +5 · 5–100/s</text>
-<text x="574" y="689" class="sub">Réglable pendant le Turbo</text>
-<rect x="1064" y="602" width="488" height="108" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
-<text x="1082" y="632" class="card" style="fill:#f3bf57">Fn + R</text>
-<text x="1082" y="661" class="body">25 → 50 → 100 appuis/s</text>
-<text x="1082" y="689" class="sub">Maj : préréglage précédent</text>
-<rect x="48" y="727" width="488" height="108" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
-<text x="66" y="757" class="card" style="fill:#e13743">Fn + WIN</text>
-<text x="66" y="786" class="body">Verrouiller Windows</text>
-<text x="66" y="814" class="sub">Les deux logos deviennent rouges</text>
-<rect x="556" y="727" width="488" height="108" rx="8" fill="#141e2c" stroke="#4fcde8" stroke-width="2"/>
-<text x="574" y="757" class="card" style="fill:#4fcde8">Fn + CAL</text>
-<text x="574" y="786" class="body">Guide lumineux · 20 secondes</text>
-<text x="574" y="814" class="sub">Deuxième appui : fermer</text>
-<rect x="1064" y="727" width="488" height="108" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
-<text x="1082" y="757" class="card" style="fill:#e13743">Fn + ESC · 2 s</text>
-<text x="1082" y="786" class="body">Mode flash</text>
-<text x="1082" y="814" class="sub">Appui court : arrêt + déverrouillage</text>
-<text x="48" y="880" class="body">FN : bleu repos · cyan enfoncée/guide · ambre choix · rouge Turbo · vert maintien · violet jeu</text>
-<text x="48" y="923" class="body">Sans flux RGB depuis 5 s : CAPS vert si actif · SCROLL ambre si actif</text>
-<text x="48" y="958" class="body">NUM actif : pavé blanc + NUM vert · NUM inactif : pavé blanc très faible</text>
-<text x="48" y="1003" class="body">ÉCHAP arrête le Turbo · Fn + Entrée rejoue la vague rouge · Fn + F1 rend la main à Aurora</text>
-<text x="48" y="1048" class="sub">Les états CAPS/NUM/SCROLL respectent le flux RGB, le profil éteint et la suspension USB.</text>
-<text x="48" y="1081" class="sub">Red Blade Full Size ISO · 4 touches multimédias · Les touches normales gardent leur fonction</text>
+<rect x="48" y="606" width="744" height="270" rx="8" fill="#141e2c" stroke="#e13743" stroke-width="2"/>
+<text x="66" y="638" class="card" style="fill:#e13743">1 · RECORDER</text>
+<text x="66" y="671" class="body">Fn + CAL → Fn + 1 / 2 / 3 : enregistrer</text>
+<text x="66" y="700" class="body">Fn + CAL : terminer et garder la séquence</text>
+<text x="66" y="729" class="body">Fn + 1 / 2 / 3 : lire une fois</text>
+<text x="66" y="758" class="body">Fn + Maj + 1 / 2 / 3 : boucle ; même raccourci = arrêt</text>
+<text x="66" y="787" class="body">Fn + num − / + : 0,5× → 2× → 4× → 8× → HYPER</text>
+<text x="66" y="816" class="body">Maintenir : enchaîner ; relâcher : valeur conservée</text>
+<text x="66" y="845" class="body">1/2/3 = chiffres du haut · Échap : arrêter</text>
+<rect x="816" y="606" width="736" height="270" rx="8" fill="#141e2c" stroke="#f3bf57" stroke-width="2"/>
+<text x="834" y="638" class="card" style="fill:#f3bf57">2 · TURBO CLAVIER / SOURIS</text>
+<text x="834" y="671" class="body">Fn + T, puis une touche : choisir la cible</text>
+<text x="834" y="700" class="body">Fn + T → VOL− / VOL+ : clic gauche / droit</text>
+<text x="834" y="729" class="body">Clic : ambre / violet · E / F / Espace : Turbo direct</text>
+<text x="834" y="758" class="body">Fn + R : 25 → 50 → 100 appuis/s (Maj : inverse)</text>
+<text x="834" y="787" class="body">Fn + num − / + : 5 → 250/s ; maintien pour régler</text>
+<text x="834" y="816" class="body">Fn + Z (AZERTY) : maintien pour avancer</text>
+<text x="834" y="845" class="body">Échap ou appui normal sur la cible : arrêter</text>
+<rect x="48" y="900" width="488" height="238" rx="8" fill="#141e2c" stroke="#4fcde8" stroke-width="2"/>
+<text x="66" y="932" class="card" style="fill:#4fcde8">3 · ÉCLAIRAGE</text>
+<text x="66" y="965" class="body">Fn + F1 : Aurora / OpenRGB</text>
+<text x="66" y="994" class="body">Fn + F2 / F3 / F4 : blanc / rouge / éteint</text>
+<text x="66" y="1023" class="body">Fn + Retour arrière : éteindre / rétablir</text>
+<text x="66" y="1052" class="body">Fn + ← / → : luminosité − / +</text>
+<text x="66" y="1081" class="body">Fn + Page bas / haut : luminosité − / +</text>
+<rect x="556" y="900" width="488" height="238" rx="8" fill="#141e2c" stroke="#a593ed" stroke-width="2"/>
+<text x="574" y="932" class="card" style="fill:#a593ed">4 · OPTIONS F5–F9</text>
+<text x="574" y="965" class="body">Fn + F5 : vague automatique oui / non</text>
+<text x="574" y="994" class="body">Fn + F6 : blanc sur les 4 médias oui / non</text>
+<text x="574" y="1023" class="body">Fn + F7 : secours blanc / sombre</text>
+<text x="574" y="1052" class="body">Fn + F8 : réglages par défaut + arrêt</text>
+<text x="574" y="1081" class="body">Fn + F9 : enregistrer l’éclairage</text>
+<rect x="1064" y="900" width="488" height="238" rx="8" fill="#141e2c" stroke="#49d68b" stroke-width="2"/>
+<text x="1082" y="932" class="card" style="fill:#49d68b">5 · CONTRÔLES</text>
+<text x="1082" y="965" class="body">Fn + WIN : verrouillage (2 logos rouges)</text>
+<text x="1082" y="994" class="body">Fn + MUTE : lecture / pause (Maj : stop)</text>
+<text x="1082" y="1023" class="body">Fn + VOL −/+ : piste précédente / suivante</text>
+<text x="1082" y="1052" class="body">Maj + Fn + VOL : luminosité − / +</text>
+<text x="1082" y="1081" class="body">Fn + PAUSE : arrêter la lecture média</text>
+<text x="1082" y="1110" class="body">Fn + ESC : arrêt ; maintien 2 s : flash</text>
+<text x="48" y="1185" class="body">−/+ agit sur la dernière fonction choisie : Recorder = vitesse ; Turbo = cadence. Fn + R sélectionne Turbo.</text>
+<text x="48" y="1226" class="body">CAL + FN respirent : rouge = enregistrement · vert = lecture simple · cyan = boucle · ambre = choix / limite</text>
+<text x="48" y="1267" class="sub">3 slots RAM partagés · environ 48 appuis simples au total · 30 s maximum · effacés au reset/débranchement USB</text>
+<text x="48" y="1308" class="sub">F8 conserve les enregistrements ; F9 sauvegarde seulement l’éclairage, pas les macros temporaires.</text>
+<text x="48" y="1352" class="body">Sans flux RGB depuis 5 s : CAPS vert si actif · SCROLL ambre si actif</text>
+<text x="48" y="1390" class="body">NUM actif : pavé blanc + NUM vert · NUM inactif : pavé blanc très faible</text>
+<text x="48" y="1431" class="sub">Le flux RGB reprend la priorité sur CAPS/NUM/SCROLL. Éteint et suspension USB restent prioritaires.</text>
+<text x="48" y="1470" class="sub">Red Blade Full Size ISO · 4 touches multimédias · Les touches normales gardent leur fonction</text>
+<text x="48" y="1510" class="sub">Blanc + frappe/rejeu : traînées rouges. Flux Aurora prioritaire. Maintien −/+ : crans ; valeur conservée.</text>
 </svg>

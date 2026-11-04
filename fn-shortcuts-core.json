@@ -1,0 +1,264 @@
+{
+  "layer": 1,
+  "minimum_firmware": [
+    0,
+    8,
+    0
+  ],
+  "edition": "core",
+  "bindings": [
+    {
+      "row": 0,
+      "col": 0,
+      "code": 32339,
+      "symbol": "RB_CORE_BOOT"
+    }
+  ],
+  "clear_bindings": [
+    {
+      "row": 0,
+      "col": 2,
+      "key": "F1",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "key": "F2",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "key": "F3",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "key": "F4",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 6,
+      "key": "F5",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 7,
+      "key": "F6",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 8,
+      "key": "F7",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 9,
+      "key": "F8",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 10,
+      "key": "F9",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 16,
+      "key": "PAUS",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 17,
+      "key": "CALC",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 18,
+      "key": "MUTE",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 19,
+      "key": "VOLD",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 0,
+      "col": 20,
+      "key": "VOLU",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "key": "1",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "key": "2",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "key": "3",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 1,
+      "col": 13,
+      "key": "BSPC",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 1,
+      "col": 16,
+      "key": "PGUP",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 1,
+      "col": 20,
+      "key": "Numpad -",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "key": "W",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "key": "E",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "key": "R",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "key": "T",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 2,
+      "col": 16,
+      "key": "PGDN",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 2,
+      "col": 20,
+      "key": "Numpad +",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "key": "F",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 5,
+      "col": 1,
+      "key": "LGUI",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 5,
+      "col": 6,
+      "key": "SPC",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 5,
+      "col": 12,
+      "key": "RGUI",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 5,
+      "col": 14,
+      "key": "LEFT",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 5,
+      "col": 16,
+      "key": "RGHT",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 3,
+      "col": 13,
+      "key": "Enter",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 4,
+      "col": 15,
+      "key": "Up",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 5,
+      "col": 15,
+      "key": "Down",
+      "symbol": "KC_TRNS",
+      "code": 1
+    }
+  ]
+}

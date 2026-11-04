@@ -9,15 +9,22 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test firmware and controls with sanitizers
         run: |
-          for suite in protocol controls rendering; do
+          for suite in protocol controls rendering recorder speed_typing; do
             cc -std=c11 -Wall -Wextra -Werror -O1 -g -DUSE_CIE1931_CURVE -fsanitize=address,undefined \
               -I tests/stubs -I tests -I firmware/aurora_via \
               tests/${suite}_test.c tests/qmk_fixture.c tests/upstream/color.c tests/upstream/led_tables.c \
-              firmware/aurora_via/redblade_rgb.c firmware/aurora_via/redblade_controls.c -o /tmp/${suite}-test
+              firmware/aurora_via/redblade_rgb.c firmware/aurora_via/redblade_controls.c firmware/aurora_via/redblade_recorder.c -o /tmp/${suite}-test
             /tmp/${suite}-test
           done
       - name: Check Python utilities
         run: python3 -m py_compile tools/*.py
+      - name: Test standalone OpenRGB Core with sanitizers
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined \
+            -include firmware/openrgb_core/config.h -I tests/stubs -I tests -I firmware/openrgb_core \
+            tests/core_test.c tests/qmk_fixture.c firmware/openrgb_core/redblade_core.c -o /tmp/core-test
+          /tmp/core-test
+          python3 tools/check_core_release.py
       - name: Check shortcut mapping and tooling recovery
         run: python3 -m unittest discover -s tests -p 'test_*.py'
       - name: Verify committed firmware artifact
@@ -27,6 +34,6 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror -O2 -DUSE_CIE1931_CURVE \
             -I tests/stubs -I tests -I firmware/aurora_via \
             tests/benchmark.c tests/qmk_fixture.c tests/upstream/color.c tests/upstream/led_tables.c \
-            firmware/aurora_via/redblade_rgb.c firmware/aurora_via/redblade_controls.c -o /tmp/native-benchmark
+            firmware/aurora_via/redblade_rgb.c firmware/aurora_via/redblade_controls.c firmware/aurora_via/redblade_recorder.c -o /tmp/native-benchmark
           /tmp/native-benchmark
 

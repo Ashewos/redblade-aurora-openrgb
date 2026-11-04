@@ -1,7 +1,7 @@
 {
   "minimum_firmware": [
     0,
-    6,
+    7,
     0
   ],
   "layer": 1,
@@ -87,8 +87,8 @@
       "row": 0,
       "col": 17,
       "key": "CALC",
-      "symbol": "RB_GUIDE",
-      "code": 32348
+      "symbol": "RB_REC_ARM",
+      "code": 32349
     },
     {
       "row": 0,
@@ -110,6 +110,27 @@
       "key": "VOLU",
       "symbol": "RB_NEXT",
       "code": 32323
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "key": "1",
+      "symbol": "RB_REC_1",
+      "code": 32350
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "key": "2",
+      "symbol": "RB_REC_2",
+      "code": 32351
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "key": "3",
+      "symbol": "RB_REC_3",
+      "code": 32352
     },
     {
       "row": 1,
@@ -182,20 +203,6 @@
       "code": 32341
     },
     {
-      "row": 3,
-      "col": 13,
-      "key": "ENT",
-      "symbol": "RB_WAVE",
-      "code": 32331
-    },
-    {
-      "row": 4,
-      "col": 15,
-      "key": "UP",
-      "symbol": "RB_PROFILE_NEXT",
-      "code": 32336
-    },
-    {
       "row": 5,
       "col": 1,
       "key": "LGUI",
@@ -225,17 +232,33 @@
     },
     {
       "row": 5,
-      "col": 15,
-      "key": "DOWN",
-      "symbol": "RB_PROFILE_PREV",
-      "code": 32337
-    },
-    {
-      "row": 5,
       "col": 16,
       "key": "RGHT",
       "symbol": "RB_BRIGHTER",
       "code": 32329
+    }
+  ],
+  "clear_bindings": [
+    {
+      "row": 3,
+      "col": 13,
+      "key": "Enter",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 4,
+      "col": 15,
+      "key": "Up",
+      "symbol": "KC_TRNS",
+      "code": 1
+    },
+    {
+      "row": 5,
+      "col": 15,
+      "key": "Down",
+      "symbol": "KC_TRNS",
+      "code": 1
     }
   ]
 }

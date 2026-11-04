@@ -2,6 +2,40 @@
 
 All new release notes are written in English. Version 0.x is experimental; hardware validation is recorded separately from build and host-test results.
 
+## 0.8.0 — Latched Hyper speeds, reactive white and mouse Turbo
+
+### Added
+- Two separately built editions: OpenRGB Core (RGB/VIA only, no game features) and full RedBlade+. Each has its own BIN, manifest and exact source package.
+- Higher, persistent speed selections: Recorder 0.5×–2× in 0.25× steps, then 4×, 8× and Hyper. Hyper requests one key edge per millisecond while keeping the minimum 5 ms loop release gap. Releasing + keeps the selected value; − steps back down.
+- Hold Fn + numpad −/+ for repeated steps (400 ms, then 150 ms); during active playback, bare numpad −/+ also adjusts speed. Outside playback, including recording, bare −/+ remains normal input. F8 restores Turbo 50/s and Recorder 1×.
+- Keyboard/mouse Turbo targets up to 250/s: classic 5–100/s steps of 5, then steps of 25. Fn + R retains the classic 25/50/100 presets. A 16-bit fractional accumulator keeps intermediate high cadences accurate.
+- Fn + T, then Volume − or Volume + selects left-click or right-click Turbo on release. The active volume key blinks amber/purple and Fn matches. The same volume target, Esc, Fn + T, F8 or USB suspension stops and releases it. Normal media behavior is retained outside click selection/running.
+- Reactive white fallback after five seconds without RGB: physical typing, Turbo and Recorder replay light red key trails. Explicit Fn + F2 uses the same white/red effect. Default Host still gives fresh Aurora/OpenRGB colors priority; lock states and Off/suspend remain authoritative.
+- Refreshed categorized shortcut diagrams and feature showcase images in English/French.
+
+### Resources and limits
+- Fixed reactive lifetimes use 55 bytes plus a count; the replay LED lookup lives in flash. Three Recorder slots now share 192 bytes, about 48 simple presses total, to preserve SRAM/stack reservations. Long delays/modifiers reduce capacity. The old, unmapped lighting-guide implementation is retired; its custom keycode stays reserved.
+- Physical reactive lights follow matrix positions. Replay lights use factory usage positions, including when VIA remaps the keyboard. No recorded payload is exported or persisted.
+- Native tests, ARM resource checks, actual device checks and unmeasured physical latency are distinguished in the manifest/audit.
+
+## 0.7.0 — Local on-device validation build · Timed Recorder, optional loops and simpler shortcut groups
+
+### Added
+- Three temporary Recorder slots sharing a fixed 320-byte RAM arena. Fn + Calculator arms selection; Fn + 1/2/3 records into a slot; Calculator finishes. Fn + a slot replays once; Shift + Fn + a slot loops/toggles it. The loop chord waits for Fn/Shift release without stealing held modifiers.
+- Recorded keyboard press/release timing, holds and physical modifiers, with live 0.5×–2× target speed in 0.25× steps through Fn + numpad −/+. The same controls use the last selected Recorder/Turbo context; Fn + R selects Turbo.
+- Breathing red recording, green one-shot, cyan loop and amber selection/feedback on Calculator, Fn and the active slot. A loop releases generated keys between iterations with a minimum 5 ms gap; missed deadlines never cause bursts.
+- Balanced capacity/30-second completion, physical-key takeover, GUI-lock checks, explicit stop, metadata-only read diagnostics and USB lifecycle cleanup. Slots are RAM-only; simple powered suspension can retain them, while USB reset/deconfiguration, disconnect or power loss clears them. F8 keeps recordings; F9 saves lighting only.
+- Categorized English/French diagrams and guides explicitly covering Recorder, Turbo, profiles, each F5–F9 option and media controls.
+
+### Removed / changed
+- Remove default Fn + Up/Down profile cycling and Fn + Enter wave replay. Automatic startup/resume animation remains available through F5.
+- Fn + Calculator now controls Recorder instead of the temporary shortcut guide. No additional menu or desktop service is required.
+- Update the backed-up VIA installer with 33 current bindings plus explicit clearing of the three removed commands; base keys, VIA macros and unrelated Fn cells remain intact.
+
+### Validation
+- Actual C recorder/control/rendering/protocol tests cover timing, long delays, modifiers, ownership, speed, loop release/toggle, no catch-up, full buffers with held keys, slot compaction, sleep/USB reset behavior and read-only metadata. Eight Python tooling checks cover migration removals and refusal to benchmark an active Recorder as well as prior recovery cases.
+- Native benchmark includes idle/loop Recorder scheduling. The manifest/audit distinguishes build, on-device and physical latency validation. Stack reservations and the shared scan/PWM timer are unchanged; the artifact validator requires at least 64 unassigned SRAM bytes after reserved stacks and all static data.
+
 ## 0.6.0 — Dynamic fallback and a clearer Fn layer
 
 ### Added

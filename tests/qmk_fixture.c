@@ -1,5 +1,13 @@
 #include "qmk_fixture.h"
 #include <assert.h>
+#include "host.h"
+uint8_t mouse_buttons;
+unsigned mouse_downs,mouse_reports;
+void host_mouse_send(report_mouse_t *r) {
+    assert(!r->x && !r->y && !r->v && !r->h);
+    assert(r->buttons<=2);if(r->buttons && !mouse_buttons) ++mouse_downs;
+    mouse_buttons=r->buttons;++mouse_reports;
+}
 led_config_t g_led_config = {.matrix_co = {
 #include "led_matrix.inc"
 }, .point = {
@@ -20,11 +28,13 @@ uint32_t timer_read32(void) { return now; }
 uint32_t eeconfig_read_user(void) { return eeprom_user; }
 void eeconfig_update_user(uint32_t v) { eeprom_user = v; ++eeprom_writes; }
 uint8_t get_mods(void) { return mods; }
+uint8_t get_weak_mods(void) { return weak_mods; }
+uint8_t has_anykey(void) { for(unsigned i=4;i<=0xA4;++i) if(key_down[i]) return 1; return 0; }
 void del_mods(uint8_t m) { mods &= ~m; }
 void del_weak_mods(uint8_t m) { weak_mods &= ~m; }
 void send_keyboard_report(void) { ++keyboard_reports; }
-void register_code(uint8_t code) { key_down[code] = true; ++key_down_calls; }
-void unregister_code(uint8_t code) { key_down[code] = false; ++key_up_calls; }
+void register_code(uint8_t code) { key_down[code] = true; if(code>=0xE0 && code<=0xE7) mods|=1<<(code-0xE0); ++key_down_calls; }
+void unregister_code(uint8_t code) { key_down[code] = false; if(code>=0xE0 && code<=0xE7) mods&=~(1<<(code-0xE0)); ++key_up_calls; }
 void reset_keyboard(void) { ++bootloader_calls; }
 bool rgb_matrix_is_enabled(void) { return enabled; }
 uint8_t rgb_matrix_get_mode(void) { return mode; }

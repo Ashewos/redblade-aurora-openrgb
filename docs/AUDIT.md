@@ -1,71 +1,88 @@
-# RedBlade+ 0.6.0 — code review and validation
+# RedBlade+ 0.8.0 — code review and validation
 
-Review date: **2026-11-04**. Scope: custom firmware protocol/controls/keymap, Windows tools, Fn-layer migration, artifact contents and documentation. This is an implementation review with host tests, not an independent certification or a physical latency measurement.
+Review date: **2026-11-04**. Scope: actual protocol, controls, Recorder, keymap/rendering, Windows tools, migration, source packaging and documentation. Build/host results and on-device checks are recorded separately.
 
-## Findings addressed
+## Changes and evidence
 
-| Area | Change / evidence |
+| Area | Implementation / checks |
 | --- | --- |
-| RGB packet boundaries | Whole-range validation before touching the 327-byte color array; at most 9 colors/report; malformed packets do not keep the stream alive. Exhaustive host boundary checks remain in place. |
-| Timer wrap / stale frames | Unsigned elapsed-time checks, latched idle fallback and clearing stream state at USB suspension. Boot/Turbo timing and recovery are tested across wraparound. |
-| Shared scan/PWM clock | Driver override preserves 720,896 Hz while using smaller rendering chunks. Keyboard pins, eager debounce and USB polling configuration remain unchanged. |
-| Windows-key lock | Clears held GUI modifiers while retaining Ctrl/Alt/Shift. Filters standalone left/right GUI and simple GUI-modified QMK codes, including a modified GUI key as the basic code. Fn+Windows toggles it; both physical Windows LEDs are red while locked. |
-| Media release ordering | Tracks generated consumer keys by physical position so releasing Fn/Shift first does not leave a key held. |
-| Turbo ownership | One repeat target; normal target key presses cancel it before QMK handles the physical press. Held physical targets cannot be stolen by a remapped trigger. |
-| Turbo scheduling | Cached interval/remainder for 5–100 presses/s, fractional milliseconds distributed across edges; no rate division, explicit delay or busy wait in the scheduler; at most one edge/pass, with no catch-up bursts. Forward hold needs no periodic report when unchanged. |
-| Emergency stop | Esc stops generated keys; Fn+Esc also unlocks Windows. USB suspension/disconnection and defaults stop helpers. Bootloader needs a two-second Fn+Esc hold; a short press only stops/unlocks. |
-| Preferences | Only explicit Fn+F9 writes the tagged four-byte QMK user word. Invalid/unrelated words load defaults. Game/helper state is never persisted. |
-| Zero-brightness recovery | Fn+F8 restores the master setting and QMK engine brightness without EEPROM writes, including recovery from an externally set zero value. |
-| LED mapping | All four media positions, Fn, T, numpad −/+ and E/F/R/forward/Space indices are checked against the pinned layout. Space is LED **99**, not a neighboring modifier. |
-| Raw HID utilities | Device identity checks, read-only diagnostics, response-subcommand validation and enumeration cleanup on identity errors. Competing clients must be stopped. |
-| Fn installer | Only 33 checked layer-1 cells; complete private backup before writes; read-back verification; attempted writes are included in rollback even when an ACK is lost. |
-| Measurement tooling | Native and HID timings are labeled separately from physical key latency. Native-only launcher path was executed; HID requests are read-only and active game helpers cause an abort. |
-| Source bundles | Only tracked QMK/dependency sources plus the selected keymap are packaged. Other local keymaps/notes are excluded; the approved timer patch, native artifact digest and source checkout are checked. Output cannot be inside a source tree. |
+| RGB bounds | Validate the entire 9-color packet range before changing the 327-byte host buffer. Exhaustive 76,800 start/count boundary cases remain covered. |
+| Direct brightness | Ignore unused global HSV/speed fields in Direct mode. Linear QMK conversion avoids double CIE dimming. Actual custom-effect tests cover zero scalar fields, red wave geometry, visible four-media fallback and host handover. |
+| USB/watchdog | Unsigned elapsed time, five-second fallback, stale-frame clearing and explicit USB-state hooks. Suspension/unconfigured has priority over waves, fallback and overlays. Diagnostics do not renew the watchdog. |
+| Scan / input | Requested polling remains 1 ms; factory eager debounce, NKRO and the shared 720,896 Hz matrix/PWM timer are preserved. Eight base LEDs are rendered per cooperative task; no added timer stops key scanning. |
+| Windows / releases | Both Windows RGB indices and Fn are checked against actual base-layer assignments (Fn is LED 102; Right Ctrl is 103). All non-trigger Fn actions own their physical release. Held GUI modifiers are cleared without clearing Ctrl/Alt/Shift. |
+| Turbo | Cached interval/remainder; one edge per housekeeping pass, no division in that scheduler, no burst catch-up. Physical target presses take over. Forward hold and Turbo cannot own the same usage. |
+| Recorder storage | Three offset/length slots share a fixed 192-byte byte arena. A typical key edge uses two bytes; delays >=255 ms use four. Replacing one slot compacts the arena once on a user action and preserves the other slots. No allocator or EEPROM writes are used. |
+| Recorder capacity | Each capture reserves space to finish all currently held keys. Full memory or the 30-second limit saves a balanced sequence; it does not release a still-physical key from the live keyboard report. Multi-key-full and long-held-key cases are tested. |
+| Recorder ownership | Recording observes accepted basic key edges and physical modifiers. Playback refuses a nonempty keyboard/held modifiers, owns a private bitset of generated usages and releases only those on stop. A real key takes over before QMK processes it. Media/Fn/advanced macro actions are not recorded. |
+| Recorder timing | Millisecond edge deltas; 1x is exact before USB scheduling. Cached Q8 multipliers implement target 0.5x–8x plus Hyper speeds, with rounded intermediate ratios. Playback emits at most one edge per pass and resets timing to the actual edge, never draining missed events in a burst. |
+| Loop chord | Explicit Shift+Fn+slot playback waits for Fn/Shift release rather than clearing real modifiers. A physical Shift stops an existing loop and retains that stop gesture until release, so the same loop shortcut toggles off in either Fn/Shift order. Pending playback retains its GUI-lock check. |
+| Loop boundary | Release generated usages between passes; minimum 5 ms inter-loop gap is retained across live speed changes. Looping is an explicit runtime flag, never persisted or automatically resumed. |
+| Lock / lifecycle | Game Mode refuses a recording containing GUI events, including a deferred loop. Enabling Game Mode stops Recorder. Simple USB suspension stops and can preserve completed RAM slots; USB reset/deconfiguration clears the arena. |
+| Stops / defaults | Esc finishes capture or stops playback; short Fn+Esc also unlocks. Holding Fn+Esc two seconds enters the bootloader; releasing either key cancels. F8 resets lighting/rates/speed and retains current RAM recordings; F9 saves lighting only. |
+| Privacy / tools | FE82 exposes state, sizes, speed and errors, not the recorded key/timing payload. HID benchmarks are read-only and reject active/armed/waiting Recorder/Turbo/forward states. Personal backups remain outside the repository. |
+| Migration | Check 33 current Fn bindings plus 3 explicit clears for removed Up/Down/Enter commands. Full private VIA backup before writes, ACK/readback validation and rollback including a write whose ACK was lost. |
+| Packaging / diagrams | Exact clean project commit, pinned QMK and only the approved timer driver patch; include tracked dependency sources and the selected keymap. Other untracked keymaps/notes, backups, credentials, Git metadata and build caches are excluded. EN/FR diagrams use the actual 109-position layout. |
 
-## Build and resources
+## 0.8 edition and speed changes
 
-- Board: Red Blade Full Size ISO, `320F:5136`, SN32F248B, 109 LEDs.
-- SonixQMK: `62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60`; ARM GCC 15.2.0 / qmk_toolchains a55a2b0.
-- Raw image: 65,536 bytes including Sonix padding/flag; the linked program fits within this flash budget.
-- Linked SRAM use: **7,724 / 8,192 bytes**, including 768-byte main stack, 1,536-byte process stack and linker alignment. **468 bytes remain unassigned.** This is 24 bytes more than 0.4.0 and 104 bytes more than the original 0.1.0 build.
-- Runtime stack high-water marks and exact MCU execution times have not been measured. Reserved stack sizes are not a proof of maximum runtime usage.
+- Full: persistent tap/hold rates, 400 ms initial hold and 150 ms repeated steps.
+  Turbo targets 5–250/s, 16-bit fractional accumulation; Recorder adds 4x, 8x and
+  Hyper (one edge per millisecond target). Loop gap stays at least 5 ms.
+- Mouse Turbo sends button-only shared HID reports through the existing Turbo
+  scheduler. Left/right volume targets use amber/purple LEDs and matching Fn.
+  Stops release the generated button. The mouse report adds SRAM overhead, so
+  the Recorder arena is 192 bytes. Stacks remain 768 + 1536 bytes.
+- Reactive white stores 109 four-bit frame lifetimes in 55 bytes plus a count.
+  Physical input uses its actual matrix position; replay uses a factory lookup
+  in flash. Trails are absent over live host RGB and cleared across Off/suspend.
+- Core is a separately linked module with RGB/VIA and guarded boot entry only.
+  It has no game/Recorder/mouse/reactive modules or local animation. Its five
+  second RGB watchdog goes dark. [Edition manifests and source bundles](EDITIONS.md)
+  distinguish build/host checks from actual hardware validation.
+- Local native benchmark includes reactive-white frames. These PC timings do
+  not measure switch latency, MCU time, USB load or game acceptance at high rates.
 
-`tools/check_release.py --elf ...` checks the actual linker heap boundary, vectors, image flag, SHA-256, version and shortcut map. The [manifest](../dist/manifest.json) records artifact metadata.
+## Resources and performance
 
-## Verification performed
+- Board: Full Size ISO `320F:5136`, SN32F248B, 109 LEDs. SonixQMK `62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60`, ARM GCC 15.2.0.
+- Raw image: 65,536 bytes with Sonix flag/padding; vectors, size, SHA-256, version, keymap and actual linker heap boundary are checked by `tools/check_release.py`.
+- Reserved stacks remain **768 bytes main + 1,536 bytes process**. The manifest reports total linked SRAM including these reservations and alignment. The artifact validator requires at least **64 bytes unassigned** after all static data and stack reservations; this unassigned amount is not the stack capacity.
+- Recorder arena is fixed at 192 bytes plus bounded metadata. No dynamic allocation path was added. The [native reference](performance-reference.json) includes ordinary key hooks, 109-LED frames and idle/active-loop Recorder task costs on the PC, with transport mocked.
+- [USB reference](hid-reference.json) measures information-request round trips with clients stopped and helpers off. It does not measure physical switch input, key scan/debounce delay, active RGB/Recorder load or the MCU's exact execution time.
+- Runtime stack high-water marks, physical key latency and sustained RGB/Recorder stress remain unmeasured. Standard QMK report I/O still depends on USB scheduling.
 
-- Actual C handler and controls tests: VIA passthrough, 109 LED positions, 76,800 start/count boundaries, modes, red wave/handover, exact timeout, preferences, modifiers, physical release ordering, Turbo targets/rates/ownership/stop and guarded boot.
-- Six Python tooling tests: mapping agreement, timing statistics, read-only benchmark commands, failed-ACK rollback, HID cleanup and response matching.
-- Full ARM firmware compilation with warnings treated as errors.
-- Native benchmark using the pinned QMK HSV → RGB implementation with no second CIE curve for the custom renderer. The [reference result](performance-reference.json) is host CPU timing, not MCU timing.
-- PowerShell parser check and native-only measurement launcher execution. The elevated `-Hid` service stop/restart path has not been exercised on the target machine.
-- The GitHub workflow runs C tests with AddressSanitizer/UndefinedBehaviorSanitizer and runs the Python/tooling/native checks.
+## Validation performed
 
-## Remaining limits
+- Six actual-C suites: protocol, controls, rendering, Recorder, high-speed/reactive/mouse, and independent Core. Coverage includes exact timings, >255 ms gaps, wraparound, Ctrl/GUI ownership, live speed, full buffers with held keys, slot compaction, single/loop playback, Shift chord release/toggle, sleep stop/reset wipe, dynamic fallback and RGB host priority.
+- Eleven Python checks cover mapping agreement, percentiles, read-only timing, active Recorder refusal, explicit removals, lost-ACK rollback, HID cleanup/response matching, edition migration/refusal and checksum update order.
+- Full ARM build with warnings as errors, native Windows C tests and native benchmark. GitHub runs C suites with AddressSanitizer/UndefinedBehaviorSanitizer and the Python/artifact/native checks.
+- On 0.6.0, programming/checksum, protocol, positions and Fn map were verified; the user confirmed Caps/Num fallback, corrected Fn placement, Windows LEDs and Calculator's previous guide. On 0.5.0, visible wave/media lighting and generic Turbo/live rate/stop were confirmed. Those are historical checks, not automatic passes for Recorder.
+- Current on-device Recorder validation is recorded in [the manifest](../dist/manifest.json). The owner confirmed capture/replay/loop/speed/indicators, removed shortcuts, typing, numpad and Aurora on the installed 0.7.0 local build. Current 0.8.0 hardware checks are recorded separately in the manifest.
 
-**0.6.0 was flashed with verified programming/checksum (0x819a), VIA/VialRGB identity, 109 positions and all 33 Fn bindings.** The user confirmed Caps/Num fallback, the corrected Fn/Right-Ctrl placement, both Windows lock LEDs and the Calculator guide. On 0.5.0, wave/media lighting and generic Turbo/live cadence/stop were user-confirmed. Sustained RGB/Turbo load, sleep/wake, actual PC shutdown, runtime stack usage and physical input latency remain unmeasured. The new Fn+Esc hold is host-tested but has not been used to re-enter the bootloader on 0.6.0.
+## Practical limits
 
-Standard QMK report transmission still depends on USB scheduling. Cooperative code and a 1 ms descriptor do not guarantee a particular physical input latency. Actual Turbo rates can be lower than the selected target; applications may coalesce events.
+An independent review found two ownership/mode defects before publication.
+Regressions now verify that VIA modified/advanced physical actions stop Recorder
+before QMK processes them, including a waiting loop; layer holds remain control
+gestures. Core intercepts the standard VIA effect channel, forces Direct after
+remapped mode keys and disables configurable native effects, so its RGB watchdog
+cannot be bypassed by selecting a local animation. Manifest refreshes preserve
+both editions' checksum entries in either update order. Each correction was
+reproduced by a failing test before the passing implementation.
 
-The firmware does not detect game focus. Helpers affect the active application. Game Mode does not filter arbitrary VIA macros or all advanced modifier actions. RGB Off/zero brightness also hides helper indicators, but Esc still cancels helpers.
+Approximately 48 simple presses are shared across all three Recorder slots; holds/pauses/modifiers consume variable space. One recording lasts at most 30 seconds. Basic physical keyboard/modifier edges are supported, not text capture, mouse input or arbitrary QMK macros. Host language/lock state and application focus still apply. Ordinary physical input cancels playback; it does not pause/resume it.
 
-The keyboard observes USB state rather than Windows shutdown. A bus kept configured and active after shutdown cannot be distinguished from missing RGB data alone. That host behavior needs power configuration or an explicit PC shutdown signal.
+USB state does not reveal Windows shutdown when the host leaves the bus genuinely configured and active. Sleep/wake, actual PC shutdown and power-cycle behavior still need target-host checks. Game Mode is not a filter for every arbitrary VIA/advanced action. All RGB status respects Off/brightness zero/USB suspension, while keyboard stops continue to work.
 
-The 0.4.0 flash and Aurora reconnection were performed before this review. No automated key output was started by the tooling. Read-only HID diagnostics were measured on 0.5.0 and installed 0.6.0 with RGB clients stopped and helpers off: median 1.9966 ms / 1.9966 ms; p99 2.0222 ms / 2.0134 ms. See [the scoped comparison](hid-reference.json); these are not physical input timings. Corresponding sources/licenses are included in release bundles; personal backups and credentials are excluded.
+## Current device result
 
-## 0.5.0 regression checks
-
-- Reproduce a Direct-mode request with every unused scalar field zero: engine brightness is preserved. Compile the actual eight-LED custom-effect include with pinned QMK color code; assert a moving red crest, all four media outputs at RGB 64/64/64, linear host brightness and black output at USB suspension.
-- Generic selection resolves the VIA base layer only during the armed choice. It swallows the choosing press/release, starts on release, expires after ten seconds and preserves Esc/boot stop behavior. Unsupported consumer/system/power actions are not executed.
-- Keyboard-report ownership prevents taking a physically held target; Turbo and forward hold cannot own the same generated usage. Physical target press cancels the helper. All non-trigger Fn actions capture release, so adjusting cadence after releasing Fn cannot inject a stray target release.
-- Live rate changes are RAM-only, clamped to 5–100/s and divided only on a user action. Host tests exercise intermediate 60/s scheduling, bounds, timer wrap, stop before target release and Fn status priority. Persistent Fn status adds bounded overlay work; native benchmark includes it.
-- Fn RGB is the ordinary matrix LED at index 102 (base-layer MO(1)); 103 is Right Ctrl. The previous test checked a hard-coded position but did not verify the base-layer identity; semantic checks now cover Fn, both Windows keys and all lock indicators. B12 is a separate monochrome indicator; no unsupported GPIO color control is claimed.
-
-## 0.6.0 dynamic indicators and shortcuts
-
-- Correct the Fn RGB index using the actual base-layer MO(1), rather than a manually assumed coordinate. Right Ctrl returns to normal host lighting. Both Windows indicators are checked against their base assignments too.
-- Fn+Windows owns Game Mode. Fn+Calculator toggles a bounded, RAM-only 20-second shortcut guide; it does not lock Windows or start automation. Escape, defaults and USB suspension clear it. A timer-wrap-safe expiry is tested.
-- Fn+Esc stops/unlocks immediately and enters the bootloader only after a continuous two-second hold. Either Fn or Esc release cancels; Shift remains an optional alias. Test coverage includes exact hold boundary and cancellation.
-- Caps/Num/Scroll backlights only override the host profile’s white idle fallback, after five seconds without RGB. Fresh packets, a chosen local profile, native effects, Off, zero master brightness, dark-idle choice and USB suspension take priority. All 17 numpad LEDs become very dim white with Num Lock off.
-- Rendering tests call the actual shared overlay renderer. They verify Caps/Num green, Scroll amber, 17 dim numpad keys, host takeover, Windows-red lock, Fn-versus-Right-Ctrl placement and zero output in Off mode. Settings are read from QMK’s host lock state; no host process, polling service or synthesized lock-key press is added.
-- Diagrams are generated from the pinned board’s physical layout and actual base keymap, with all 109 positions checked, and exported in English/French. They depict roles, not simultaneous active states.
+Full 0.8.0 was flashed on the target Red Blade with programming/checksum
+**0x34ed** verified. VIA 13, VialRGB 1, 109 unique LED positions and the 33 Fn
+bindings/three explicit removals were verified; base/third layers and VIA macros
+were preserved. The owner confirmed physical/replayed red trails on white,
+latched Hyper speed/reverse adjustment, left/right mouse targets, their
+amber/purple indicators and stops. OpenRGB/Aurora were restored and the owner
+confirmed host priority. Core remains build/host-tested only. Physical latency,
+power-cycle/shutdown, runtime stack high-water and sustained high-rate RGB load
+are not claimed as tested. See both manifests and the scoped HID comparison.

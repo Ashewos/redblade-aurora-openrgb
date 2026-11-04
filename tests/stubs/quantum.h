@@ -1,6 +1,8 @@
 #pragma once
 #include <stdbool.h>
 #include <stdint.h>
+#define PROGMEM
+#define pgm_read_byte(p) (*(const uint8_t *)(p))
 #define RGB_MATRIX_LED_COUNT 109
 #define RAW_EPSIZE 32
 #define RGB_MATRIX_MAXIMUM_BRIGHTNESS 255
@@ -56,6 +58,8 @@ uint32_t timer_read32(void);
 uint32_t eeconfig_read_user(void);
 void eeconfig_update_user(uint32_t value);
 uint8_t get_mods(void);
+uint8_t get_weak_mods(void);
+uint8_t has_anykey(void);
 void del_mods(uint8_t mods);
 void del_weak_mods(uint8_t mods);
 void send_keyboard_report(void);
