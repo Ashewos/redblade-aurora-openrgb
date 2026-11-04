@@ -2,13 +2,32 @@
 
 Firmware SonixQMK pour le **Designed by GG Red Blade Full Size ISO**, avec pavé numérique, USB **320F:5136**, contrôleur **SN32F248B**, **109 LED**.
 
-**État : expérimental, premier flash vérifié sur un Red Blade Full Size.** Le firmware est destiné à ce modèle précis. L’écriture et le checksum du flash, VIA 13, VialRGB 1 et les 109 LED ont été vérifiés sur le clavier ; la saisie et les couleurs d’Aurora ont été confirmées par son utilisateur. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
+**État : expérimental.** La version 0.1.0 a été flashée et vérifiée sur un Red Blade Full Size : écriture et checksum, VIA 13, VialRGB 1, 109 LED, saisie et couleurs d’Aurora. La version 0.2.0 ajoute l’extinction automatique et une animation de démarrage ; son niveau de validation figure dans `dist/manifest.json`. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
 
 ```text
 Aurora (effets et jeux) → serveur SDK OpenRGB → VialRGB → Red Blade FS
 ```
 
 OpenRGB reste utilisable directement, ou avec d'autres logiciels compatibles avec son SDK. Les jeux utilisent les intégrations des logiciels hôtes ; ce firmware ne promet pas une compatibilité directe avec tous les jeux. VIA conserve le remappage des touches et les macros. L'extension implémente le sous-ensemble VialRGB nécessaire à OpenRGB, pas l'interface complète de configuration Vial.
+
+## Extinction et démarrage — 0.2.0
+
+- **Suspension USB :** extinction par le mécanisme `RGB_MATRIX_SLEEP` de QMK, y compris lorsque le port reste alimenté après l’arrêt du PC. Les anciennes couleurs sont invalidées ; au réveil en mode Direct, le clavier attend de nouvelles couleurs.
+- **Absence de données RGB en mode Direct :** extinction après **5 secondes** sans paquet de couleurs valide, au prochain rendu (intervalle minimal de 33 ms). Les lectures VIA, diagnostics et paquets invalides ne prolongent pas ce délai. Un nouveau paquet rallume les LED qu’il contient ; les anciennes couleurs effacées ne sont pas rejouées.
+- **Démarrage :** balayage cyan discret pendant **1 seconde** si l’éclairage est activé en mode Direct. Il ne tourne qu’une fois, cède la place aux couleurs de l’hôte au prochain rendu et n’est pas rejoué à la sortie de veille. Un éclairage désactivé ou un effet autonome enregistré est respecté.
+- **Effets autonomes :** le délai de 5 secondes ne s’applique pas aux effets sélectionnés avec VIA/Fn. La suspension USB les éteint aussi, puis QMK les reprend au réveil.
+
+Les durées et la luminosité du balayage sont réglables dans `firmware/aurora_via/config.h` avant compilation : `REDBLADE_RGB_TIMEOUT_MS`, `REDBLADE_BOOT_ANIMATION_MS`, `REDBLADE_BOOT_BRIGHTNESS`. Le contrôle du délai se fait une fois par image RGB. Aucun temporisateur de balayage des touches n’est arrêté ; aucune attente bloquante, allocation ou écriture EEPROM n’est ajoutée. L’extinction concerne l’éclairage : le clavier conserve son alimentation et la capacité de réveil USB de QMK.
+
+En mode Direct, l’application hôte doit continuer à envoyer des couleurs, même pour un profil visuellement fixe. Un profil OpenRGB fixe envoyé une seule fois s’éteint volontairement après 5 secondes ; pour une couleur fixe sans logiciel actif, choisir le mode autonome **Static**.
+
+Diagnostic en lecture seule (OpenRGB, Aurora et VIA arrêtés) :
+
+```powershell
+python tools/redblade.py status
+```
+
+Cette commande ne prolonge pas le délai. Elle indique la version, le mode, la fraîcheur du flux, l’âge du dernier paquet et le compteur de paquets acceptés. Son extension privée `FE 80`, format 1, est distincte du protocole VialRGB : version aux octets 3..5, flags à 6 (flux frais, animation, suspension, RGB activé), mode à 7, âge/délai/compteur/durée de démarrage en entiers little-endian 32 bits aux octets 8/12/16/20, signature `RDBLFS01` aux octets 24..31. Un âge `FFFFFFFF` signifie aucune couleur conservée.
 
 ## Choix de performance
 
@@ -105,7 +124,7 @@ Relancer ensuite Aurora. Le script utilise le fournisseur RGB.NET livré avec Au
 
 Si OpenRGB est installé comme service Windows, `configure-windows.ps1` réutilise ce service et sa configuration dans `service_config`. L'application de ces réglages demande alors une console élevée ; aucun deuxième serveur n'est ajouté.
 
-Les tests C compilent le véritable gestionnaire du firmware contre une petite simulation de QMK : passage des commandes VIA, découverte, limites des buffers, toutes les positions de LED, couleurs et modes. Le workflow GitHub les exécute avec AddressSanitizer et UndefinedBehaviorSanitizer. Il ne remplace pas un test sur clavier réel.
+Les tests C compilent le véritable gestionnaire du firmware contre une petite simulation de QMK : passage des commandes VIA, découverte, limites des buffers, toutes les positions de LED, couleurs et modes. Ils couvrent aussi l’animation, la priorité du flux hôte, la limite exacte de 5 secondes, les requêtes qui ne doivent pas maintenir les LED, la reprise sans ancienne image, le débordement du compteur temporel et la suspension/reprise. Le workflow GitHub les exécute avec AddressSanitizer et UndefinedBehaviorSanitizer. Il ne remplace pas un test sur clavier réel.
 
 ## Références
 

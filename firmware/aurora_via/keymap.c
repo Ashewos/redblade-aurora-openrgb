@@ -15,6 +15,7 @@
  */
 
 #include QMK_KEYBOARD_H
+#include "redblade_rgb.h"
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -58,6 +59,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 void keyboard_pre_init_user(void) {
     gpio_set_pin_output(LED_FN_PIN);
     gpio_write_pin_high(LED_FN_PIN);
+}
+
+void keyboard_post_init_user(void) {
+    redblade_rgb_init();
+}
+
+void suspend_power_down_user(void) {
+    redblade_rgb_suspend();
+    gpio_write_pin_high(LED_FN_PIN);
+}
+
+void suspend_wakeup_init_user(void) {
+    redblade_rgb_wake();
+    gpio_write_pin(LED_FN_PIN, !layer_state_cmp(layer_state, 1));
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {

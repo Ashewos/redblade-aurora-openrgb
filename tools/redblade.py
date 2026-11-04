@@ -121,9 +121,29 @@ def verify(kb):
     return 0
 
 
+def status(kb):
+    """Private diagnostics supported by firmware 0.2.0+, without renewing RGB timeout."""
+    data = kb.request(0xFE, 0x80)
+    if data[:3] != bytes([0xFE, 0x80, 1]) or data[24:32] != b'RDBLFS01':
+        raise RuntimeError('Diagnostics require Red Blade Aurora firmware 0.2.0 or newer')
+    flags = data[6]
+    age = int.from_bytes(data[8:12], 'little')
+    print(json.dumps(dict(
+        firmware='.'.join(map(str, data[3:6])),
+        fresh_rgb_data=bool(flags & 1), boot_animation=bool(flags & 2),
+        usb_suspended=bool(flags & 4), lighting_enabled=bool(flags & 8),
+        mode={0: 'Off', 1: 'Direct', 2: 'Standalone'}.get(data[7], 'Unknown'),
+        last_rgb_packet_age_ms=None if age == 0xFFFFFFFF else age,
+        rgb_timeout_ms=int.from_bytes(data[12:16], 'little'),
+        accepted_rgb_packets=int.from_bytes(data[16:20], 'little'),
+        boot_animation_ms=int.from_bytes(data[20:24], 'little'),
+    ), indent=2))
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['verify', 'backup'])
+    parser.add_argument('action', choices=['verify', 'backup', 'status'])
     parser.add_argument('--hid-dll', type=Path, default=Path(r'C:\Program Files\OpenRGB\hidapi-hotplug.dll'))
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
@@ -134,6 +154,8 @@ def main():
         if args.action == 'backup':
             backup(kb, args.output)
             return 0
+        if args.action == 'status':
+            return status(kb)
         return verify(kb)
     finally:
         kb.close()

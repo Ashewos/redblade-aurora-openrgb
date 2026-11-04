@@ -6,6 +6,7 @@
 #define RGB_MATRIX_MAXIMUM_BRIGHTNESS 255
 #define RGB_MATRIX_CUSTOM_REDBLADE_DIRECT 91
 #define RGB_MATRIX_SOLID_COLOR 1
+#include "../../firmware/aurora_via/config.h"
 typedef struct { uint8_t h, s, v; } hsv_t;
 typedef struct {
     struct { uint8_t x, y; } point[109];
@@ -23,4 +24,5 @@ void rgb_matrix_disable_noeeprom(void);
 void rgb_matrix_mode_noeeprom(uint8_t mode);
 void rgb_matrix_set_speed_noeeprom(uint8_t speed);
 void rgb_matrix_sethsv_noeeprom(uint8_t hue, uint8_t sat, uint8_t val);
+uint32_t timer_read32(void);
 
