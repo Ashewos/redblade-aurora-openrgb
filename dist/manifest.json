@@ -8,9 +8,9 @@
   "qmk_commit": "62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60",
   "toolchain": "arm-none-eabi-gcc 15.2.0 / qmk_toolchains a55a2b0",
   "binary_bytes": 65536,
-  "sha256": "27c714e9abfd707f8d589a2f372530aad09c9747a93b5b42f95240698d33be4b",
-  "ram_bytes_including_reserved_stacks": 7636,
-  "ram_remaining_bytes": 556,
+  "sha256": "291c884bd56fcc5ad4c71b7cd519fbb3607bc560f2b019dcb5dcbd23f3d0e37f",
+  "ram_bytes_including_reserved_stacks": 7648,
+  "ram_remaining_bytes": 544,
   "keyboard_usb_poll_interval_ms": 1,
   "shared_timer_clock_hz": 720896,
   "rgb_process_leds_per_task": 8,
@@ -18,7 +18,7 @@
   "via_layers": 3,
   "protocol_host_tests": "passed",
   "hardware_latency_measured": false,
-  "release": "v0.2.0",
+  "release": "v0.3.0",
   "hardware_validation": null,
   "previous_version_hardware_validation": {
     "validation": {
@@ -41,8 +41,22 @@
     "release": "v0.1.0"
   },
   "rgb_data_timeout_ms": 5000,
-  "boot_animation_ms": 1000,
-  "boot_animation_max_brightness": 64,
+  "boot_animation_ms": 1500,
+  "boot_animation_max_brightness": 96,
   "usb_suspend_rgb_off": true,
-  "lifecycle_host_tests": "passed"
+  "lifecycle_host_tests": "passed",
+  "boot_animation": "curved_blue_wave_with_hsv_handover",
+  "rgb_timeout_fallback": "white",
+  "rgb_fallback_max_brightness": 64,
+  "media_fallback": {
+    "max_brightness": 64,
+    "led_indices": [
+      16,
+      17,
+      18,
+      19
+    ],
+    "policy": "white_when_host_color_is_black_or_missing_in_direct_mode"
+  },
+  "usb_state_policy": "off_unless_configured"
 }

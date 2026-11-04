@@ -12,15 +12,18 @@ enum { REDBLADE_REPORT_SIZE = 32 }; // Fixed QMK Raw HID API report size.
 // to the cooperative RGB task (at most eight LEDs per task iteration).
 static hsv_t incoming[RGB_MATRIX_LED_COUNT];
 static uint32_t boot_started_at, last_packet_at, received_packets;
-static bool boot_active, have_stream, suspended;
-enum render_kind { RENDER_OFF, RENDER_DIRECT, RENDER_BOOT };
-static enum render_kind render_kind;
+static bool boot_active, have_stream, suspended, idle_fallback;
+enum render_kind { RENDER_OFF, RENDER_WAITING, RENDER_DIRECT, RENDER_WHITE, RENDER_BOOT };
+static uint8_t render_kind, render_target;
 static uint16_t boot_position;
-static uint8_t boot_brightness;
+static uint8_t boot_brightness, fallback_brightness, media_brightness, boot_blend;
 
 _Static_assert(REDBLADE_RGB_TIMEOUT_MS > 0, "A positive RGB watchdog timeout is required");
 _Static_assert(REDBLADE_BOOT_ANIMATION_MS > 0, "A positive boot animation duration is required");
 _Static_assert(REDBLADE_BOOT_BRIGHTNESS <= RGB_MATRIX_MAXIMUM_BRIGHTNESS, "Boot brightness exceeds board limit");
+_Static_assert(REDBLADE_BOOT_ANIMATION_MS >= 10, "Boot animation must allow an entrance and handover phase");
+_Static_assert(REDBLADE_FALLBACK_BRIGHTNESS <= RGB_MATRIX_MAXIMUM_BRIGHTNESS, "Fallback brightness exceeds board limit");
+_Static_assert(REDBLADE_MEDIA_BRIGHTNESS <= RGB_MATRIX_MAXIMUM_BRIGHTNESS, "Media brightness exceeds board limit");
 
 // Generated inverse of the manufacturer's LED matrix, in logical LED order.
 // No matrix search is performed in the USB request handler.
@@ -32,13 +35,14 @@ static void forget_stream(void) {
     memset(incoming, 0, sizeof(incoming));
 }
 
-void redblade_rgb_init(void) {
+void redblade_rgb_init(bool usb_active) {
     forget_stream();
     received_packets = 0;
-    suspended = false;
-    boot_started_at = timer_read32();
+    idle_fallback = false;
+    suspended = !usb_active;
+    boot_started_at = last_packet_at = timer_read32();
     // Respect an explicitly disabled light or a saved standalone effect.
-    boot_active = rgb_matrix_is_enabled() && rgb_matrix_get_mode() == RGB_MATRIX_CUSTOM_REDBLADE_DIRECT;
+    boot_active = usb_active && rgb_matrix_is_enabled() && rgb_matrix_get_mode() == RGB_MATRIX_CUSTOM_REDBLADE_DIRECT;
 }
 
 void redblade_rgb_suspend(void) {
@@ -51,42 +55,82 @@ void redblade_rgb_suspend(void) {
 }
 
 void redblade_rgb_wake(void) {
+    if (!suspended) return; // USB LED/protocol notifications are not new boots.
     suspended = false;
-    boot_active = false;
-    forget_stream(); // Never replay a pre-sleep frame or the boot animation.
+    forget_stream(); // Never replay a pre-sleep frame.
+    idle_fallback = false;
+    boot_started_at = last_packet_at = timer_read32();
+    boot_active = rgb_matrix_is_enabled() && rgb_matrix_get_mode() == RGB_MATRIX_CUSTOM_REDBLADE_DIRECT;
 }
 
 void redblade_rgb_begin_frame(void) {
     // Once per RGB frame, outside the keyboard scan and USB packet handler.
     const uint32_t now = timer_read32();
     render_kind = RENDER_OFF;
-    if (suspended) return;
+    if (suspended || !rgb_matrix_is_enabled() || rgb_matrix_get_mode() != RGB_MATRIX_CUSTOM_REDBLADE_DIRECT) return;
+    const uint8_t brightness = rgb_matrix_get_val();
+    boot_brightness = brightness < REDBLADE_BOOT_BRIGHTNESS ? brightness : REDBLADE_BOOT_BRIGHTNESS;
+    fallback_brightness = brightness < REDBLADE_FALLBACK_BRIGHTNESS ? brightness : REDBLADE_FALLBACK_BRIGHTNESS;
+    media_brightness = brightness < REDBLADE_MEDIA_BRIGHTNESS ? brightness : REDBLADE_MEDIA_BRIGHTNESS;
+    if (!idle_fallback && now - last_packet_at >= REDBLADE_RGB_TIMEOUT_MS) {
+        forget_stream();
+        idle_fallback = true;
+    }
+    render_target = have_stream ? RENDER_DIRECT : idle_fallback ? RENDER_WHITE : RENDER_WAITING;
     if (boot_active) {
         const uint32_t elapsed = now - boot_started_at;
         if (elapsed < REDBLADE_BOOT_ANIMATION_MS) {
             render_kind = RENDER_BOOT;
-            // A 32-unit soft-edged sweep across QMK's 0..224 X coordinates.
-            boot_position = elapsed * 288UL / REDBLADE_BOOT_ANIMATION_MS;
-            boot_brightness = rgb_matrix_get_val();
-            if (boot_brightness > REDBLADE_BOOT_BRIGHTNESS) boot_brightness = REDBLADE_BOOT_BRIGHTNESS;
+            const uint32_t sweep_ms = REDBLADE_BOOT_ANIMATION_MS * 4 / 5;
+            boot_position = elapsed * 384UL / sweep_ms;
+            // Soft entrance, then HSV fade to the latest host colors in the final 20%.
+            if (elapsed < REDBLADE_BOOT_ANIMATION_MS / 10) boot_brightness = boot_brightness * elapsed / (REDBLADE_BOOT_ANIMATION_MS / 10);
+            boot_blend = elapsed < sweep_ms ? 0 : (elapsed - sweep_ms) * 255UL / (REDBLADE_BOOT_ANIMATION_MS - sweep_ms);
             return;
         }
         boot_active = false;
     }
-    if (have_stream && now - last_packet_at >= REDBLADE_RGB_TIMEOUT_MS) forget_stream();
-    if (have_stream) render_kind = RENDER_DIRECT;
+    render_kind = render_target;
+}
+
+static hsv_t target_color(uint8_t index, uint8_t kind) {
+    hsv_t color = {0, 0, 0};
+    if (kind == RENDER_OFF) return color;
+    if (kind == RENDER_WHITE) { color.v = fallback_brightness; return color; }
+    if (kind == RENDER_DIRECT) color = incoming[index];
+    // Manufacturer LED indices 16..19: Calc, Mute, Volume-, Volume+.
+    // A black host color is the fallback sentinel for these four keys only.
+    if (color.v == 0 && index >= 16 && index <= 19) {
+        color.h = color.s = 0;
+        color.v = media_brightness;
+    }
+    return color;
 }
 
 hsv_t redblade_rgb_color(uint8_t index) {
-    if (render_kind == RENDER_DIRECT) return incoming[index];
+    if (render_kind != RENDER_BOOT) return target_color(index, render_kind);
     hsv_t color = {0, 0, 0};
     if (render_kind == RENDER_BOOT) {
-        int16_t distance = (int16_t)g_led_config.point[index].x + 32 - (int16_t)boot_position;
-        if (distance < 0) distance = -distance;
-        if (distance < 32) {
-            color.h = 128; // restrained cyan sweep, integer arithmetic only
-            color.s = 220;
-            color.v = ((32 - distance) * boot_brightness) >> 5;
+        // Curved wavefront: each row offsets the crest; trailing edge fades
+        // over 112 units while the front edge is crisp (32 units).
+        const int16_t crest = (int16_t)boot_position - 64 - ((int16_t)g_led_config.point[index].y - 32) * ((int16_t)g_led_config.point[index].y - 32) / 96;
+        const int16_t behind = crest - g_led_config.point[index].x;
+        color.h = 166; color.s = 245; // deep blue bed
+        color.v = boot_brightness / 12;
+        if (behind >= -32 && behind < 112) {
+            const uint8_t strength = behind < 0 ? (behind + 32) * 4 : (112 - behind) * 128 / 112;
+            color.h = 166 - strength * 24 / 128; // blue -> icy blue crest
+            color.s = 245 - strength * 85 / 128;
+            color.v = color.v + strength * (boot_brightness - color.v) / 128;
+        }
+        if (boot_blend) {
+            const hsv_t target = target_color(index, render_target);
+            int16_t hue_delta = (int16_t)target.h - color.h;
+            if (hue_delta > 127) hue_delta -= 256;
+            if (hue_delta < -128) hue_delta += 256;
+            color.h += hue_delta * boot_blend / 255;
+            color.s += ((int16_t)target.s - color.s) * boot_blend / 255;
+            color.v += ((int16_t)target.v - color.v) * boot_blend / 255;
         }
     }
     return color;
@@ -134,7 +178,7 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
         const uint32_t age = have_stream ? now - last_packet_at : UINT32_MAX;
         memset(data + 2, 0, length - 2);
         data[2] = 1; // diagnostics format
-        data[3] = 0; data[4] = 2; data[5] = 0; // firmware 0.2.0
+        data[3] = 0; data[4] = 3; data[5] = 0; // firmware 0.3.0
         data[6] = (have_stream && age < REDBLADE_RGB_TIMEOUT_MS && !suspended ? 1 : 0) |
                   (boot_active && now - boot_started_at < REDBLADE_BOOT_ANIMATION_MS ? 2 : 0) |
                   (suspended ? 4 : 0) | (rgb_matrix_is_enabled() ? 8 : 0);
@@ -199,7 +243,7 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
         if (mode > 2) {
             data[0] = 0xFF;
         } else {
-            boot_active = false; // An explicit host mode takes priority.
+            if (mode != 1) boot_active = false; // Explicit Off/standalone takes priority.
             if (mode == 0) {
                 rgb_matrix_disable_noeeprom();
             } else {
@@ -227,7 +271,9 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
             }
             last_packet_at = timer_read32();
             have_stream = true;
-            boot_active = false; // Latest host colors take over next frame.
+            idle_fallback = false;
+            // Keep accepting frames during the nonblocking boot wave, so its
+            // final fade hands over to fresh colors rather than an old image.
             ++received_packets;
         }
     } else {

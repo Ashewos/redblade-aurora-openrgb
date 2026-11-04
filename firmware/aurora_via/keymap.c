@@ -16,6 +16,9 @@
 
 #include QMK_KEYBOARD_H
 #include "redblade_rgb.h"
+#include "usb_device_state.h"
+
+static bool rgb_ready;
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -62,7 +65,18 @@ void keyboard_pre_init_user(void) {
 }
 
 void keyboard_post_init_user(void) {
-    redblade_rgb_init();
+    const bool active = usb_device_state_get_configure_state() == USB_DEVICE_STATE_CONFIGURED;
+    redblade_rgb_init(active);
+    rgb_ready = true;
+    rgb_matrix_set_suspend_state(!active);
+}
+
+void notify_usb_device_state_change_user(struct usb_device_state state) {
+    if (!rgb_ready) return;
+    const bool active = state.configure_state == USB_DEVICE_STATE_CONFIGURED;
+    if (active) redblade_rgb_wake();
+    else redblade_rgb_suspend();
+    rgb_matrix_set_suspend_state(!active);
 }
 
 void suspend_power_down_user(void) {

@@ -19,6 +19,7 @@ def prepare(qmk):
     definition = json.loads(re.sub(r',\s*([}\]])', r'\1', (board/'keyboard.json').read_text(encoding='utf-8')))
     positions = [tuple(x['matrix']) for x in definition['rgb_matrix']['layout']]
     assert len(positions) == len(set(positions)) == 109
+    assert positions[16:20] == [(0, 17), (0, 18), (0, 19), (0, 20)], 'Media-key fallback indices differ from the pinned board'
     original_map = (root/'firmware/aurora_via/led_positions.inc').read_text(encoding='utf-8')
     assert re.findall(r'\{(\d+), (\d+)\}', original_map) == [tuple(map(str, p)) for p in positions]
     target = board / 'keymaps/aurora_via'

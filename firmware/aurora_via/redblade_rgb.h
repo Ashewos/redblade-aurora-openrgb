@@ -2,7 +2,7 @@
 #pragma once
 #include "quantum.h"
 
-void redblade_rgb_init(void);
+void redblade_rgb_init(bool usb_active);
 void redblade_rgb_suspend(void);
 void redblade_rgb_wake(void);
 void redblade_rgb_begin_frame(void);

@@ -1,8 +1,10 @@
 # Red Blade FS — Aurora + OpenRGB + VIA
 
+<p align="center"><img src="assets/redblade-wave.png" alt="Vague bleue sur un clavier avec pavé numérique" width="260"></p>
+
 Firmware SonixQMK pour le **Designed by GG Red Blade Full Size ISO**, avec pavé numérique, USB **320F:5136**, contrôleur **SN32F248B**, **109 LED**.
 
-**État : expérimental.** La version 0.1.0 a été flashée et vérifiée sur un Red Blade Full Size : écriture et checksum, VIA 13, VialRGB 1, 109 LED, saisie et couleurs d’Aurora. La version 0.2.0 ajoute l’extinction automatique et une animation de démarrage ; son niveau de validation figure dans `dist/manifest.json`. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
+**État : expérimental.** La version 0.1.0 a été flashée et vérifiée sur un Red Blade Full Size : écriture et checksum, VIA 13, VialRGB 1, 109 LED, saisie et couleurs d’Aurora. La version 0.3.0 ajoute le secours blanc, les quatre touches multimédias et une vague bleue de démarrage ; son niveau de validation figure dans `dist/manifest.json`. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
 
 ```text
 Aurora (effets et jeux) → serveur SDK OpenRGB → VialRGB → Red Blade FS
@@ -10,16 +12,19 @@ Aurora (effets et jeux) → serveur SDK OpenRGB → VialRGB → Red Blade FS
 
 OpenRGB reste utilisable directement, ou avec d'autres logiciels compatibles avec son SDK. Les jeux utilisent les intégrations des logiciels hôtes ; ce firmware ne promet pas une compatibilité directe avec tous les jeux. VIA conserve le remappage des touches et les macros. L'extension implémente le sous-ensemble VialRGB nécessaire à OpenRGB, pas l'interface complète de configuration Vial.
 
-## Extinction et démarrage — 0.2.0
+## Éclairage de secours et vague bleue — 0.3.0
 
-- **Suspension USB :** extinction par le mécanisme `RGB_MATRIX_SLEEP` de QMK, y compris lorsque le port reste alimenté après l’arrêt du PC. Les anciennes couleurs sont invalidées ; au réveil en mode Direct, le clavier attend de nouvelles couleurs.
-- **Absence de données RGB en mode Direct :** extinction après **5 secondes** sans paquet de couleurs valide, au prochain rendu (intervalle minimal de 33 ms). Les lectures VIA, diagnostics et paquets invalides ne prolongent pas ce délai. Un nouveau paquet rallume les LED qu’il contient ; les anciennes couleurs effacées ne sont pas rejouées.
-- **Démarrage :** balayage cyan discret pendant **1 seconde** si l’éclairage est activé en mode Direct. Il ne tourne qu’une fois, cède la place aux couleurs de l’hôte au prochain rendu et n’est pas rejoué à la sortie de veille. Un éclairage désactivé ou un effet autonome enregistré est respecté.
-- **Effets autonomes :** le délai de 5 secondes ne s’applique pas aux effets sélectionnés avec VIA/Fn. La suspension USB les éteint aussi, puis QMK les reprend au réveil.
+- **USB suspendu ou non configuré :** priorité à l’extinction, même si le port reste alimenté. Les changements d’état USB sont suivis explicitement en plus de `RGB_MATRIX_SLEEP`. Les anciennes couleurs sont effacées ; ni le secours blanc ni l’animation ne rallument le clavier dans cet état.
+- **Absence de données RGB en mode Direct :** passage en **blanc à 25 % maximum après 5 secondes**, au prochain rendu (intervalle minimal de 33 ms). Les lectures VIA, diagnostics et paquets invalides ne prolongent pas ce délai. Un nouveau paquet reprend la main ; les anciennes couleurs effacées ne sont pas rejouées.
+- **Calculatrice, Muet, Volume −, Volume + :** blanc discret si le flux leur attribue une valeur noire ou ne leur fournit pas de couleur. Une couleur non noire de l’hôte prend priorité. Les quatre LED correspondent aux indices physiques 16..19, vérifiés contre la carte épinglée. Ce choix remplace aussi un noir volontaire sur ces quatre touches ; le protocole ne permet pas de le distinguer d’une touche laissée noire par Aurora. La commande globale **Off** et la suspension USB restent prioritaires.
+- **Démarrage / reprise USB :** une vague courbe de **1,5 seconde**, dégradé bleu profond → bleu glacé avec traînée douce, entrée progressive et fondu vers les dernières couleurs reçues pendant les 300 dernières millisecondes. Les paquets continuent d’être reçus pendant l’animation ; elle ne bloque pas la saisie. Un éclairage désactivé ou un effet autonome enregistré est respecté. Les notifications USB ordinaires (Num Lock, protocole HID…) ne relancent pas l’animation.
+- **Effets autonomes :** le secours blanc et le traitement des quatre touches ne s’appliquent qu’au mode Direct. Les effets autonomes VIA/Fn restent utilisables et s’éteignent aussi à la suspension USB.
 
-Les durées et la luminosité du balayage sont réglables dans `firmware/aurora_via/config.h` avant compilation : `REDBLADE_RGB_TIMEOUT_MS`, `REDBLADE_BOOT_ANIMATION_MS`, `REDBLADE_BOOT_BRIGHTNESS`. Le contrôle du délai se fait une fois par image RGB. Aucun temporisateur de balayage des touches n’est arrêté ; aucune attente bloquante, allocation ou écriture EEPROM n’est ajoutée. L’extinction concerne l’éclairage : le clavier conserve son alimentation et la capacité de réveil USB de QMK.
+Les durées et luminosités sont réglables dans `firmware/aurora_via/config.h` avant compilation : `REDBLADE_RGB_TIMEOUT_MS`, `REDBLADE_BOOT_ANIMATION_MS`, `REDBLADE_BOOT_BRIGHTNESS`, `REDBLADE_FALLBACK_BRIGHTNESS`, `REDBLADE_MEDIA_BRIGHTNESS`. Le contrôle du délai se fait une fois par image RGB et la vague utilise le même rendu par blocs de 8 LED, en arithmétique entière. Aucun temporisateur de balayage des touches n’est arrêté ; aucune attente bloquante, allocation ou écriture EEPROM n’est ajoutée.
 
-En mode Direct, l’application hôte doit continuer à envoyer des couleurs, même pour un profil visuellement fixe. Un profil OpenRGB fixe envoyé une seule fois s’éteint volontairement après 5 secondes ; pour une couleur fixe sans logiciel actif, choisir le mode autonome **Static**.
+Le firmware connaît l’état du bus USB, pas celui de Windows. L’extinction à l’arrêt du PC fonctionne lorsque le contrôleur USB suspend ou déconfigure la liaison. Si un hôte maintient réellement le bus configuré et actif pendant l’arrêt, l’absence de RGB seule ne permet pas de distinguer cet état d’Aurora fermé : le secours blanc s’applique alors. Ce cas demanderait une configuration d’alimentation USB/ErP ou un signal d’arrêt explicite côté PC. Un arrêt réel et une sortie de veille doivent donc être vérifiés sur la machine cible.
+
+En mode Direct, l’application hôte doit continuer à envoyer des couleurs, même pour un profil visuellement fixe. Un profil OpenRGB fixe envoyé une seule fois passe en blanc après 5 secondes ; pour une couleur fixe sans logiciel actif, choisir le mode autonome **Static**.
 
 Diagnostic en lecture seule (OpenRGB, Aurora et VIA arrêtés) :
 
@@ -124,7 +129,7 @@ Relancer ensuite Aurora. Le script utilise le fournisseur RGB.NET livré avec Au
 
 Si OpenRGB est installé comme service Windows, `configure-windows.ps1` réutilise ce service et sa configuration dans `service_config`. L'application de ces réglages demande alors une console élevée ; aucun deuxième serveur n'est ajouté.
 
-Les tests C compilent le véritable gestionnaire du firmware contre une petite simulation de QMK : passage des commandes VIA, découverte, limites des buffers, toutes les positions de LED, couleurs et modes. Ils couvrent aussi l’animation, la priorité du flux hôte, la limite exacte de 5 secondes, les requêtes qui ne doivent pas maintenir les LED, la reprise sans ancienne image, le débordement du compteur temporel et la suspension/reprise. Le workflow GitHub les exécute avec AddressSanitizer et UndefinedBehaviorSanitizer. Il ne remplace pas un test sur clavier réel.
+Les tests C compilent le véritable gestionnaire du firmware contre une petite simulation de QMK : passage des commandes VIA, découverte, limites des buffers, toutes les positions de LED, couleurs et modes. Ils couvrent aussi la vague et son fondu vers les couleurs récentes, les quatre touches de secours, la limite exacte de 5 secondes, les requêtes qui ne doivent pas prolonger le délai, la reprise sans ancienne image, le débordement du compteur temporel et la suspension/reprise. Le workflow GitHub les exécute avec AddressSanitizer et UndefinedBehaviorSanitizer. Il ne remplace pas un test sur clavier réel.
 
 ## Références
 

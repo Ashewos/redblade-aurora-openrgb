@@ -6,7 +6,7 @@
 
 bool via_command_kb(uint8_t *, uint8_t);
 led_config_t g_led_config;
-static uint8_t mode = RGB_MATRIX_SOLID_COLOR, speed, hue, saturation, value;
+static uint8_t mode = RGB_MATRIX_CUSTOM_REDBLADE_DIRECT, speed, hue, saturation, value = 255;
 static bool enabled = true;
 static unsigned responses;
 static uint32_t now;
@@ -34,72 +34,113 @@ static void assert_black(void) {
     for (unsigned i = 0; i < 109; ++i) assert(redblade_rgb_color(i).v == 0);
 }
 
+static void assert_white(uint8_t brightness) {
+    redblade_rgb_begin_frame();
+    for (unsigned i = 0; i < 109; ++i) {
+        const hsv_t color = redblade_rgb_color(i);
+        assert(color.s == 0 && color.v == brightness);
+    }
+}
+
+static void assert_waiting(void) {
+    redblade_rgb_begin_frame();
+    for (unsigned i = 0; i < 109; ++i) {
+        const hsv_t color = redblade_rgb_color(i);
+        assert(color.v == (i >= 16 && i <= 19 ? REDBLADE_MEDIA_BRIGHTNESS : 0));
+        if (color.v) assert(color.s == 0);
+    }
+}
+
 static void test_lifecycle(void) {
     mode = RGB_MATRIX_CUSTOM_REDBLADE_DIRECT; enabled = true; value = 255;
-    now = 0; redblade_rgb_init();
-    for (unsigned i = 0; i < 109; ++i) g_led_config.point[i].x = i * 224 / 108;
-    assert_black(); // Sweep starts outside the keyboard.
-    now = REDBLADE_BOOT_ANIMATION_MS / 2;
+    now = 0; redblade_rgb_init(false);
+    now = 20000; assert_black(); // Powered USB without a configured host never lights white.
+    for (unsigned i = 0; i < 109; ++i) {
+        g_led_config.point[i].x = i * 224 / 108;
+        g_led_config.point[i].y = (i % 6) * 64 / 5;
+    }
+    now = 0; redblade_rgb_init(true); assert_black(); // Soft entrance.
+    now = REDBLADE_BOOT_ANIMATION_MS / 3;
     redblade_rgb_begin_frame();
-    unsigned lit = 0;
+    uint8_t min_val = 255, max_val = 0;
     for (unsigned i = 0; i < 109; ++i) {
         hsv_t color = redblade_rgb_color(i);
         assert(color.v <= REDBLADE_BOOT_BRIGHTNESS);
-        if (color.v) { assert(color.h == 128 && color.s == 220); ++lit; }
+        if (color.v) assert(color.h >= 142 && color.h <= 166 && color.s >= 160 && color.s <= 245);
+        if (color.v < min_val) min_val = color.v;
+        if (color.v > max_val) max_val = color.v;
     }
-    assert(lit > 0 && lit < 109);
-    // Valid host data preempts the animation at the next rendered frame.
+    assert(max_val > min_val); // A shaped blue wave, not a uniform color/rainbow.
+    // Capture host frames while the animation runs, then smoothly hand over.
     set_led(0, 180); redblade_rgb_begin_frame();
+    assert(redblade_rgb_color(0).h != 17);
+    now = REDBLADE_BOOT_ANIMATION_MS - 1; redblade_rgb_begin_frame();
+    assert(redblade_rgb_color(0).v >= 178);
+    now = REDBLADE_BOOT_ANIMATION_MS; redblade_rgb_begin_frame();
     assert(redblade_rgb_color(0).h == 17 && redblade_rgb_color(0).v == 180);
     assert(redblade_rgb_color(54).v == 0);
-    now += REDBLADE_RGB_TIMEOUT_MS - 1; redblade_rgb_begin_frame();
+    for (unsigned i = 16; i <= 19; ++i) assert(redblade_rgb_color(i).v == REDBLADE_MEDIA_BRIGHTNESS);
+    now = REDBLADE_BOOT_ANIMATION_MS / 3 + REDBLADE_RGB_TIMEOUT_MS - 1;
+    redblade_rgb_begin_frame();
     assert(redblade_rgb_color(0).v == 180);
     // Discovery, diagnostics, mode selection and malformed packets are not RGB heartbeats.
     uint8_t packet[32] = {0xFE, 0x80};
     assert(via_command_kb(packet, 32));
-    assert(packet[2] == 1 && packet[4] == 2 && packet[6] == 9);
+    assert(packet[2] == 1 && packet[4] == 3 && packet[6] == 9);
     assert(!memcmp(packet + 24, "RDBLFS01", 8));
-    memset(packet, 0, 32); packet[0] = 7; packet[1] = 0x41; packet[2] = 1;
+    memset(packet, 0, 32); packet[0] = 7; packet[1] = 0x41; packet[2] = 1; packet[7] = 255;
     assert(via_command_kb(packet, 32));
     memset(packet, 0, 32); packet[0] = 7; packet[1] = 0x42; // zero count
     assert(via_command_kb(packet, 32) && packet[0] == 0xFF);
-    ++now; assert_black(); // Exact 5000 ms boundary.
+    ++now; assert_white(REDBLADE_FALLBACK_BRIGHTNESS); // Exact 5000 ms boundary.
     set_led(1, 140); redblade_rgb_begin_frame();
     assert(redblade_rgb_color(1).v == 140 && redblade_rgb_color(0).v == 0);
-    // Long idle and the 32-bit millisecond wrap cannot revive an old frame.
-    now += REDBLADE_RGB_TIMEOUT_MS; assert_black();
-    now = 500; assert_black();
+    for (unsigned i = 16; i <= 19; ++i) {
+        set_led(i, 0); redblade_rgb_begin_frame();
+        assert(redblade_rgb_color(i).s == 0 && redblade_rgb_color(i).v == REDBLADE_MEDIA_BRIGHTNESS);
+        set_led(i, 100); redblade_rgb_begin_frame();
+        assert(redblade_rgb_color(i).h == 17 && redblade_rgb_color(i).v == 100);
+    }
+    // Long idle and the 32-bit millisecond wrap cannot revive an old frame
+    // or temporarily leave the latched white fallback.
+    now += REDBLADE_RGB_TIMEOUT_MS; assert_white(REDBLADE_FALLBACK_BRIGHTNESS);
+    now = 500; assert_white(REDBLADE_FALLBACK_BRIGHTNESS);
     now = UINT32_MAX - 1000; set_led(2, 123);
     now += REDBLADE_RGB_TIMEOUT_MS - 1; redblade_rgb_begin_frame();
     assert(redblade_rgb_color(2).v == 123);
-    ++now; assert_black();
+    ++now; assert_white(REDBLADE_FALLBACK_BRIGHTNESS);
 
-    now = 0; redblade_rgb_init();
-    now = REDBLADE_BOOT_ANIMATION_MS; assert_black(); // One-shot boot, then darkness.
-    now += 2000; assert_black();
+    now = 0; redblade_rgb_init(true);
+    now = REDBLADE_BOOT_ANIMATION_MS; assert_waiting();
+    now = REDBLADE_RGB_TIMEOUT_MS - 1; redblade_rgb_wake(); assert_waiting();
+    ++now; assert_white(REDBLADE_FALLBACK_BRIGHTNESS); // Repeated USB notifications do not reset the clock.
     // Brightness-off and saved standalone effects never start the sweep.
-    now = 0; enabled = false; redblade_rgb_init();
-    now = REDBLADE_BOOT_ANIMATION_MS / 2; assert_black();
-    enabled = true; mode = RGB_MATRIX_SOLID_COLOR; now = 0; redblade_rgb_init();
-    now = REDBLADE_BOOT_ANIMATION_MS / 2; assert_black();
-    mode = RGB_MATRIX_CUSTOM_REDBLADE_DIRECT; value = 10; now = 0; redblade_rgb_init();
+    now = 0; enabled = false; redblade_rgb_init(true);
+    now = 20000; assert_black();
+    enabled = true; mode = RGB_MATRIX_SOLID_COLOR; now = 0; redblade_rgb_init(true);
+    now = 20000; assert_black(); // Custom renderer does not override standalone effects.
+    mode = RGB_MATRIX_CUSTOM_REDBLADE_DIRECT; value = 10; now = 0; redblade_rgb_init(true);
     now = REDBLADE_BOOT_ANIMATION_MS / 2; redblade_rgb_begin_frame();
     for (unsigned i = 0; i < 109; ++i) assert(redblade_rgb_color(i).v <= 10);
+    now = REDBLADE_RGB_TIMEOUT_MS; assert_white(10);
 
-    // Suspend invalidates colors; wake requires new host data, without a new animation.
+    // Suspend/unconfigured invalidates colors and always wins over fallback/wave.
     value = 255; set_led(3, 100); redblade_rgb_begin_frame();
     assert(redblade_rgb_color(3).v == 100);
     redblade_rgb_suspend(); redblade_rgb_suspend(); assert_black();
-    redblade_rgb_wake(); assert_black();
+    now += 20000; assert_black();
+    redblade_rgb_wake(); assert_black(); // New wave begins from zero, never an old host frame.
+    now += REDBLADE_BOOT_ANIMATION_MS; assert_waiting();
     set_led(4, 80); redblade_rgb_begin_frame();
     assert(redblade_rgb_color(4).v == 80 && redblade_rgb_color(3).v == 0);
-    // Even a very early suspend cancels the still-running boot sweep.
-    now = 0; redblade_rgb_init(); redblade_rgb_suspend(); redblade_rgb_wake();
+    now = 0; redblade_rgb_init(true); redblade_rgb_suspend();
     now = REDBLADE_BOOT_ANIMATION_MS / 2; assert_black();
-    puts("PASS: boot sweep, host priority, exact RGB timeout, no query heartbeat, recovery, timer wrap, suspend/wake");
+    puts("PASS: blue wave/fade, fresh host handover, 4 media fallbacks, white timeout, USB off, recovery, timer wrap");
 }
 
 int main(void) {
+    redblade_rgb_init(true);
+    now = REDBLADE_BOOT_ANIMATION_MS;
     uint8_t packet[32] = {0};
     // Standard VIA reads/writes must be left to upstream, without an ACK.
     for (unsigned command=1; command<=0x15; ++command) {
