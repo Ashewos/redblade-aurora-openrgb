@@ -37,5 +37,6 @@ void suspend_wakeup_init_user(void) { redblade_core_usb(true); }
 bool process_record_user(uint16_t code,keyrecord_t *r) { return redblade_core_key(code,r); }
 void housekeeping_task_user(void) { redblade_core_task(layer_state_is(1)); }
 layer_state_t layer_state_set_user(layer_state_t state) {
-    gpio_write_pin(LED_FN_PIN,!layer_state_cmp(state,1));return state;
+    // Core has no Windows-lock feature; the physical Windows indicator stays off.
+    return state;
 }

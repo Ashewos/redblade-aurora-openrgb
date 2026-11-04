@@ -87,10 +87,14 @@ static void toggle_turbo(uint8_t key, keypos_t pos) {
 bool redblade_game_mode(void) { return game_mode; }
 static void game_set(bool enabled) {
     game_mode = enabled;
+    // The shared Red Blade / Ironclad PCB uses this active-low B12 status LED.
+    // Upstream RBFS calls it LED_FN_PIN; its physical legend is Windows lock.
+    gpio_write_pin(LED_FN_PIN, !enabled);
     if (enabled) { redblade_recorder_stop(true); del_mods(MOD_MASK_GUI); del_weak_mods(MOD_MASK_GUI); send_keyboard_report(); }
 }
 void redblade_controls_init(void) {
     stop_automation(); game_mode = boot_armed = feedback_active = false;
+    gpio_write_pin(LED_FN_PIN, true);
     redblade_recorder_init(); recorder_rate_context = false;
     media_held = trigger_held = 0;
     for (uint8_t i = 0; i < sizeof(consumed_releases); ++i) consumed_releases[i] = 0;
@@ -98,6 +102,7 @@ void redblade_controls_init(void) {
 }
 void redblade_controls_suspend(void) {
     boot_armed = feedback_active = game_mode = false; stop_automation(); trigger_held = 0;
+    gpio_write_pin(LED_FN_PIN, true);
     redblade_recorder_suspend(); recorder_rate_context = false;
     for (uint8_t i = 0; i < sizeof(consumed_releases); ++i) consumed_releases[i] = 0;
     for (uint8_t i = 0; media_held && i < 3; ++i) {

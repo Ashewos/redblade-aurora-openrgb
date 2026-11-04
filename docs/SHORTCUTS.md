@@ -2,7 +2,7 @@
 
 **English** · [Français](SHORTCUTS.fr.md) · [Project](../README.md) · [Installation](INSTALL.md)
 
-Default firmware **0.8.0**, Red Blade Full Size ISO. Fn is between Right Windows and Right Ctrl. Numbers 1/2/3 below mean the **top number row**; −/+ mean the **numpad**.
+Default firmware **0.8.1**, Red Blade Full Size ISO. Fn is between Right Windows and Right Ctrl. Numbers 1/2/3 below mean the **top number row**; −/+ mean the **numpad**.
 
 ![Categorized shortcut map](assets/shortcuts.png)
 
@@ -46,7 +46,7 @@ Playback owns only its generated keys and releases them on stop. A loop has a mi
 | Fn + R / Fn + Shift + R | Next / previous preset: **25, 50, 100 presses/s**; selects Turbo context |
 | Fn + numpad − / + in Turbo context | **5–100/s in steps of 5, then 125/150/175/200/225/250/s**; hold to step repeatedly, release keeps the value |
 | Fn + W on QWERTY / Fn + Z on AZERTY | Toggle forward hold; green target |
-| Fn + either Windows key | Toggle Game Mode; **both Windows logos turn red** |
+| Fn + either Windows key | Toggle Game Mode; **both Windows keys turn red and the upper-right Windows indicator lights** |
 | Fn + Shift + either Windows key | Explicitly unlock Windows |
 | Esc | Stop helpers; Escape is still sent to the application |
 | Fn + Esc, short press | Stop helpers and unlock Windows; no Escape is sent |
@@ -111,7 +111,7 @@ White fallback and the explicit White profile also reflect lock state:
 
 Fresh RGB packets regain priority over Caps/Num/Scroll fallback. Red/native effects, dark idle, Off, zero master brightness and USB suspension remain authoritative. Four-media-key fallback is separate: nonblack host colors win; F6 toggles fallback when they are black. This also replaces intentionally black media colors, since the protocol cannot distinguish them from missing assignments.
 
-Calculator/Fn/active slot breathe red while recording, green for one-shot, cyan for loops, amber during selection/wait/feedback. Otherwise Fn is dim blue idle, cyan held, red during keyboard Turbo, amber for left-click Turbo, purple for right-click Turbo, green during forward hold, purple in Game Mode, with helper priority over ordinary Fn status. These are RGB key backlights; the separate monochrome Fn indicator remains on/off.
+Calculator/Fn/active slot breathe red while recording, green for one-shot, cyan for loops, amber during selection/wait/feedback. Otherwise Fn is dim blue idle, cyan held, red during keyboard Turbo, amber for left-click Turbo, purple for right-click Turbo, green during forward hold, purple in Game Mode, with helper priority over ordinary Fn status. These are RGB key backlights; the separate monochrome upper-right Windows indicator shows Game Mode, not Fn held. It stays on with Windows locked even when RGB is Off; unlock/defaults/USB suspension turn it off.
 
 ## Bootloader
 

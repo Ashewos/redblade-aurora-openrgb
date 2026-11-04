@@ -31,7 +31,7 @@ Chaque édition a son manifeste et un paquet de sources complet distinct. Core s
 | --- | --- |
 | Intégration OpenRGB native | 109 LED indépendantes par VialRGB ; Aurora passe par le SDK OpenRGB |
 | Bloc Fn multimédia | Calculatrice → Recorder avec rythme conservé, Muet → lecture/pause, Volume −/+ → piste précédente/suivante ; Maj ajoute d’autres commandes |
-| Verrouillage Windows | Fn + une touche Windows ; les deux logos Windows deviennent rouges |
+| Verrouillage Windows | Fn + une touche Windows ; les deux logos Windows deviennent rouges et le voyant Windows en haut à droite s’allume |
 | Turbo au choix | Fn + T, puis une touche ; cadence réglable de 5 à 250/s avec Fn + −/+ du pavé ; préréglages E/F/Espace conservés |
 | Turbo souris | Fn + T, puis Volume −/+ : clic gauche/droit, voyants ambre/violet, cadence partagée |
 | Blanc réactif | Sans flux RGB : les frappes et lettres rejouées laissent une traînée rouge sur fond blanc |
@@ -97,7 +97,7 @@ OpenRGB fonctionne aussi sans Aurora. VIA et OpenRGB partagent l’interface Raw
 - Rendu par blocs de huit LED, intervalle minimal de 33 ms, indicateurs bornés et couleur Fn au repos/en activité. Turbo produit au plus une transition par passage, sans rattrapage en rafale ni attente active.
 - Benchmark Windows et mesure USB en lecture seule inclus. [À lancer ce soir](docs/PERFORMANCE.md) ; les mesures du PC ne sont pas une mesure de latence physique des touches.
 
-**La version 0.8.0 reste expérimentale.** Full a été flashée avec programmation et checksum vérifiés. Le propriétaire a confirmé le blanc réactif, les lettres rejouées, la vitesse Hyper conservée, les deux Turbo clics/couleurs/arrêts et la priorité Aurora. Core est compilée et testée sur PC, sans validation matérielle revendiquée. Voir [l’audit](docs/AUDIT.md), le [manifeste](dist/manifest.json) et les [tests](.github/workflows/test.yml).
+**La version 0.8.1 reste expérimentale.** Les fonctions de la série 0.8 ont été validées sur le clavier : blanc réactif, rejeu, Hyper conservé, Turbo clics et priorité Aurora. Sur 0.8.1, le voyant Windows, Fn seule éteinte, le maintien après relâchement de Fn, le fonctionnement RGB éteint, le déverrouillage, la saisie et Aurora sont confirmés. Core est compilée et testée sur PC, sans validation matérielle revendiquée. Voir [l’audit](docs/AUDIT.md), le [manifeste](dist/manifest.json) et les [tests](.github/workflows/test.yml).
 
 Le RGB s’éteint lorsque l’USB est suspendu ou non configuré. Si le PC maintient réellement le bus USB actif après son arrêt, le firmware ne peut pas distinguer ce cas d’un logiciel RGB fermé ; cette limite est expliquée dans le [guide technique](docs/INSTALL.fr.md).
 

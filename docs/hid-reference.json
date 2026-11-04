@@ -1,23 +1,8 @@
 {
   "kind": "read_only_raw_hid_comparison",
   "date": "2026-11-04",
-  "conditions": "Same PC/USB port; RGB clients stopped, helpers off, 32 warmup reads and 2000 read-only information requests per installed firmware. Sequential runs without active RGB load.",
+  "conditions": "Same PC/USB port; RGB clients stopped, helpers off, 32 warmup reads and 2000 information reads per installed firmware. Sequential runs, no RGB load.",
   "before": {
-    "kind": "host_raw_hid_read_round_trip",
-    "device_firmware": "0.7.0",
-    "count": 2000,
-    "minimum_ms": 1.725,
-    "median_ms": 1.996,
-    "p95_ms": 2.0099,
-    "p99_ms": 2.029,
-    "maximum_ms": 2.2552,
-    "mean_ms": 1.9957,
-    "elapsed_seconds": 4.0001,
-    "host_process_cpu_seconds": 0.0312,
-    "physical_key_latency_measured": false,
-    "mcu_execution_time_measured": false
-  },
-  "after": {
     "kind": "host_raw_hid_read_round_trip",
     "device_firmware": "0.8.0",
     "count": 2000,
@@ -32,7 +17,22 @@
     "physical_key_latency_measured": false,
     "mcu_execution_time_measured": false
   },
+  "after": {
+    "kind": "host_raw_hid_read_round_trip",
+    "device_firmware": "0.8.1",
+    "count": 2000,
+    "minimum_ms": 1.7819,
+    "median_ms": 1.9954,
+    "p95_ms": 2.0102,
+    "p99_ms": 2.0394,
+    "maximum_ms": 2.3664,
+    "mean_ms": 1.9954,
+    "elapsed_seconds": 4.0011,
+    "host_process_cpu_seconds": 0.0938,
+    "physical_key_latency_measured": false,
+    "mcu_execution_time_measured": false
+  },
   "physical_key_latency_measured": false,
   "mcu_execution_time_measured": false,
-  "interpretation": "Similar median round trips in these sequential runs. This is not a physical key-input latency test or a sustained high-rate RGB stress test."
+  "interpretation": "Similar median round trips. This does not measure physical key-input latency or sustained high-rate RGB load."
 }

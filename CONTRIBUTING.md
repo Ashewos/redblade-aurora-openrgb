@@ -9,9 +9,9 @@ Before proposing firmware changes:
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py'
 python3 tools/check_fn_map.py
-for suite in protocol controls rendering recorder speed_typing; do
+for suite in protocol controls rendering recorder speed_typing keymap_hooks; do
   cc -std=c11 -Wall -Wextra -Werror -O1 -g -DUSE_CIE1931_CURVE -fsanitize=address,undefined \
-    -I tests/stubs -I tests -I firmware/aurora_via \
+    -I tests/stubs -I tests -I tests/upstream -I firmware/aurora_via \
     tests/${suite}_test.c tests/qmk_fixture.c tests/upstream/color.c tests/upstream/led_tables.c \
     firmware/aurora_via/redblade_rgb.c firmware/aurora_via/redblade_controls.c firmware/aurora_via/redblade_recorder.c -o /tmp/${suite}-test
   /tmp/${suite}-test

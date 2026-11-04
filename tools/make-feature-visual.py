@@ -15,7 +15,7 @@ def generate(qmk):
      '<style>text{font-family:Arial,DejaVu Sans,sans-serif;fill:#f3f4f8}.brand{font-size:64px;font-weight:800;letter-spacing:-2px}.sub{font-size:25px;fill:#b8becb}.label{font-size:18px;font-weight:700;letter-spacing:2px}.card{font-size:28px;font-weight:700}.body{font-size:21px;fill:#b8becb}.key{font-size:12px;font-weight:700;text-anchor:middle}.small{font-size:16px;fill:#858e9f}</style>']
   def text(x,y,s,cl='body',color=None): a.append(f'<text x="{x}" y="{y}" class="{cl}"'+(f' style="fill:{color}"' if color else '')+'>'+escape(s)+'</text>')
   def rect(x,y,w,h,fill,stroke='none',r=12): a.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}" stroke="{stroke}"/>')
-  text(64,88,'RedBlade+','brand');text(444,80,'OPENRGB FIRMWARE  /  FULL 0.8','label','#ff5267')
+  text(64,88,'RedBlade+','brand');text(444,80,'OPENRGB FIRMWARE  /  FULL 0.8.1','label','#ff5267')
   text(64,141,'Le clavier que tu connais. Plus de possibilités.' if fr else 'Your keyboard. More capable.','sub')
   text(64,201,'109 LED PAR TOUCHE' if fr else '109 PER-KEY LEDS','label','#e9eef7')
   text(465,201,'AURORA → OPENRGB','label','#58cde8')

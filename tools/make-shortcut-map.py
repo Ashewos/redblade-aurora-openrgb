@@ -25,7 +25,7 @@ def generate(qmk):
             parts.append(f'<text x="{x}" y="{y}" class="{style}"'+(f' style="fill:{fill}"' if fill else '')+'>'+escape(value)+'</text>')
         def rect(x,y,w,h,color='#1c2637',stroke='#3b4b63',radius=8):
             parts.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{radius}" fill="{color}" stroke="{stroke}" stroke-width="2"/>')
-        text(48,62,'RedBlade+ 0.8 FULL  /  OpenRGB Firmware','title')
+        text(48,62,'RedBlade+ 0.8.1 FULL  /  OpenRGB Firmware','title')
         text(48,98,'Raccourcis + touches dynamiques · positions AZERTY' if fr else 'Shortcuts + dynamic key lighting · AZERTY positions','sub')
         text(48,128,'Carte des fonctions : ces couleurs ne sont pas toutes actives simultanément.' if fr else 'Function map: these colors are not all active at the same time.','sub')
         special={0:('ESC','#e13743'),16:('CAL','#e13743'),17:('MUTE','#a593ed'),18:('VOL−','#a593ed'),19:('VOL+','#a593ed'),21:('1','#e13743'),22:('2','#e13743'),23:('3','#e13743'),37:('NUM','#49d68b'),61:('CAPS','#49d68b'),97:('WIN','#e13743'),101:('WIN','#e13743'),102:('FN','#4fcde8'),43:('Z','#49d68b'),44:('E','#f3bf57'),45:('R','#f3bf57'),46:('T','#f3bf57'),65:('F','#f3bf57'),99:('SPACE','#f3bf57'),40:('−','#a593ed'),60:('+','#a593ed'),14:('SCROLL','#f3bf57'),104:('←','#e9eef7'),106:('→','#e9eef7')}
@@ -80,7 +80,7 @@ def generate(qmk):
             'Fn + F8 : réglages par défaut + arrêt' if fr else 'Fn + F8: defaults + stop helpers',
             'Fn + F9 : enregistrer l’éclairage' if fr else 'Fn + F9: save lighting preferences'], '#a593ed')
         panel(1064,900,488,238,'5 · CONTRÔLES' if fr else '5 · CONTROLS',[
-            'Fn + WIN : verrouillage (2 logos rouges)' if fr else 'Fn + WIN: lock (both Windows keys red)',
+            'Fn + WIN : verrou (logos rouges + voyant)' if fr else 'Fn + WIN: lock (red keys + status LED)',
             'Fn + MUTE : lecture / pause (Maj : stop)' if fr else 'Fn + MUTE: play / pause (Shift: stop)',
             'Fn + VOL −/+ : piste précédente / suivante' if fr else 'Fn + VOL −/+: previous / next track',
             'Maj + Fn + VOL : luminosité − / +' if fr else 'Shift + Fn + VOL: brightness − / +',
@@ -94,7 +94,7 @@ def generate(qmk):
         text(48,1390,'NUM actif : pavé blanc + NUM vert · NUM inactif : pavé blanc très faible' if fr else 'NUM on: white numpad + green NUM · NUM off: very dim white numpad','body')
         text(48,1431,'Le flux RGB reprend la priorité sur CAPS/NUM/SCROLL. Éteint et suspension USB restent prioritaires.' if fr else 'Live RGB takes priority over CAPS/NUM/SCROLL. Lighting Off and USB suspension stay authoritative.','sub')
         text(48,1470,'Red Blade Full Size ISO · 4 touches multimédias · Les touches normales gardent leur fonction' if fr else 'Red Blade Full Size ISO · 4 media keys · Normal typing and media functions are preserved','sub')
-        text(48,1510,'Blanc + frappe/rejeu : traînées rouges. Flux Aurora prioritaire. Maintien −/+ : crans ; valeur conservée.' if fr else 'White fallback + typing/replay: red trails. Aurora live RGB keeps priority. Hold −/+ steps; release keeps speed.','sub')
+        text(48,1510,'Voyant Windows en haut à droite : allumé = Windows verrouillée ; Fn seule ne l’allume pas.' if fr else 'Upper-right Windows indicator: on = Windows keys locked; holding Fn alone does not turn it on.','sub')
         parts.append('</svg>')
         (dest/('shortcuts.fr.svg' if fr else 'shortcuts.svg')).write_text('\n'.join(parts)+'\n',encoding='utf-8')
 

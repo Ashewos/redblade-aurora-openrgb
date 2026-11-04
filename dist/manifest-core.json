@@ -24,9 +24,10 @@
   "host_tests": "passed",
   "hardware_validation": null,
   "physical_key_latency_measured": false,
-  "release": "v0.8.0",
-  "sha256": "f028dbc19866e48f15e1053881a27c7929b78a6cf961bfabde754e716a9c83d0",
+  "release": "v0.8.1",
+  "sha256": "ea33a05e46bf784cbd85595b51339c307bed82024d01e3efbb10cc28bc9ab1d6",
   "binary_bytes": 65536,
   "ram_bytes_including_reserved_stacks": 7648,
-  "ram_remaining_bytes": 544
+  "ram_remaining_bytes": 544,
+  "dedicated_windows_indicator": "off; Core has no added Windows-lock feature"
 }

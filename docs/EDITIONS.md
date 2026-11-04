@@ -16,10 +16,11 @@ polling, 8-LED cooperative rendering and the original shared scan/PWM timer.
 | Local effects / startup wave | No | Yes |
 | Added RGB status / lock lights | No | Yes |
 | Recorder / keyboard Turbo / mouse Turbo | No | Yes |
+| Dedicated Windows indicator | Off; no added Windows lock | On while Windows keys are disabled |
 | Additional mouse HID report | No | Button-only report for click Turbo |
 | Fn + Esc held two seconds | Bootloader | Bootloader; short press also stops/unlocks |
 | Core source directory | `firmware/openrgb_core` | `firmware/aurora_via` |
-| Separate full source archive | `redblade-openrgb-core-v0.8.0-complete-source.zip` | `redblade-plus-v0.8.0-complete-source.zip` |
+| Separate full source archive | `redblade-openrgb-core-v0.8.1-complete-source.zip` | `redblade-plus-v0.8.1-complete-source.zip` |
 
 Core is deliberately a separate keymap and source module. No Recorder arena,
 Turbo scheduler, reactive buffer, mouse report or game status code is linked.

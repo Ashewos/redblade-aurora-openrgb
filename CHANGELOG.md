@@ -2,6 +2,13 @@
 
 All new release notes are written in English. Version 0.x is experimental; hardware validation is recorded separately from build and host-test results.
 
+## 0.8.1 — Dedicated Windows-lock status
+
+### Fixed
+- The upper-right Windows indicator now follows Game Mode: Fn + Windows turns it on when Windows keys are disabled; unlocking turns it off. Holding/releasing Fn alone no longer changes it. Both Windows-key RGB backlights retain their red locked status, and Fn retains its independent RGB hints.
+- The dedicated status light remains authoritative with RGB Off. Defaults, short Fn + Esc/boot entry, initialization and USB suspension turn it off with Game Mode. Core has no added Windows lock and leaves this indicator off.
+- Actual Full/Core keymap-hook regressions cover Fn press/release, lock/unlock, RGB Off, defaults, suspend/wake and boot entry. Eight actual-C suites and eleven Python checks now run in CI. Hardware scope is recorded separately.
+
 ## 0.8.0 — Latched Hyper speeds, reactive white and mouse Turbo
 
 ### Added

@@ -16,7 +16,7 @@ pwsh -File tools/measure-performance.ps1
 
 This runs the actual protocol handler, controls and pinned QMK color conversion on the PC (the custom renderer uses no second CIE curve). It measures average host CPU cost for 109-LED frames, dimming, local white and wave handover, plus the ordinary key-processing hook with Game Mode off/on. QMK hardware and USB transport are mocked. Use it to compare code changes on the same machine/build, not to predict microcontroller timing.
 
-The [reference report](performance-reference.json) is a real native run on the preparation PC. It contains no HID or physical key-latency result. A separate [read-only HID comparison](hid-reference.json) contains 2,000 reads each on installed 0.7.0 and 0.8.0, with RGB clients stopped and helpers off: medians 1.9960 / 1.9957 ms, p99 2.0290 / 2.0272 ms. These two sequential runs do not cover keyboard input, active RGB load or sustained Turbo. CPU-clock measurements are averaged over many iterations and include the fixture/call overhead.
+The [reference report](performance-reference.json) is a real native run on the preparation PC. It contains no HID or physical key-latency result. A separate [read-only HID comparison](hid-reference.json) contains 2,000 reads each on installed 0.8.0 and 0.8.1, with RGB clients stopped and helpers off: medians 1.9957 / 1.9954 ms, p99 2.0272 / 2.0394 ms. These two sequential runs do not cover keyboard input, active RGB load or sustained Turbo. CPU-clock measurements are averaged over many iterations and include the fixture/call overhead.
 
 ### 2. Read-only USB request/reply timing
 

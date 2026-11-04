@@ -31,7 +31,7 @@ Each edition has its own manifest and separate complete-source package. Core tur
 | --- | --- |
 | Native OpenRGB integration | 109 independently controlled LEDs through VialRGB; Aurora connects through the OpenRGB SDK |
 | A useful Fn media deck | Calculator → timed Recorder control, Mute → play/pause, Volume −/+ → previous/next; Shift adds more controls |
-| Windows-key lock | Fn + either Windows key; both Windows logos turn red while locked |
+| Windows-key lock | Fn + either Windows key; both Windows logos turn red and the dedicated upper-right Windows indicator turns on while locked |
 | Choose a Turbo key | Fn + T, then a basic key; live 5–250/s adjustment with Fn + numpad −/+; E/F/Space presets retained |
 | Mouse Turbo | Fn + T, then Volume −/+: left/right click, amber/purple indicators, shared cadence |
 | Reactive white | Without host RGB, physical typing and replayed letters leave red trails on white |
@@ -97,7 +97,7 @@ OpenRGB also works without Aurora. VIA and OpenRGB share Raw HID; close VIA duri
 - RGB work is split into eight-LED chunks with a 33 ms minimum frame interval. Status overlays are bounded; Fn has a persistent idle/active color. Turbo schedules at most one edge per housekeeping pass; no catch-up queue or busy wait.
 - A Windows native benchmark and read-only USB timing tool are included. [Run them tonight](docs/PERFORMANCE.md); host timings are not physical key-latency measurements.
 
-**0.8.0 is experimental.** Full was flashed with programming/checksum verified. Its owner confirmed reactive white, replayed-letter lighting, latched Hyper speed, both click targets/colors/stops and Aurora priority. Core is build/host-tested, with no hardware validation claimed. See the [audit](docs/AUDIT.md), [manifest](dist/manifest.json) and [test workflow](.github/workflows/test.yml) for the exact scope.
+**0.8.1 is experimental.** The 0.8 feature set was confirmed on the keyboard: reactive white/replay, latched Hyper, click Turbo and Aurora priority. On 0.8.1, the owner confirmed the dedicated Windows indicator, Fn-only Off, retained lock status after Fn release, operation with RGB Off, unlock, typing and Aurora. Core is build/host-tested, with no hardware validation claimed. See the [audit](docs/AUDIT.md), [manifest](dist/manifest.json) and [test workflow](.github/workflows/test.yml) for the exact scope.
 
 The keyboard turns its RGB off when USB is suspended or unconfigured. A host that keeps the USB bus genuinely active after shutdown cannot be distinguished from an application that stopped sending colors; see the [USB power limitations](docs/INSTALL.md#fallback-lighting-and-red-wave--070).
 

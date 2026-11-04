@@ -108,14 +108,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
 void suspend_wakeup_init_user(void) {
     redblade_rgb_wake();
-    gpio_write_pin(LED_FN_PIN, !layer_state_cmp(layer_state, 1));
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    if (layer_state_cmp(state, 1)) {
-        gpio_write_pin_low(LED_FN_PIN);
-    } else {
-        gpio_write_pin_high(LED_FN_PIN);
-    }
+    // Fn has RGB hints; the separate Windows indicator belongs to Game Mode.
     return state;
 }

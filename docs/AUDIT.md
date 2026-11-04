@@ -1,4 +1,4 @@
-# RedBlade+ 0.8.0 — code review and validation
+# RedBlade+ 0.8.1 — code review and validation
 
 Review date: **2026-11-04**. Scope: actual protocol, controls, Recorder, keymap/rendering, Windows tools, migration, source packaging and documentation. Build/host results and on-device checks are recorded separately.
 
@@ -54,7 +54,7 @@ Review date: **2026-11-04**. Scope: actual protocol, controls, Recorder, keymap/
 
 ## Validation performed
 
-- Six actual-C suites: protocol, controls, rendering, Recorder, high-speed/reactive/mouse, and independent Core. Coverage includes exact timings, >255 ms gaps, wraparound, Ctrl/GUI ownership, live speed, full buffers with held keys, slot compaction, single/loop playback, Shift chord release/toggle, sleep stop/reset wipe, dynamic fallback and RGB host priority.
+- Eight actual-C suites (including actual Full/Core keymap hooks): protocol, controls, rendering, Recorder, high-speed/reactive/mouse, and independent Core. Coverage includes exact timings, >255 ms gaps, wraparound, Ctrl/GUI ownership, live speed, full buffers with held keys, slot compaction, single/loop playback, Shift chord release/toggle, sleep stop/reset wipe, dynamic fallback and RGB host priority.
 - Eleven Python checks cover mapping agreement, percentiles, read-only timing, active Recorder refusal, explicit removals, lost-ACK rollback, HID cleanup/response matching, edition migration/refusal and checksum update order.
 - Full ARM build with warnings as errors, native Windows C tests and native benchmark. GitHub runs C suites with AddressSanitizer/UndefinedBehaviorSanitizer and the Python/artifact/native checks.
 - On 0.6.0, programming/checksum, protocol, positions and Fn map were verified; the user confirmed Caps/Num fallback, corrected Fn placement, Windows LEDs and Calculator's previous guide. On 0.5.0, visible wave/media lighting and generic Turbo/live rate/stop were confirmed. Those are historical checks, not automatic passes for Recorder.
@@ -75,7 +75,7 @@ Approximately 48 simple presses are shared across all three Recorder slots; hold
 
 USB state does not reveal Windows shutdown when the host leaves the bus genuinely configured and active. Sleep/wake, actual PC shutdown and power-cycle behavior still need target-host checks. Game Mode is not a filter for every arbitrary VIA/advanced action. All RGB status respects Off/brightness zero/USB suspension, while keyboard stops continue to work.
 
-## Current device result
+## Previous 0.8.0 device result
 
 Full 0.8.0 was flashed on the target Red Blade with programming/checksum
 **0x34ed** verified. VIA 13, VialRGB 1, 109 unique LED positions and the 33 Fn
@@ -86,3 +86,21 @@ amber/purple indicators and stops. OpenRGB/Aurora were restored and the owner
 confirmed host priority. Core remains build/host-tested only. Physical latency,
 power-cycle/shutdown, runtime stack high-water and sustained high-rate RGB load
 are not claimed as tested. See both manifests and the scoped HID comparison.
+
+## 0.8.1 dedicated Windows indicator
+
+The owner confirmed that holding Fn lit the physical upper-right Windows logo
+on 0.8.0. RBFS names this active-low B12 output LED_FN_PIN; the manufacturer
+confirms the shared Ironclad PCB, whose QMK definition calls B12 Win Lock.
+Full now gives the output to Game Mode, with GPIO writes only on lock/lifecycle
+changes. Fn layer transitions no longer overwrite it; RGB Fn hints are separate.
+Core leaves it off. Tests include the actual production keymap hooks and real
+controls, failing on the previous Fn-only behavior before passing the correction.
+The current patch hardware result is recorded in the manifest.
+
+Full 0.8.1 was flashed with programming/checksum 0x4f6a verified. The owner
+confirmed Fn-only leaves the dedicated indicator off, Fn+Windows lights it,
+Fn release keeps it on, unlock clears it, and it remains usable with RGB Off.
+Typing/Aurora were also confirmed after service restoration. VIA base/third
+layers and macros were preserved; VIA 13/VialRGB 1/109 positions/Fn map verified.
+Core remains build/host-tested only. Exact scope is recorded in the manifests.

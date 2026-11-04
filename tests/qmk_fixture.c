@@ -3,6 +3,8 @@
 #include "host.h"
 uint8_t mouse_buttons;
 unsigned mouse_downs,mouse_reports;
+bool indicator_pin_high=true;
+void gpio_write_pin(uint32_t pin,bool high) { assert(pin==LED_FN_PIN);indicator_pin_high=high; }
 void host_mouse_send(report_mouse_t *r) {
     assert(!r->x && !r->y && !r->v && !r->h);
     assert(r->buttons<=2);if(r->buttons && !mouse_buttons) ++mouse_downs;

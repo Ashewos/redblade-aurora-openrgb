@@ -21,6 +21,8 @@
 #define KC_ESC 0x29
 #define MATRIX_ROWS 6
 #define MATRIX_COLS 21
+#define LED_FN_PIN 28 // B12 fixture identifier; actual board config supplies B12.
+void gpio_write_pin(uint32_t pin,bool high);
 #define QK_MOMENTARY 0x5220
 #define QK_MOMENTARY_MAX 0x523F
 #define KC_RGUI 0xE7

@@ -2,7 +2,7 @@
 
 [English](SHORTCUTS.md) · **Français** · [Projet](../README.fr.md) · [Installation](INSTALL.fr.md)
 
-Firmware **0.8.0**, Red Blade Full Size ISO. Fn est entre Windows droite et Ctrl droit. **1/2/3 désigne la rangée de chiffres au-dessus des lettres** ; **−/+ désigne le pavé numérique**.
+Firmware **0.8.1**, Red Blade Full Size ISO. Fn est entre Windows droite et Ctrl droit. **1/2/3 désigne la rangée de chiffres au-dessus des lettres** ; **−/+ désigne le pavé numérique**.
 
 ![Raccourcis classés par fonction](assets/shortcuts.fr.png)
 
@@ -46,7 +46,7 @@ La lecture ne possède que ses touches générées et les libère à l’arrêt.
 | Fn + R / Fn + Maj + R | Préréglage suivant / précédent : **25, 50, 100 appuis/s** ; sélectionner Turbo |
 | Fn + − / + du pavé, contexte Turbo | **5–100/s par pas de 5, puis 125/150/175/200/225/250/s** ; maintien pour enchaîner, valeur conservée au relâchement |
 | Fn + Z en AZERTY / Fn + W en QWERTY | Maintenir pour avancer ; cible verte |
-| Fn + une touche Windows | Verrouiller/déverrouiller Windows ; **les deux logos deviennent rouges** |
+| Fn + une touche Windows | Verrouiller/déverrouiller Windows ; **les deux touches sont rouges et le voyant Windows en haut à droite s’allume** |
 | Fn + Maj + une touche Windows | Déverrouiller Windows |
 | Échap | Arrêter les fonctions ; Échap est aussi envoyé à l’application |
 | Fn + Échap, appui court | Arrêter et déverrouiller Windows ; aucun Échap envoyé |
@@ -111,7 +111,7 @@ Le blanc de secours et le profil blanc local reflètent aussi les états :
 
 Un nouveau flux reprend la priorité sur ces états. Rouge/effets autonomes, secours sombre, éteint, luminosité zéro et suspension USB restent prioritaires. Le secours des quatre médias est séparé : couleur non noire du PC prioritaire, F6 active/désactive le blanc s’ils sont noirs. Le protocole ne distingue pas un noir volontaire d’une affectation absente.
 
-Calculatrice/Fn/slot actif respirent en rouge pendant l’enregistrement, vert pour une lecture, cyan en boucle, ambre pendant choix/attente/limite. Sinon Fn est bleue discrète au repos, cyan enfoncée, rouge pendant Turbo clavier, ambre pour clic gauche, violette pour clic droit, verte pendant maintien, violette en mode jeu. Les fonctions actives sont prioritaires. Le voyant Fn séparé reste monochrome, allumé/éteint.
+Calculatrice/Fn/slot actif respirent en rouge pendant l’enregistrement, vert pour une lecture, cyan en boucle, ambre pendant choix/attente/limite. Sinon Fn est bleue discrète au repos, cyan enfoncée, rouge pendant Turbo clavier, ambre pour clic gauche, violette pour clic droit, verte pendant maintien, violette en mode jeu. Les fonctions actives sont prioritaires. Le voyant Windows monochrome en haut à droite indique le verrouillage, indépendamment de Fn et du RGB. Il reste allumé si Windows est bloquée même RGB éteint ; déverrouillage, remise à zéro et suspension USB l’éteignent.
 
 ## Bootloader
 
