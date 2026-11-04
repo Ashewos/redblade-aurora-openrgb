@@ -66,11 +66,11 @@ static void test_lifecycle(void) {
     for (unsigned i = 0; i < 109; ++i) {
         hsv_t color = redblade_rgb_color(i);
         assert(color.v <= REDBLADE_BOOT_BRIGHTNESS);
-        if (color.v) assert(color.h >= 142 && color.h <= 166 && color.s >= 160 && color.s <= 245);
+        if (color.v) assert(color.h <= 7 && color.s >= 210);
         if (color.v < min_val) min_val = color.v;
         if (color.v > max_val) max_val = color.v;
     }
-    assert(max_val > min_val); // A shaped blue wave, not a uniform color/rainbow.
+    assert(max_val > min_val); // A shaped red wave, not a uniform color/rainbow.
     // Capture host frames while the animation runs, then smoothly hand over.
     set_led(0, 180); redblade_rgb_begin_frame();
     assert(redblade_rgb_color(0).h != 17);
@@ -135,7 +135,7 @@ static void test_lifecycle(void) {
     assert(redblade_rgb_color(4).v == 80 && redblade_rgb_color(3).v == 0);
     now = 0; redblade_rgb_init(true); redblade_rgb_suspend();
     now = REDBLADE_BOOT_ANIMATION_MS / 2; assert_black();
-    puts("PASS: blue wave/fade, fresh host handover, 4 media fallbacks, white timeout, USB off, recovery, timer wrap");
+    puts("PASS: red wave/fade, fresh host handover, 4 media fallbacks, white timeout, USB off, recovery, timer wrap");
 }
 
 int main(void) {

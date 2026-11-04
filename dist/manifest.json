@@ -8,7 +8,7 @@
   "qmk_commit": "62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60",
   "toolchain": "arm-none-eabi-gcc 15.2.0 / qmk_toolchains a55a2b0",
   "binary_bytes": 65536,
-  "sha256": "291c884bd56fcc5ad4c71b7cd519fbb3607bc560f2b019dcb5dcbd23f3d0e37f",
+  "sha256": "d21a630240e68d30d4a12fe8dd93fcdbcd2c00920e30dcc77e2ff5804b71fe12",
   "ram_bytes_including_reserved_stacks": 7648,
   "ram_remaining_bytes": 544,
   "keyboard_usb_poll_interval_ms": 1,
@@ -45,7 +45,7 @@
   "boot_animation_max_brightness": 96,
   "usb_suspend_rgb_off": true,
   "lifecycle_host_tests": "passed",
-  "boot_animation": "curved_blue_wave_with_hsv_handover",
+  "boot_animation": "curved_red_wave_with_hsv_handover",
   "rgb_timeout_fallback": "white",
   "rgb_fallback_max_brightness": 64,
   "media_fallback": {

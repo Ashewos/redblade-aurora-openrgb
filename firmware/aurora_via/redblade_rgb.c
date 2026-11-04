@@ -115,12 +115,12 @@ hsv_t redblade_rgb_color(uint8_t index) {
         // over 112 units while the front edge is crisp (32 units).
         const int16_t crest = (int16_t)boot_position - 64 - ((int16_t)g_led_config.point[index].y - 32) * ((int16_t)g_led_config.point[index].y - 32) / 96;
         const int16_t behind = crest - g_led_config.point[index].x;
-        color.h = 166; color.s = 245; // deep blue bed
+        color.h = 0; color.s = 255; // deep red bed, matching Red Blade
         color.v = boot_brightness / 12;
         if (behind >= -32 && behind < 112) {
             const uint8_t strength = behind < 0 ? (behind + 32) * 4 : (112 - behind) * 128 / 112;
-            color.h = 166 - strength * 24 / 128; // blue -> icy blue crest
-            color.s = 245 - strength * 85 / 128;
+            color.h = strength * 7 / 128; // crimson -> scarlet crest
+            color.s = 255 - strength * 45 / 128;
             color.v = color.v + strength * (boot_brightness - color.v) / 128;
         }
         if (boot_blend) {

@@ -1,10 +1,10 @@
 # Red Blade FS — Aurora + OpenRGB + VIA
 
-<p align="center"><img src="assets/redblade-wave.png" alt="Vague bleue sur un clavier avec pavé numérique" width="260"></p>
+<p align="center"><img src="assets/redblade-openrgb.png" alt="Red Blade : clavier RGB et lame rouge — intégration OpenRGB" width="300"></p>
 
 Firmware SonixQMK pour le **Designed by GG Red Blade Full Size ISO**, avec pavé numérique, USB **320F:5136**, contrôleur **SN32F248B**, **109 LED**.
 
-**État : expérimental.** La version 0.1.0 a été flashée et vérifiée sur un Red Blade Full Size : écriture et checksum, VIA 13, VialRGB 1, 109 LED, saisie et couleurs d’Aurora. La version 0.3.0 ajoute le secours blanc, les quatre touches multimédias et une vague bleue de démarrage ; son niveau de validation figure dans `dist/manifest.json`. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
+**État : expérimental.** La version 0.1.0 a été flashée et vérifiée sur un Red Blade Full Size : écriture et checksum, VIA 13, VialRGB 1, 109 LED, saisie et couleurs d’Aurora. La version 0.3.0 ajoute le secours blanc, les quatre touches multimédias et une vague rouge de démarrage ; son niveau de validation figure dans `dist/manifest.json`. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
 
 ```text
 Aurora (effets et jeux) → serveur SDK OpenRGB → VialRGB → Red Blade FS
@@ -12,12 +12,12 @@ Aurora (effets et jeux) → serveur SDK OpenRGB → VialRGB → Red Blade FS
 
 OpenRGB reste utilisable directement, ou avec d'autres logiciels compatibles avec son SDK. Les jeux utilisent les intégrations des logiciels hôtes ; ce firmware ne promet pas une compatibilité directe avec tous les jeux. VIA conserve le remappage des touches et les macros. L'extension implémente le sous-ensemble VialRGB nécessaire à OpenRGB, pas l'interface complète de configuration Vial.
 
-## Éclairage de secours et vague bleue — 0.3.0
+## Éclairage de secours et vague rouge — 0.3.0
 
 - **USB suspendu ou non configuré :** priorité à l’extinction, même si le port reste alimenté. Les changements d’état USB sont suivis explicitement en plus de `RGB_MATRIX_SLEEP`. Les anciennes couleurs sont effacées ; ni le secours blanc ni l’animation ne rallument le clavier dans cet état.
 - **Absence de données RGB en mode Direct :** passage en **blanc à 25 % maximum après 5 secondes**, au prochain rendu (intervalle minimal de 33 ms). Les lectures VIA, diagnostics et paquets invalides ne prolongent pas ce délai. Un nouveau paquet reprend la main ; les anciennes couleurs effacées ne sont pas rejouées.
 - **Calculatrice, Muet, Volume −, Volume + :** blanc discret si le flux leur attribue une valeur noire ou ne leur fournit pas de couleur. Une couleur non noire de l’hôte prend priorité. Les quatre LED correspondent aux indices physiques 16..19, vérifiés contre la carte épinglée. Ce choix remplace aussi un noir volontaire sur ces quatre touches ; le protocole ne permet pas de le distinguer d’une touche laissée noire par Aurora. La commande globale **Off** et la suspension USB restent prioritaires.
-- **Démarrage / reprise USB :** une vague courbe de **1,5 seconde**, dégradé bleu profond → bleu glacé avec traînée douce, entrée progressive et fondu vers les dernières couleurs reçues pendant les 300 dernières millisecondes. Les paquets continuent d’être reçus pendant l’animation ; elle ne bloque pas la saisie. Un éclairage désactivé ou un effet autonome enregistré est respecté. Les notifications USB ordinaires (Num Lock, protocole HID…) ne relancent pas l’animation.
+- **Démarrage / reprise USB :** une vague courbe de **1,5 seconde**, dégradé rouge profond → rouge écarlate avec traînée douce, entrée progressive et fondu vers les dernières couleurs reçues pendant les 300 dernières millisecondes. Les paquets continuent d’être reçus pendant l’animation ; elle ne bloque pas la saisie. Un éclairage désactivé ou un effet autonome enregistré est respecté. Les notifications USB ordinaires (Num Lock, protocole HID…) ne relancent pas l’animation.
 - **Effets autonomes :** le secours blanc et le traitement des quatre touches ne s’appliquent qu’au mode Direct. Les effets autonomes VIA/Fn restent utilisables et s’éteignent aussi à la suspension USB.
 
 Les durées et luminosités sont réglables dans `firmware/aurora_via/config.h` avant compilation : `REDBLADE_RGB_TIMEOUT_MS`, `REDBLADE_BOOT_ANIMATION_MS`, `REDBLADE_BOOT_BRIGHTNESS`, `REDBLADE_FALLBACK_BRIGHTNESS`, `REDBLADE_MEDIA_BRIGHTNESS`. Le contrôle du délai se fait une fois par image RGB et la vague utilise le même rendu par blocs de 8 LED, en arithmétique entière. Aucun temporisateur de balayage des touches n’est arrêté ; aucune attente bloquante, allocation ou écriture EEPROM n’est ajoutée.
