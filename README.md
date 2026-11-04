@@ -1,142 +1,144 @@
 # Red Blade FS — Aurora + OpenRGB + VIA
 
-<p align="center"><img src="assets/redblade-openrgb.png" alt="Red Blade : clavier RGB et lame rouge — intégration OpenRGB" width="300"></p>
+**English** | [Français](README.fr.md)
 
-Firmware SonixQMK pour le **Designed by GG Red Blade Full Size ISO**, avec pavé numérique, USB **320F:5136**, contrôleur **SN32F248B**, **109 LED**.
+<p align="center"><img src="assets/redblade-openrgb.png" alt="Red Blade: RGB keyboard and red blade — OpenRGB integration" width="300"></p>
 
-**État : expérimental.** La version 0.1.0 a été flashée et vérifiée sur un Red Blade Full Size : écriture et checksum, VIA 13, VialRGB 1, 109 LED, saisie et couleurs d’Aurora. La version 0.3.0 ajoute le secours blanc, les quatre touches multimédias et une vague rouge de démarrage ; son niveau de validation figure dans `dist/manifest.json`. La latence matérielle et les essais prolongés restent à mesurer. Ce dépôt ne contient aucune sauvegarde personnelle.
+SonixQMK firmware for the **Designed by GG Red Blade Full Size ISO** keyboard with numeric keypad, USB **320F:5136**, **SN32F248B** controller and **109 LEDs**.
+
+**Status: experimental.** Version 0.1.0 was flashed and checked on a Red Blade Full Size: programming and checksum verification, VIA 13, VialRGB 1, 109 LEDs, typing and Aurora colors. Version 0.3.0 adds white fallback lighting, support for the four media keys and a red startup wave; its validation status is recorded in `dist/manifest.json`. Hardware latency and extended testing remain unmeasured. This repository contains no personal backups.
 
 ```text
-Aurora (effets et jeux) → serveur SDK OpenRGB → VialRGB → Red Blade FS
+Aurora (effects and game integrations) → OpenRGB SDK server → VialRGB → Red Blade FS
 ```
 
-OpenRGB reste utilisable directement, ou avec d'autres logiciels compatibles avec son SDK. Les jeux utilisent les intégrations des logiciels hôtes ; ce firmware ne promet pas une compatibilité directe avec tous les jeux. VIA conserve le remappage des touches et les macros. L'extension implémente le sous-ensemble VialRGB nécessaire à OpenRGB, pas l'interface complète de configuration Vial.
+OpenRGB can also be used directly or with other software that supports its SDK. Games use the host software's integrations; this firmware does not promise direct compatibility with every game. VIA retains key remapping and macros. The extension implements the VialRGB subset needed by OpenRGB, rather than the full Vial configuration interface.
 
-## Éclairage de secours et vague rouge — 0.3.0
+## Fallback lighting and red wave — 0.3.0
 
-- **USB suspendu ou non configuré :** priorité à l’extinction, même si le port reste alimenté. Les changements d’état USB sont suivis explicitement en plus de `RGB_MATRIX_SLEEP`. Les anciennes couleurs sont effacées ; ni le secours blanc ni l’animation ne rallument le clavier dans cet état.
-- **Absence de données RGB en mode Direct :** passage en **blanc à 25 % maximum après 5 secondes**, au prochain rendu (intervalle minimal de 33 ms). Les lectures VIA, diagnostics et paquets invalides ne prolongent pas ce délai. Un nouveau paquet reprend la main ; les anciennes couleurs effacées ne sont pas rejouées.
-- **Calculatrice, Muet, Volume −, Volume + :** blanc discret si le flux leur attribue une valeur noire ou ne leur fournit pas de couleur. Une couleur non noire de l’hôte prend priorité. Les quatre LED correspondent aux indices physiques 16..19, vérifiés contre la carte épinglée. Ce choix remplace aussi un noir volontaire sur ces quatre touches ; le protocole ne permet pas de le distinguer d’une touche laissée noire par Aurora. La commande globale **Off** et la suspension USB restent prioritaires.
-- **Démarrage / reprise USB :** une vague courbe de **1,5 seconde**, dégradé rouge profond → rouge écarlate avec traînée douce, entrée progressive et fondu vers les dernières couleurs reçues pendant les 300 dernières millisecondes. Les paquets continuent d’être reçus pendant l’animation ; elle ne bloque pas la saisie. Un éclairage désactivé ou un effet autonome enregistré est respecté. Les notifications USB ordinaires (Num Lock, protocole HID…) ne relancent pas l’animation.
-- **Effets autonomes :** le secours blanc et le traitement des quatre touches ne s’appliquent qu’au mode Direct. Les effets autonomes VIA/Fn restent utilisables et s’éteignent aussi à la suspension USB.
+- **USB suspended or unconfigured:** lights off takes priority, even if the port still supplies power. USB state changes are tracked explicitly alongside QMK's `RGB_MATRIX_SLEEP`. Previous colors are cleared; neither fallback lighting nor the animation turns the keyboard back on in this state.
+- **No RGB data in Direct mode:** switch to **white at approximately 25% brightness after 5 seconds**, on the next render (33 ms minimum frame interval). VIA reads, diagnostics and invalid packets do not extend this timeout. A new color packet takes over; cleared colors are not replayed.
+- **Calculator, Mute, Volume −, Volume +:** dim white when the stream assigns black or provides no color for these keys. A non-black host color takes priority. These are physical LED indices 16..19, checked against the pinned board definition. This policy also replaces intentionally black colors on those four keys: the protocol cannot distinguish them from keys left black by Aurora. The global **Off** command and USB suspension remain authoritative.
+- **Startup / USB resume:** a curved **1.5-second** wave, fading from deep red to scarlet, with a soft trail, gradual entrance and a fade into the latest received colors during the final 300 milliseconds. Packets continue to be received during the animation; typing is not blocked. Disabled lighting and saved standalone effects are respected. Ordinary USB notifications (Num Lock, HID protocol changes, etc.) do not restart the animation.
+- **Standalone effects:** white fallback and the four-key policy apply only to Direct mode. VIA/Fn standalone effects remain available and also turn off during USB suspension.
 
-Les durées et luminosités sont réglables dans `firmware/aurora_via/config.h` avant compilation : `REDBLADE_RGB_TIMEOUT_MS`, `REDBLADE_BOOT_ANIMATION_MS`, `REDBLADE_BOOT_BRIGHTNESS`, `REDBLADE_FALLBACK_BRIGHTNESS`, `REDBLADE_MEDIA_BRIGHTNESS`. Le contrôle du délai se fait une fois par image RGB et la vague utilise le même rendu par blocs de 8 LED, en arithmétique entière. Aucun temporisateur de balayage des touches n’est arrêté ; aucune attente bloquante, allocation ou écriture EEPROM n’est ajoutée.
+Durations and brightness can be changed in `firmware/aurora_via/config.h` before building: `REDBLADE_RGB_TIMEOUT_MS`, `REDBLADE_BOOT_ANIMATION_MS`, `REDBLADE_BOOT_BRIGHTNESS`, `REDBLADE_FALLBACK_BRIGHTNESS`, `REDBLADE_MEDIA_BRIGHTNESS`. The timeout is checked once per RGB frame, and the wave uses the same eight-LED rendering chunks with integer arithmetic. No key-scanning timer is stopped; no blocking delay, dynamic allocation or EEPROM write is added.
 
-Le firmware connaît l’état du bus USB, pas celui de Windows. L’extinction à l’arrêt du PC fonctionne lorsque le contrôleur USB suspend ou déconfigure la liaison. Si un hôte maintient réellement le bus configuré et actif pendant l’arrêt, l’absence de RGB seule ne permet pas de distinguer cet état d’Aurora fermé : le secours blanc s’applique alors. Ce cas demanderait une configuration d’alimentation USB/ErP ou un signal d’arrêt explicite côté PC. Un arrêt réel et une sortie de veille doivent donc être vérifiés sur la machine cible.
+The firmware knows the USB bus state, not the Windows power state. Lights turn off at PC shutdown when the USB controller suspends or unconfigures the connection. If a host genuinely keeps the bus configured and active after shutdown, missing RGB data alone cannot distinguish that state from Aurora being closed: white fallback then applies. That case would require a USB power/ErP setting or an explicit shutdown signal from the PC. Actual shutdown and wake behavior must therefore be checked on the target machine.
 
-En mode Direct, l’application hôte doit continuer à envoyer des couleurs, même pour un profil visuellement fixe. Un profil OpenRGB fixe envoyé une seule fois passe en blanc après 5 secondes ; pour une couleur fixe sans logiciel actif, choisir le mode autonome **Static**.
+In Direct mode, the host application must keep sending colors, even for a visually static profile. An OpenRGB color sent only once changes to white after 5 seconds; use the standalone **Static** mode for a fixed color without active host software.
 
-Diagnostic en lecture seule (OpenRGB, Aurora et VIA arrêtés) :
+Read-only diagnostics (stop OpenRGB, Aurora and VIA first):
 
 ```powershell
 python tools/redblade.py status
 ```
 
-Cette commande ne prolonge pas le délai. Elle indique la version, le mode, la fraîcheur du flux, l’âge du dernier paquet et le compteur de paquets acceptés. Son extension privée `FE 80`, format 1, est distincte du protocole VialRGB : version aux octets 3..5, flags à 6 (flux frais, animation, suspension, RGB activé), mode à 7, âge/délai/compteur/durée de démarrage en entiers little-endian 32 bits aux octets 8/12/16/20, signature `RDBLFS01` aux octets 24..31. Un âge `FFFFFFFF` signifie aucune couleur conservée.
+This command does not extend the timeout. It reports firmware version, mode, stream freshness, last-packet age and the accepted-packet count. Its private `FE 80` extension, format 1, is separate from VialRGB: version at bytes 3..5; flags at byte 6 (fresh stream, animation, suspension, RGB enabled); mode at byte 7; age/timeout/count/startup duration as little-endian 32-bit integers at offsets 8/12/16/20; `RDBLFS01` signature at bytes 24..31. An age of `FFFFFFFF` means no retained colors.
 
-## Choix de performance
+## Performance choices
 
-- Polling USB demandé : **1 ms**. NKRO, matrice, broches et anti-rebond `sym_eager_pk` de 20 ms conservés. Cet anti-rebond est de type eager : il n'ajoute pas une attente initiale de 20 ms à chaque appui.
-- Horloge matérielle Sonix conservée à la valeur calculée par le pilote amont pour cette carte : **720 896 Hz**. C'est l'horloge de la minuterie partagée, pas une mesure de la fréquence de balayage complète ni de la latence.
-- Le patch découple cette horloge de la taille des blocs de rendu. Le rendu traite au plus **8 LED** par passage et attend au moins **33 ms** entre images.
-- Une seule table HSV de **327 octets** garde les dernières couleurs. Aucune allocation dynamique, aucune file d'images et aucune écriture EEPROM dans le chemin RGB direct. Les deux buffers du pilote Sonix amont sont conservés.
-- Un paquet direct valide copie au plus **9 couleurs**. La conversion HSV → RGB se fait dans la tâche de rendu, pas dans le gestionnaire USB.
-- Les effets autonomes conservés sont simples : couleur fixe, respiration, cycle horizontal, dégradés et alphas/modificateurs. Les effets complexes et réactifs sont fournis par Aurora/OpenRGB ; leurs anciens buffers et leur suivi des frappes sont retirés du firmware.
-- Configuration Aurora proposée : intervalle de **34 ms**, environ **29,4 FPS**. Pas de service Windows supplémentaire.
+- Requested USB polling interval: **1 ms**. NKRO, the key matrix, pins and the factory 20 ms `sym_eager_pk` debounce are preserved. This is eager debounce: it does not add an initial 20 ms wait to each key press.
+- The Sonix hardware clock retains the value calculated by the upstream driver for this board: **720,896 Hz**. This is the shared timer clock, not a measurement of the complete matrix scan rate or latency.
+- The patch decouples this clock from the rendering chunk size. Rendering processes at most **8 LEDs** per task iteration, with at least **33 ms** between frames.
+- One **327-byte** HSV array stores the latest colors. No dynamic allocation, frame queue or EEPROM write is used in the Direct RGB path. Both upstream Sonix driver buffers are retained.
+- A valid Direct packet copies at most **9 colors**. HSV → RGB conversion runs in the rendering task, not the USB request handler.
+- Retained standalone effects are simple: solid color, breathing, horizontal cycle, gradients and alphas/modifiers. Aurora/OpenRGB supplies complex and reactive effects; their previous firmware buffers and key-event tracking are removed.
+- Proposed Aurora settings: **34 ms** update interval, approximately **29.4 FPS**. No additional Windows service.
 
-Ces choix bornent le travail ajouté. Ils ne constituent pas une mesure matérielle de latence : comparer le firmware d'origine et celui-ci avec un analyseur USB ou un dispositif de mesure reste nécessaire. Le transport VialRGB standard utilise 13 échanges pour une image complète de 109 LED ; ses paquets peuvent arriver pendant le rendu d'une image.
+These choices bound the added work. They are not hardware latency measurements: comparison with the original firmware still requires a USB analyzer or other measurement setup. Standard VialRGB transport uses 13 exchanges for a complete 109-LED frame; packets may arrive while a frame is being rendered.
 
-## Compilation
+## Building
 
-Sources amont épinglées : [SonixQMK `62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60`](https://github.com/SonixQMK/qmk_firmware/tree/62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60).
+Pinned upstream sources: [SonixQMK commit 62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60](https://github.com/SonixQMK/qmk_firmware/tree/62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60).
 
-Dans un environnement QMK configuré (QMK MSYS sous Windows, ou les outils QMK sous Linux) :
+In a configured QMK environment (QMK MSYS on Windows, or QMK tools on Linux):
 
 ```sh
 git clone https://github.com/SonixQMK/qmk_firmware.git qmk_firmware
 git -C qmk_firmware checkout 62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60
-bash tools/build.sh /chemin/vers/qmk_firmware
+bash tools/build.sh /path/to/qmk_firmware
 ```
 
-`prepare_firmware.py` refuse un autre commit, vérifie la carte des 109 LED, installe le keymap et applique un seul changement au pilote : ajout d'un paramètre d'horloge, avec comportement inchangé par défaut pour les autres cartes. Les sources QMK et leurs sous-modules gardent leurs licences respectives.
+`prepare_firmware.py` rejects other commits, checks the 109-LED map, installs the keymap and applies one driver change: a configurable clock parameter that leaves the default behavior unchanged for other boards. QMK and its submodules retain their respective licenses.
 
-## Sauvegarde et flashage
+## Backup and flashing
 
-Le flashage remplace le firmware et peut réinitialiser les touches/macros VIA. Sauvegarder avant de continuer, garder un autre moyen de saisie et le firmware de restauration du fabricant.
+Flashing replaces the firmware and may reset VIA keys/macros. Back up first, keep another input device available and retain the manufacturer's recovery firmware.
 
 ```powershell
-python tools/redblade.py backup --output C:\chemin-prive\via-backup.json
+python tools/redblade.py backup --output C:\private-path\via-backup.json
 ```
 
-La sauvegarde contient les couches et macros : **la garder privée**. Elle ne constitue pas un dump complet du firmware. Ne pas restaurer aveuglément des codes internes entre générations QMK différentes.
+The backup contains layers and macros: **keep it private**. It is not a complete firmware dump. Do not blindly restore internal keycodes across different QMK generations.
 
-1. Vérifier le modèle Full Size, pas le Red Blade 75.
-2. Utiliser **Fn + Échap** pour entrer dans le bootloader QMK.
-3. Avec [SonixFlasherC](https://github.com/SonixQMK/SonixFlasherC), vérifier l'identité du bootloader **0C45:7040 / SN32F24xB** avant toute écriture.
-4. Pour ce contrôleur, utiliser le binaire brut, à l'offset **0** ; ne pas utiliser un jumploader SN32F26x.
+1. Confirm the Full Size model, not the Red Blade 75.
+2. Use **Fn + Esc** to enter the QMK bootloader.
+3. With [SonixFlasherC](https://github.com/SonixQMK/SonixFlasherC), verify the bootloader identity **0C45:7040 / SN32F24xB** before writing anything.
+4. For this controller, use the raw binary at offset **0**; do not use an SN32F26x jumploader.
 
 ```powershell
 sonixflasher.exe -v 0c45/7040 --info
-# Seulement après vérification du contrôleur et décision explicite de flasher :
+# Only after verifying the controller and explicitly deciding to flash:
 sonixflasher.exe -v 0c45/7040 -f dist/redblade-fs-aurora-via.bin -o 0
 ```
 
-La référence actuelle est [SonixFlasherC](https://github.com/SonixQMK/SonixFlasherC). L'ancien dépôt `sonix-flasher` est archivé et déconseillé par ses mainteneurs.
+[SonixFlasherC](https://github.com/SonixQMK/SonixFlasherC) is the current reference tool. The older `sonix-flasher` repository is archived and discouraged by its maintainers.
 
-Pour revenir au firmware constructeur, suivre la [procédure Designed by GG](https://designedby.gg/qmk-installateur-simplifie/) et utiliser l'archive officielle **Red Blade Full Size**. Le fabricant demande de repasser par le firmware d'origine avant d'utiliser ses installateurs de mise à jour QMK.
+To restore the manufacturer firmware, follow the [Designed by GG procedure](https://designedby.gg/qmk-installateur-simplifie/) and use the official **Red Blade Full Size** archive. The manufacturer requires restoring the original firmware before using its QMK update installers.
 
-## Configuration Windows
+## Windows setup
 
-OpenRGB doit contenir le contrôleur **QMK VialRGB Devices** (version vérifiée sur le PC de préparation : OpenRGB 1.1). Ajouter dans ses réglages VialRGB : nom `Designed by GG Red Blade FS (VialRGB)`, VID `0x320F`, PID `0x5136`, puis redémarrer complètement OpenRGB.
+OpenRGB must include the **QMK VialRGB Devices** controller (version checked on the setup PC: OpenRGB 1.1). Add this entry in its VialRGB settings: name `Designed by GG Red Blade FS (VialRGB)`, VID `0x320F`, PID `0x5136`, then fully restart OpenRGB.
 
-Le script PowerShell 7 fait cette configuration, sauvegarde les fichiers existants, règle le SDK local et Aurora, et prépare le démarrage des applications :
+The PowerShell 7 script configures this, backs up existing files, sets up the local SDK and Aurora, and prepares application startup:
 
 ```powershell
-pwsh -File tools/configure-windows.ps1        # lecture / description uniquement
-pwsh -File tools/configure-windows.ps1 -Apply # applique puis relance les applications RGB
+pwsh -File tools/configure-windows.ps1        # read / describe only
+pwsh -File tools/configure-windows.ps1 -Apply # apply and restart RGB applications
 ```
 
-La liaison utilise **127.0.0.1:6742**. Dans Aurora, activer **OpenRGB (RGB.NET)**. Le clavier doit apparaître dans OpenRGB avec un mode **Direct** avant de valider les effets dans Aurora. Le script ne flashe rien et n'active pas le mode dangereux des périphériques sans mode direct.
+The connection uses **127.0.0.1:6742**. In Aurora, enable **OpenRGB (RGB.NET)**. The keyboard must appear in OpenRGB with a **Direct** mode before validating Aurora effects. The script does not flash anything or enable the dangerous option for devices without Direct mode.
 
-Après flashage, relancer `configure-windows.ps1 -Apply`. Il arrête temporairement les clients RGB, sélectionne explicitement **Direct** dans le clavier et enregistre ce réglage une fois, avant de relancer OpenRGB/Aurora. Cela corrige le cas où des couleurs sont envoyées par le SDK alors que le clavier reste sur son effet autonome (par exemple rouge uniforme). L’écriture de configuration ne se produit pas pendant le streaming RGB.
+After flashing, run `configure-windows.ps1 -Apply` again. It temporarily stops RGB clients, explicitly selects **Direct** on the keyboard and saves that setting once before restarting OpenRGB/Aurora. This fixes the case where SDK colors are sent while the keyboard remains in a standalone effect (for example, solid red). The configuration write does not occur during RGB streaming.
 
-Pour ne changer que ce réglage, avec OpenRGB, Aurora et VIA arrêtés :
+To change only this setting, with OpenRGB, Aurora and VIA stopped:
 
 ```powershell
 python tools/set-direct-mode.py --save
 ```
 
-Fermer VIA pendant l'utilisation d'OpenRGB : les deux outils partagent la même interface Raw HID et peuvent recevoir la réponse destinée à l'autre.
+Close VIA while using OpenRGB: both share the Raw HID interface and may receive a response intended for the other application.
 
-## Vérification
+## Verification
 
 ```powershell
 python tools/redblade.py verify
 ```
 
-Cette vérification est en lecture seule et contrôle la signature RGB, la version, les 109 LED et leurs positions uniques. Vérifier ensuite dans OpenRGB les couleurs rouge/vert/bleu, le pavé numérique, les touches ISO, puis le mode Direct avec Aurora, la saisie NKRO, la sortie de veille et le rebranchement USB.
+This read-only check verifies the RGB signature, version, 109 LEDs and their unique positions. Then check red/green/blue colors in OpenRGB, the numeric keypad and ISO keys, followed by Aurora Direct mode, NKRO typing, wake from sleep and USB reconnection.
 
-Arrêter OpenRGB, Aurora et VIA avant les commandes Raw HID `redblade.py backup`, `redblade.py verify` ou `set-direct-mode.py`. Une interface partagée avec un client actif peut recevoir une réponse destinée à l'autre outil. Le script de mappage ci-dessous utilise le SDK OpenRGB et peut être exécuté lorsque son serveur est actif.
+Stop OpenRGB, Aurora and VIA before the Raw HID commands `redblade.py backup`, `redblade.py verify` or `set-direct-mode.py`. A shared interface with an active client may receive another tool's response. The mapping script below uses the OpenRGB SDK and can run while its server is active.
 
-Après apparition du clavier dans OpenRGB, établir le mappage physique explicite dans Aurora :
+Once the keyboard appears in OpenRGB, establish its explicit physical mapping in Aurora:
 
 ```powershell
-pwsh -File tools/configure-aurora-mapping.ps1        # vérifie les 109 indices réels
-pwsh -File tools/configure-aurora-mapping.ps1 -Apply # sauvegarde et écrit le mappage
+pwsh -File tools/configure-aurora-mapping.ps1        # check all 109 actual indices
+pwsh -File tools/configure-aurora-mapping.ps1 -Apply # back up and write the mapping
 ```
 
-Relancer ensuite Aurora. Le script utilise le fournisseur RGB.NET livré avec Aurora, donc le mappage ne dépend pas de la reconnaissance des noms de touches QMK dans OpenRGB. Le pavé numérique, les touches ISO et les quatre touches supplémentaires sont inclus.
+Then restart Aurora. The script uses the RGB.NET provider shipped with Aurora, so mapping does not depend on OpenRGB recognizing QMK key names. It includes the numeric keypad, ISO keys and four extra keys.
 
-Si OpenRGB est installé comme service Windows, `configure-windows.ps1` réutilise ce service et sa configuration dans `service_config`. L'application de ces réglages demande alors une console élevée ; aucun deuxième serveur n'est ajouté.
+If OpenRGB is installed as a Windows service, `configure-windows.ps1` reuses that service and its configuration in `service_config`. Applying these settings then requires an elevated console; no second server is added.
 
-Les tests C compilent le véritable gestionnaire du firmware contre une petite simulation de QMK : passage des commandes VIA, découverte, limites des buffers, toutes les positions de LED, couleurs et modes. Ils couvrent aussi la vague et son fondu vers les couleurs récentes, les quatre touches de secours, la limite exacte de 5 secondes, les requêtes qui ne doivent pas prolonger le délai, la reprise sans ancienne image, le débordement du compteur temporel et la suspension/reprise. Le workflow GitHub les exécute avec AddressSanitizer et UndefinedBehaviorSanitizer. Il ne remplace pas un test sur clavier réel.
+The C tests compile the actual firmware handler against a small QMK fixture: VIA command passthrough, discovery, buffer boundaries, all LED positions, colors and modes. They also cover the wave and its fade into recent host colors, the four fallback keys, the exact 5-second boundary, requests that must not extend the timeout, recovery without an old frame, timer wraparound and suspend/resume. The GitHub workflow runs them with AddressSanitizer and UndefinedBehaviorSanitizer. It does not replace testing on a real keyboard.
 
-## Références
+## References
 
-- [Fabricant : Red Blade Full Size](https://designedby.gg/product/red-blade-01/)
-- [Définition de carte SonixQMK](https://github.com/SonixQMK/qmk_firmware/tree/62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60/keyboards/designedbygg/redblade/rbfs)
-- [Protocole VialRGB](https://github.com/vial-kb/vial-qmk/blob/vial/quantum/vialrgb.c)
-- [Contrôleur VialRGB OpenRGB](https://github.com/CalcProgrammer1/OpenRGB/tree/master/Controllers/QMKController/QMKVialRGBController)
+- [Manufacturer: Red Blade Full Size](https://designedby.gg/product/red-blade-01/)
+- [SonixQMK board definition](https://github.com/SonixQMK/qmk_firmware/tree/62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60/keyboards/designedbygg/redblade/rbfs)
+- [VialRGB protocol](https://github.com/vial-kb/vial-qmk/blob/vial/quantum/vialrgb.c)
+- [OpenRGB VialRGB controller](https://github.com/CalcProgrammer1/OpenRGB/tree/master/Controllers/QMKController/QMKVialRGBController)
 - [Aurora](https://github.com/Aurora-RGB/Aurora)
 
-Le keymap est dérivé de celui de Dimitris Mantzouranis dans SonixQMK. Les sources ajoutées sont distribuées sous GPL-2.0-or-later ; voir `LICENSE` et les mentions des composants amont.
+The keymap is derived from Dimitris Mantzouranis's SonixQMK keymap. Added sources are distributed under GPL-2.0-or-later; see `LICENSE` and the upstream component notices.
