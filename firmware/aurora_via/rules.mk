@@ -3,5 +3,5 @@ VIA_ENABLE = yes
 CONSOLE_ENABLE = no
 COMMAND_ENABLE = no
 LTO_ENABLE = yes
-SRC += redblade_rgb.c
+SRC += redblade_rgb.c redblade_controls.c
 

@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// Host regression benchmark: actual handler, controls and QMK color code.
+// This does not measure MCU execution, USB scheduling or key-input latency.
+#include "redblade_rgb.h"
+#include "redblade_controls.h"
+#include "qmk_fixture.h"
+#include <stdio.h>
+#include <time.h>
+
+static volatile uint32_t checksum;
+
+static double frames(unsigned scenario) {
+    const unsigned iterations=50000;
+    redblade_rgb_init(true); redblade_controls_init(); now=2000;
+    if (scenario==1) for(unsigned i=0;i<8;++i) redblade_rgb_brightness_step(-1);
+    if (scenario==2) redblade_rgb_profile(RB_PROFILE_WHITE);
+    clock_t start=clock();
+    for(unsigned frame=0;frame<iterations;++frame) {
+        now+=34;
+        for(unsigned first=0;first<109;first+=9) {
+            uint8_t packet[32]={7,0x42,first,0,0};
+            packet[4]=109-first<9 ? 109-first : 9;
+            for(unsigned n=0;n<packet[4];++n) { packet[5+n*3]=frame+first+n; packet[6+n*3]=220; packet[7+n*3]=180; }
+            via_command_kb(packet,32);
+        }
+        if(scenario==3) { redblade_rgb_replay(); now+=1300; }
+        redblade_rgb_begin_frame();
+        for(unsigned first=0;first<109;first+=8) {
+            const bool indicators=redblade_controls_indicators_needed(false);
+            for(unsigned i=first;i<first+8 && i<109;++i) {
+                hsv_t hsv=redblade_rgb_color(i),status;
+                if(indicators && redblade_controls_indicator(i,false,&status)) hsv=redblade_rgb_apply_brightness(status);
+                const rgb_t c=hsv_to_rgb(hsv);
+                checksum+=c.r+c.g+c.b;
+            }
+        }
+    }
+    return ((double)(clock()-start)/CLOCKS_PER_SEC)*1e9/iterations;
+}
+
+static double key_events(bool game) {
+    const unsigned iterations=2000000;
+    redblade_controls_init();
+    if(game) { keyrecord_t toggle={.event={.key={.row=0,.col=17},.pressed=true}}; redblade_controls_process(RB_GAME,&toggle); }
+    keyrecord_t record={.event={.key={.row=3,.col=2},.pressed=true}};
+    clock_t start=clock();
+    for(unsigned i=0;i<iterations;++i) {
+        checksum+=redblade_controls_process(4,&record);
+        redblade_controls_task(false);
+    }
+    return ((double)(clock()-start)/CLOCKS_PER_SEC)*1e9/iterations;
+}
+
+int main(void) {
+    const double host=frames(0),dim=frames(1),white=frames(2),wave=frames(3);
+    const double normal=key_events(false),game=key_events(true);
+    printf("{\"kind\":\"host_native_regression\",\"firmware\":\"%u.%u.%u\",\"frame_iterations_per_scenario\":50000,"
+           "\"host_cpu_ns_per_109_led_frame\":{\"direct\":%.3f,\"dimmed\":%.3f,\"local_white\":%.3f,\"wave_handover\":%.3f},"
+           "\"host_cpu_ns_per_key_hook\":{\"game_off\":%.3f,\"game_on\":%.3f},\"checksum\":%u,"
+           "\"cpu_clock_ticks_per_second\":%lu,\"key_hook_iterations\":2000000,"
+           "\"physical_key_latency_measured\":false,\"mcu_execution_time_measured\":false}\n",
+           REDBLADE_VERSION_MAJOR,REDBLADE_VERSION_MINOR,REDBLADE_VERSION_PATCH,host,dim,white,wave,normal,game,(unsigned)checksum,(unsigned long)CLOCKS_PER_SEC);
+    return 0;
+}

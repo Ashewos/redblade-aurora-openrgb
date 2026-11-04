@@ -1,0 +1,45 @@
+"""Verify that published Fn bindings match the actual compiled keymap."""
+import json
+from pathlib import Path
+import re
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def keymap_layers(root=ROOT):
+    text = (root/'firmware/aurora_via/keymap.c').read_text(encoding='utf-8')
+    return {int(layer): [code.strip() for code in body.split(',') if code.strip()]
+            for layer, body in re.findall(r'\[(\d+)\]\s*=\s*LAYOUT_fullsize_extended_iso\((.*?)\n\s*\)', text, re.S)}
+
+
+def check(root=ROOT):
+    doc = json.loads((root/'fn-shortcuts.json').read_text(encoding='utf-8'))
+    assert doc['layer'] == 1 and doc['minimum_firmware'] == [0, 4, 0]
+    layers = keymap_layers(root)
+    assert len(layers[0]) == len(layers[1]) == 109
+    positions = [tuple(led['matrix']) for led in json.loads((root/'led-map.json').read_text(encoding='utf-8'))]
+    points=json.loads((root/'led-map.json').read_text(encoding='utf-8'))
+    fixture=re.findall(r'\{(\d+), (\d+)\}',(root/'tests/led_points.inc').read_text(encoding='utf-8'))
+    assert [(int(x),int(y)) for x,y in fixture]==[(p['x'],p['y']) for p in points], 'Benchmark LED geometry differs from the board'
+    header = (root/'firmware/aurora_via/redblade_controls.h').read_text(encoding='utf-8')
+    symbols = re.findall(r'\bRB_[A-Z_]+\b', re.search(r'enum redblade_keycodes\s*\{(.*?)\}', header, re.S).group(1))
+    codes = {name:0x7E40+i for i,name in enumerate(symbols)}
+    codes['KC_MSTP'] = 0xAD
+    expected = {pos:code for pos,code in zip(positions,layers[1]) if code != '_______'}
+    actual = {}
+    for binding in doc['bindings']:
+        pos = (binding['row'],binding['col'])
+        assert pos not in actual and pos in positions
+        assert codes[binding['symbol']] == binding['code']
+        actual[pos] = binding['symbol']
+    assert expected == actual, 'Fn mapping differs from compiled keymap'
+    assert actual[(0,17)] == 'RB_GAME' and actual[(0,18)] == 'RB_PLAY'
+    assert actual[(0,19)] == 'RB_PREV' and actual[(0,20)] == 'RB_NEXT'
+    for name,position in [('W',(2,2)),('E',(2,3)),('R',(2,4)),('F',(3,4)),('SPACE',(5,6))]:
+        index=int(re.search(r'RB_LED_'+name+r'\s*=\s*(\d+)',header).group(1))
+        assert positions[index] == position, 'Game-helper LED indices differ from the board'
+    return doc
+
+
+if __name__ == '__main__':
+    print(f'PASS: {len(check()["bindings"])} Fn bindings match firmware and all four media keys')

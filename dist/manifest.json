@@ -6,11 +6,11 @@
   "mcu": "SN32F248B",
   "led_count": 109,
   "qmk_commit": "62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60",
-  "toolchain": "arm-none-eabi-gcc 15.2.0 / qmk_toolchains a55a2b0",
+  "toolchain": "arm-none-eabi-gcc.exe (crosstool-NG 1.27.0.82_7f9d704 - qmk/qmk_toolchains @ a55a2b0) 15.2.0",
   "binary_bytes": 65536,
-  "sha256": "d21a630240e68d30d4a12fe8dd93fcdbcd2c00920e30dcc77e2ff5804b71fe12",
-  "ram_bytes_including_reserved_stacks": 7648,
-  "ram_remaining_bytes": 544,
+  "sha256": "39e201593dd75abc5a56d440d4c7892892657589ac2cd74f4028dcfc42198119",
+  "ram_bytes_including_reserved_stacks": 7700,
+  "ram_remaining_bytes": 492,
   "keyboard_usb_poll_interval_ms": 1,
   "shared_timer_clock_hz": 720896,
   "rgb_process_leds_per_task": 8,
@@ -18,7 +18,7 @@
   "via_layers": 3,
   "protocol_host_tests": "passed",
   "hardware_latency_measured": false,
-  "release": "v0.3.0",
+  "release": "v0.4.0",
   "hardware_validation": null,
   "previous_version_hardware_validation": {
     "validation": {
@@ -58,5 +58,54 @@
     ],
     "policy": "white_when_host_color_is_black_or_missing_in_direct_mode"
   },
-  "usb_state_policy": "off_unless_configured"
+  "usb_state_policy": "off_unless_configured",
+  "project": "RedBlade+",
+  "fn_bindings": 30,
+  "controls_host_tests": "passed",
+  "python_tool_tests": 6,
+  "audit": "docs/AUDIT.md",
+  "saved_preferences": {
+    "includes": [
+      "lighting profile",
+      "master brightness",
+      "lighting flags"
+    ],
+    "bytes": 4,
+    "excludes": [
+      "Game Mode",
+      "Turbo",
+      "forward hold",
+      "VIA layers",
+      "macros"
+    ],
+    "action": "Fn+F9"
+  },
+  "game_helpers": {
+    "target_rates": [
+      25,
+      50,
+      100
+    ],
+    "turbo_targets": [
+      "E",
+      "F",
+      "Space"
+    ],
+    "catch_up_bursts": false,
+    "default_target_presses_per_second": 50,
+    "forward_usage": "KC_W (QWERTY W / AZERTY Z)",
+    "default": "off",
+    "stop": [
+      "Esc",
+      "Fn+Esc",
+      "Fn+F8",
+      "USB suspend/disconnect"
+    ]
+  },
+  "bootloader_shortcut": "Fn+Shift+Esc held for 2000 ms",
+  "native_benchmark": {
+    "physical_key_latency_measured": false,
+    "sha256": "dc00fe1c7617a63068d1448c5463d7169c45bc90a58adb002a42d9b3296e6817",
+    "file": "redblade-plus-benchmark-windows.exe"
+  }
 }

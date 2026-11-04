@@ -1,0 +1,220 @@
+{
+  "minimum_firmware": [
+    0,
+    4,
+    0
+  ],
+  "layer": 1,
+  "bindings": [
+    {
+      "row": 0,
+      "col": 0,
+      "key": "ESC",
+      "symbol": "RB_BOOT",
+      "code": 32339
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "key": "F1",
+      "symbol": "RB_HOST",
+      "code": 32324
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "key": "F2",
+      "symbol": "RB_WHITE",
+      "code": 32325
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "key": "F3",
+      "symbol": "RB_RED",
+      "code": 32326
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "key": "F4",
+      "symbol": "RB_DARK",
+      "code": 32327
+    },
+    {
+      "row": 0,
+      "col": 6,
+      "key": "F5",
+      "symbol": "RB_ANIMATION",
+      "code": 32332
+    },
+    {
+      "row": 0,
+      "col": 7,
+      "key": "F6",
+      "symbol": "RB_MEDIA_FALLBACK",
+      "code": 32333
+    },
+    {
+      "row": 0,
+      "col": 8,
+      "key": "F7",
+      "symbol": "RB_IDLE_FALLBACK",
+      "code": 32334
+    },
+    {
+      "row": 0,
+      "col": 9,
+      "key": "F8",
+      "symbol": "RB_DEFAULTS",
+      "code": 32335
+    },
+    {
+      "row": 0,
+      "col": 10,
+      "key": "F9",
+      "symbol": "RB_SAVE",
+      "code": 32338
+    },
+    {
+      "row": 0,
+      "col": 16,
+      "key": "PAUS",
+      "symbol": "KC_MSTP",
+      "code": 173
+    },
+    {
+      "row": 0,
+      "col": 17,
+      "key": "CALC",
+      "symbol": "RB_GAME",
+      "code": 32320
+    },
+    {
+      "row": 0,
+      "col": 18,
+      "key": "MUTE",
+      "symbol": "RB_PLAY",
+      "code": 32321
+    },
+    {
+      "row": 0,
+      "col": 19,
+      "key": "VOLD",
+      "symbol": "RB_PREV",
+      "code": 32322
+    },
+    {
+      "row": 0,
+      "col": 20,
+      "key": "VOLU",
+      "symbol": "RB_NEXT",
+      "code": 32323
+    },
+    {
+      "row": 1,
+      "col": 13,
+      "key": "BSPC",
+      "symbol": "RB_LIGHT_TOGGLE",
+      "code": 32328
+    },
+    {
+      "row": 1,
+      "col": 16,
+      "key": "PGUP",
+      "symbol": "RB_BRIGHTER",
+      "code": 32329
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "key": "W",
+      "symbol": "RB_AUTO_W",
+      "code": 32343
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "key": "E",
+      "symbol": "RB_TURBO_E",
+      "code": 32340
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "key": "R",
+      "symbol": "RB_TURBO_RATE",
+      "code": 32344
+    },
+    {
+      "row": 2,
+      "col": 16,
+      "key": "PGDN",
+      "symbol": "RB_DIMMER",
+      "code": 32330
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "key": "F",
+      "symbol": "RB_TURBO_F",
+      "code": 32341
+    },
+    {
+      "row": 3,
+      "col": 13,
+      "key": "ENT",
+      "symbol": "RB_WAVE",
+      "code": 32331
+    },
+    {
+      "row": 4,
+      "col": 15,
+      "key": "UP",
+      "symbol": "RB_PROFILE_NEXT",
+      "code": 32336
+    },
+    {
+      "row": 5,
+      "col": 1,
+      "key": "LGUI",
+      "symbol": "RB_GAME",
+      "code": 32320
+    },
+    {
+      "row": 5,
+      "col": 6,
+      "key": "SPC",
+      "symbol": "RB_TURBO_SPACE",
+      "code": 32342
+    },
+    {
+      "row": 5,
+      "col": 12,
+      "key": "RGUI",
+      "symbol": "RB_GAME",
+      "code": 32320
+    },
+    {
+      "row": 5,
+      "col": 14,
+      "key": "LEFT",
+      "symbol": "RB_DIMMER",
+      "code": 32330
+    },
+    {
+      "row": 5,
+      "col": 15,
+      "key": "DOWN",
+      "symbol": "RB_PROFILE_PREV",
+      "code": 32337
+    },
+    {
+      "row": 5,
+      "col": 16,
+      "key": "RGHT",
+      "symbol": "RB_BRIGHTER",
+      "code": 32329
+    }
+  ]
+}

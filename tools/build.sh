@@ -8,5 +8,6 @@ git submodule update --init --depth 1 lib/chibios lib/chibios-contrib lib/printf
 qmk compile -kb designedbygg/redblade/rbfs -km aurora_via -e SKIP_GIT=yes -j "${JOBS:-4}"
 mkdir -p "$repo/dist"
 cp designedbygg_redblade_rbfs_aurora_via.bin "$repo/dist/redblade-fs-aurora-via.bin"
+python3 "$repo/tools/check_release.py" --update --elf .build/designedbygg_redblade_rbfs_aurora_via.elf
 sha256sum "$repo/dist/redblade-fs-aurora-via.bin"
 

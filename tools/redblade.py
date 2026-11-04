@@ -33,14 +33,16 @@ class Keyboard:
             fn.argtypes, fn.restype = args, result
         head = self.hid.hid_enumerate(0x320F, 0x5136)
         ptr, paths = head, []
-        while ptr:
-            dev = ptr.contents
-            if dev.usage_page == 0xFF60 and dev.usage == 0x61:
-                if dev.product != 'Redblade FS' or dev.manufacturer != 'DesignedbyGG':
-                    raise RuntimeError('Unexpected device identity; refusing access')
-                paths.append(dev.path)
-            ptr = dev.next
-        self.hid.hid_free_enumeration(head)
+        try:
+            while ptr:
+                dev = ptr.contents
+                if dev.usage_page == 0xFF60 and dev.usage == 0x61:
+                    if dev.product != 'Redblade FS' or dev.manufacturer != 'DesignedbyGG':
+                        raise RuntimeError('Unexpected device identity; refusing access')
+                    paths.append(dev.path)
+                ptr = dev.next
+        finally:
+            self.hid.hid_free_enumeration(head)
         if len(paths) != 1:
             raise RuntimeError(f'Expected one Redblade FS Raw HID interface, found {len(paths)}')
         self.handle = self.hid.hid_open_path(paths[0])
@@ -63,7 +65,7 @@ class Keyboard:
 
     def via(self, *payload):
         data = self.request(*payload)
-        if data[0] != payload[0]:
+        if data[0] != payload[0] or (payload[0] == 8 and len(payload) > 1 and data[1] != payload[1]):
             raise RuntimeError(f'Unsupported or mismatched VIA read: {payload[0]:02x}')
         return data
 
@@ -128,7 +130,7 @@ def status(kb):
         raise RuntimeError('Diagnostics require Red Blade Aurora firmware 0.2.0 or newer')
     flags = data[6]
     age = int.from_bytes(data[8:12], 'little')
-    print(json.dumps(dict(
+    result = dict(
         firmware='.'.join(map(str, data[3:6])),
         fresh_rgb_data=bool(flags & 1), boot_animation=bool(flags & 2),
         usb_suspended=bool(flags & 4), lighting_enabled=bool(flags & 8),
@@ -137,7 +139,19 @@ def status(kb):
         rgb_timeout_ms=int.from_bytes(data[12:16], 'little'),
         accepted_rgb_packets=int.from_bytes(data[16:20], 'little'),
         boot_animation_ms=int.from_bytes(data[20:24], 'little'),
-    ), indent=2))
+    )
+    if tuple(data[3:6]) >= (0, 4, 0):
+        controls = kb.request(0xFE, 0x81)
+        if controls[:3] != bytes([0xFE,0x81,1]) or controls[24:32] != b'RDBLFS01':
+            raise RuntimeError('Unexpected RedBlade+ controls diagnostics')
+        result.update(game_mode=bool(controls[6]),
+            lighting_profile={0:'OpenRGB',1:'White',2:'Red',3:'Off'}.get(controls[7],'Unknown'),
+            master_brightness=controls[8], master_brightness_percent=round(controls[8]*100/255,1),
+            startup_wave_enabled=bool(controls[9]&1), media_fallback_enabled=bool(controls[9]&2),
+            idle_white_fallback=bool(controls[9]&4), bootloader_hold_ms=int.from_bytes(controls[10:12],'little'),
+            turbo_key={8:'E',9:'F',44:'Space'}.get(controls[16]),turbo_target_presses_per_second=controls[17],
+            forward_hold=bool(controls[18]))
+    print(json.dumps(result, indent=2))
     return 0
 
 

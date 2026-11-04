@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+from check_fn_map import check as check_fn_map
 
 QMK_COMMIT = '62973ee48a976c6f7cc6d4f7b198bd48a2fdfe60'
 BASE_TIMER = '(RGB_MATRIX_HUE_STEP * RGB_MATRIX_SAT_STEP * RGB_MATRIX_VAL_STEP * RGB_MATRIX_SPD_STEP * RGB_MATRIX_LED_PROCESS_LIMIT)'
@@ -15,6 +16,7 @@ def prepare(qmk):
     if actual != QMK_COMMIT:
         raise SystemExit(f'Expected pinned SonixQMK {QMK_COMMIT}, found {actual}')
     root = Path(__file__).resolve().parents[1]
+    check_fn_map(root)
     board = qmk / 'keyboards/designedbygg/redblade/rbfs'
     definition = json.loads(re.sub(r',\s*([}\]])', r'\1', (board/'keyboard.json').read_text(encoding='utf-8')))
     positions = [tuple(x['matrix']) for x in definition['rgb_matrix']['layout']]

@@ -16,7 +16,9 @@
 
 #include QMK_KEYBOARD_H
 #include "redblade_rgb.h"
+#include "redblade_controls.h"
 #include "usb_device_state.h"
+#include "color.h"
 
 static bool rgb_ready;
 
@@ -49,13 +51,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [1] = LAYOUT_fullsize_extended_iso(
-        QK_BOOT,          _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,    _______, _______, _______, _______,
+        RB_BOOT,          RB_HOST, RB_WHITE,RB_RED,  RB_DARK, RB_ANIMATION,RB_MEDIA_FALLBACK,RB_IDLE_FALLBACK,RB_DEFAULTS,RB_SAVE, _______, _______, _______,    _______, _______, KC_MSTP,    RB_GAME, RB_PLAY, RB_PREV, RB_NEXT,
 
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,    _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,             _______, _______, _______,    _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,                                  _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,             RM_NEXT,             _______, _______, _______, _______,
-        _______, _______, _______,                            _______,                            _______, _______, _______, _______,    RM_SATU, RM_HUEU, RM_SPDU,    _______,          _______
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RB_LIGHT_TOGGLE, _______, _______, RB_BRIGHTER, _______, _______, _______, _______,
+        _______, _______, RB_AUTO_W,RB_TURBO_E,RB_TURBO_RATE,_______,_______,_______,_______,_______,_______,_______,_______,             _______, _______, RB_DIMMER,  _______, _______, _______, _______,
+        _______, _______, _______, _______, RB_TURBO_F,_______,_______,_______,_______,_______,_______,_______,_______, RB_WAVE,                                       _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,             RB_PROFILE_NEXT,    _______, _______, _______, _______,
+        _______, RB_GAME, _______,                            RB_TURBO_SPACE,                    _______, RB_GAME, _______, _______,    RB_DIMMER,RB_PROFILE_PREV,RB_BRIGHTER, _______, _______
     ),
 };
 
@@ -65,6 +67,7 @@ void keyboard_pre_init_user(void) {
 }
 
 void keyboard_post_init_user(void) {
+    redblade_controls_init();
     const bool active = usb_device_state_get_configure_state() == USB_DEVICE_STATE_CONFIGURED;
     redblade_rgb_init(active);
     rgb_ready = true;
@@ -75,13 +78,36 @@ void notify_usb_device_state_change_user(struct usb_device_state state) {
     if (!rgb_ready) return;
     const bool active = state.configure_state == USB_DEVICE_STATE_CONFIGURED;
     if (active) redblade_rgb_wake();
-    else redblade_rgb_suspend();
+    else { redblade_controls_suspend(); redblade_rgb_suspend(); }
     rgb_matrix_set_suspend_state(!active);
 }
 
 void suspend_power_down_user(void) {
+    redblade_controls_suspend();
     redblade_rgb_suspend();
     gpio_write_pin_high(LED_FN_PIN);
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    return redblade_controls_process(keycode, record);
+}
+
+void housekeeping_task_user(void) {
+    redblade_controls_task(layer_state_is(1));
+}
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    if (!redblade_rgb_output_active()) return true;
+    const bool fn_active = layer_state_is(1);
+    if (!redblade_controls_indicators_needed(fn_active)) return true;
+    for (uint8_t i = led_min; i < led_max; ++i) {
+        hsv_t color;
+        if (!redblade_controls_indicator(i, fn_active, &color)) continue;
+        if (color.v > rgb_matrix_get_val()) color.v = rgb_matrix_get_val();
+        const rgb_t rgb = hsv_to_rgb(redblade_rgb_apply_brightness(color));
+        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+    }
+    return true;
 }
 
 void suspend_wakeup_init_user(void) {

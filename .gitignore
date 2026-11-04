@@ -7,4 +7,7 @@ __pycache__/
 *.log
 via-backup*
 *backup*.json
+native-report.json
+hid-report.json
+redblade-plus-*.json
 

@@ -19,6 +19,10 @@
 #define REDBLADE_FALLBACK_BRIGHTNESS 64
 #define REDBLADE_MEDIA_BRIGHTNESS 64
 #define DYNAMIC_KEYMAP_LAYER_COUNT 3
+#define REDBLADE_VERSION_MAJOR 0
+#define REDBLADE_VERSION_MINOR 4
+#define REDBLADE_VERSION_PATCH 0
+#define REDBLADE_BOOT_HOLD_MS 2000UL
 
 
 // Host software supplies complex effects. Keep simple standalone effects

@@ -1,28 +1,10 @@
 // Compile the actual firmware protocol handler against a small QMK fixture.
 #include "redblade_rgb.h"
+#include "qmk_fixture.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
-bool via_command_kb(uint8_t *, uint8_t);
-led_config_t g_led_config;
-static uint8_t mode = RGB_MATRIX_CUSTOM_REDBLADE_DIRECT, speed, hue, saturation, value = 255;
-static bool enabled = true;
-static unsigned responses;
-static uint32_t now;
-uint32_t timer_read32(void) { return now; }
-bool rgb_matrix_is_enabled(void) { return enabled; }
-uint8_t rgb_matrix_get_mode(void) { return mode; }
-uint8_t rgb_matrix_get_speed(void) { return speed; }
-uint8_t rgb_matrix_get_hue(void) { return hue; }
-uint8_t rgb_matrix_get_sat(void) { return saturation; }
-uint8_t rgb_matrix_get_val(void) { return value; }
-void rgb_matrix_enable_noeeprom(void) { enabled = true; }
-void rgb_matrix_disable_noeeprom(void) { enabled = false; }
-void rgb_matrix_mode_noeeprom(uint8_t m) { mode = m; }
-void rgb_matrix_set_speed_noeeprom(uint8_t s) { speed = s; }
-void rgb_matrix_sethsv_noeeprom(uint8_t h, uint8_t s, uint8_t v) { hue=h; saturation=s; value=v; }
-void raw_hid_send(uint8_t *data, uint8_t length) { (void)data; assert(length==32); ++responses; }
 
 static void set_led(uint8_t index, uint8_t val) {
     uint8_t packet[32] = {7, 0x42, index, 0, 1, 17, 200, val};
@@ -86,7 +68,7 @@ static void test_lifecycle(void) {
     // Discovery, diagnostics, mode selection and malformed packets are not RGB heartbeats.
     uint8_t packet[32] = {0xFE, 0x80};
     assert(via_command_kb(packet, 32));
-    assert(packet[2] == 1 && packet[4] == 3 && packet[6] == 9);
+    assert(packet[2] == 1 && packet[4] == REDBLADE_VERSION_MINOR && packet[6] == 9);
     assert(!memcmp(packet + 24, "RDBLFS01", 8));
     memset(packet, 0, 32); packet[0] = 7; packet[1] = 0x41; packet[2] = 1; packet[7] = 255;
     assert(via_command_kb(packet, 32));
